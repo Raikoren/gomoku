@@ -10,13 +10,18 @@ private:
     sf::Sound   click;
     sf::Music   music;
     Visual      _visual_;
+    bool        mainMenu = true;
+    int         size;
 
 public:
-    Game(/* args */);
+    Game();
     ~Game();
 
     void run();
-    //void aiPlay();
-    //void clear();
+    void settingUp(sf::Event ev);
+
+    int getSize() {
+        return(size);
+    }
 };
 #endif
