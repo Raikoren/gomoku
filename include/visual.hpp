@@ -7,6 +7,7 @@
 # include <SFML/Audio.hpp>
 # include "env.hpp"
 # include "button.hpp"
+# include "board.hpp"
 
 class Visual
 {
@@ -19,7 +20,7 @@ public:
         return &_window_;
     }
 
-    void draw();
+    void draw(bool i, int s);
     void drawBoard();
     void drawTitleScreen();
     void setCase();
@@ -27,7 +28,7 @@ public:
     Button b1;
     Button b2;
     Button b3;
-    //Button b4;
+    Button b4;
 
 
 protected:

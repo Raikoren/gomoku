@@ -16,17 +16,19 @@ void Game::run() {
     {
         sf::Event ev;
         while (_visual_.getWin()->pollEvent(ev)) {
-            switch (ev.type) {
-            case sf::Event::Closed:
-            case sf::Keyboard::Escape:
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
                 _visual_.getWin()->close();
-            case sf::Event::MouseMoved:
-            case sf::Event::MouseButtonReleased:
-                if (mainMenu)
-                    settingUp(ev);
+            }
+            switch (ev.type) {
+                case sf::Event::Closed:
+                    _visual_.getWin()->close();
+                case sf::Event::MouseMoved:
+                case sf::Event::MouseButtonReleased:
+                    if (titleScreen)
+                        settingUp(ev);
             }
             _visual_.getWin()->clear();
-            _visual_.draw();
+            _visual_.draw(titleScreen, size);
             _visual_.getWin()->display();
         }
     }
@@ -68,5 +70,14 @@ void Game::settingUp(sf::Event ev) {
     }
     else if (size != 19) {
         _visual_.b3.setButtonColor(sf::Color::Green);
+    }
+    if (_visual_.b4.isTargeted(*(_visual_.getWin()))) {
+        if (ev.key.code == sf::Mouse::Left) {
+            titleScreen = false;
+        }
+        _visual_.b4.setButtonColor(sf::Color::White);
+    }
+    else {
+        _visual_.b4.setButtonColor(sf::Color::Green);
     }
 }

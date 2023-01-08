@@ -10,22 +10,29 @@ Visual::Visual() {
 	b1 = Button("9 x 9", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b2 = Button("13 x 13", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b3 = Button("19 x 19", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b4 = Button("lesgong", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	if (!f.loadFromFile("ressources/arial.ttf")) {
 		std::cout << "ERROR" << std::endl;
 	}
 	b1.setFont(f);
 	b2.setFont(f);
 	b3.setFont(f);
+	b4.setFont(f);
 	b1.setPosition({ (WIN_X / 2) - 500, 550 });
 	b2.setPosition({ (WIN_X / 2) - 100, 550 });
 	b3.setPosition({ (WIN_X / 2) + 300, 550 });
+	b4.setPosition({ (WIN_X / 2) - 100, 400 });
 
 }
 
-void Visual::draw() {
-
-	drawTitleScreen();
-	//drawBoard();
+void Visual::draw(bool i, int s) {
+	size = s;
+	if (i) {
+		drawTitleScreen();
+	}
+	else {
+		drawBoard();
+	}
 }
 
 void Visual::drawTitleScreen() {
@@ -41,6 +48,7 @@ void Visual::drawButtons() {
 	b1.drawTo(_window_);
 	b2.drawTo(_window_);
 	b3.drawTo(_window_);
+	b4.drawTo(_window_);
 }
 
 void Visual::drawBoard() {

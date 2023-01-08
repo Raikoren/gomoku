@@ -2,16 +2,17 @@
 #define GAME_HPP
 
 # include "visual.hpp"
+# include "board.hpp"
 # include <iostream>
 
-class Game/* : public [outils utile plus tard comme l'ia]*/
+class Game: public Visual
 {
 private:
     sf::Sound   click;
     sf::Music   music;
     Visual      _visual_;
-    bool        mainMenu = true;
     int         size;
+    bool        titleScreen;
 
 public:
     Game();
