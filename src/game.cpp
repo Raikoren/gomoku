@@ -77,23 +77,22 @@ void Game::buttonEvent(Button* b, sf::Event ev, int* modified, int modifier) {
 }
 
 void Game::gaming(sf::Event ev) {
-    double pad = (BOARD - (MIN_MARGIN * 2)) / (size + 1);
-    double margin = (BOARD - pad * (size + 1)) / 2;
+    double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
+    double margin = (BOARD - (pad * (size - 1))) / 2;
     int x = 0;
     int y = 0;
     bool taken;
     sf::Vector2f mouse(sf::Mouse::getPosition(*(_visual_.getWin())));
-    if (targetingBoard(ev, *(_visual_.getWin()), mouse, pad / 2)) {
-        x = (mouse.x - (WIN_X / 2 - BOARD / 2 + MIN_MARGIN + pad / 2)) / pad;
-        y = (mouse.y - (WIN_Y / 2 - BOARD / 2 + MIN_MARGIN + pad / 2)) / pad;
-        x = (x > size - 1) ? size - 1 : x;
-        y = (y > size - 1) ? size - 1 : y;
+    if (targetingBoard(ev, *(_visual_.getWin()), mouse, margin - pad / 2)) {
+        x = (mouse.x - (WIN_X / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
+        y = (mouse.y - (WIN_Y / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
+        x = (x >= size) ? size - 1 : x;
+        y = (y >= size) ? size - 1 : y;
         if (visualData.map[y * size + x] == '0') {
             visualData.previewEnable = true;
             visualData.preview.setFillColor(sf::Color(255, 0, 55, 100));
-            visualData.preview.setRadius(30);
-            visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + 7 + (pad / 2) + pad * x,
-                (WIN_Y / 2 - BOARD / 2) + margin + 7 + (pad / 2) + pad * y));
+            visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin - 7 - pad / 2 + pad * x,
+                (WIN_Y / 2 - BOARD / 2) + margin - 7 - pad / 2 + pad * y));
             if (ev.key.code == sf::Mouse::Left) {
                 memset(territory, '0', 361);
                 taking(y * size + x, visualData.map);
@@ -129,7 +128,7 @@ void Game::taking(int pos, char* map) {
             }
     }
     memset(territory, '0', 361);
-    if (pos > size && map[pos - size] == c) {
+    if (pos >= size && map[pos - size] == c) {
         territory[pos - size] = c;
         if (top = surronded(pos - size, map))
             for (int i = 0; i < size * size; i++) {
@@ -162,12 +161,12 @@ void Game::taking(int pos, char* map) {
 }
 
 bool Game::targetingBoard(sf::Event, sf::RenderWindow& w , sf::Vector2f m, double p) {
-    float bx = WIN_X / 2 - BOARD / 2 + MIN_MARGIN + p;
-    float by = WIN_Y / 2 - BOARD / 2 + MIN_MARGIN + p;
+    float bx = (WIN_X / 2 - BOARD / 2) + p;
+    float by = (WIN_Y / 2 - BOARD / 2) + p;
 
-    float bxWidth = WIN_X / 2 + BOARD / 2 - MIN_MARGIN - p;
-    float byHeight = WIN_Y / 2 + BOARD / 2 - MIN_MARGIN - p;
-
+    float bxWidth = bx + BOARD - p * 2;
+    float byHeight = by + BOARD - p * 2;
+    
     if (m.x < bxWidth && m.x > bx && m.y < byHeight && m.y > by)
         return(true);
     else
@@ -189,7 +188,7 @@ bool Game::surronded(int pos, char* map) {
             left = surronded(pos - 1, map);
         }
     }
-    if (pos > size && territory[pos - size] != territory[pos]) {
+    if (pos >= size && territory[pos - size] != territory[pos]) {
         if (map[pos - size] == '0')
             return false;
         if (map[pos - size] == territory[pos]) {

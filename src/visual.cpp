@@ -40,8 +40,8 @@ void Visual::draw(visual_data visualData) {
 	}
 	else {
 		if (wPound.getRadius() == 10) {
-			wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2 - 7);
-			bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2 - 7);
+			wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
+			bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
 		}
 		drawBoard(visualData);
 	}
@@ -70,9 +70,9 @@ void Visual::drawBoard(visual_data v) {
 	rect.setSize(sf::Vector2f(BOARD, BOARD));
 	rect.setFillColor(sf::Color(194, 110, 0));
 	_window_.draw(rect);
-	double pad = (BOARD - (MIN_MARGIN * 2)) / (size + 1);
-	double margin = (BOARD - pad * (size + 1)) / 2;
-	for (int i = 0; i <= size + 1; i++) {
+	double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
+	double margin = (BOARD - (pad * (size - 1))) / 2;
+	for (int i = 0; i < size; i++) {
 		sf::Vertex line_h[] = {
 			sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin, (WIN_Y / 2 - BOARD / 2) + margin + pad * i),
 				sf::Color::Black),
@@ -88,7 +88,7 @@ void Visual::drawBoard(visual_data v) {
 		_window_.draw(line_h, 2, sf::Lines);
 		_window_.draw(line_v, 2, sf::Lines);
 	}
-	drawPounds(v, margin + 7 + pad / 2, pad);
+	drawPounds(v, margin, pad);
 }
 
 void Visual::drawPounds(visual_data v, double margin, double pad) {
@@ -96,7 +96,8 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 	int y = 0;
 	
 	for (int i = 0; i < size * size; i++) {
-		sf::Vector2f pos((WIN_X / 2 - BOARD / 2) + margin + pad * x, (WIN_Y / 2 - BOARD / 2) + margin + pad * y);
+		sf::Vector2f pos((WIN_X / 2 - BOARD / 2) + margin + (bPound.getRadius() / 2) - 7 - pad / 2 + pad * x,
+			(WIN_Y / 2 - BOARD / 2) + margin + (bPound.getRadius() / 2) - 7 - (pad / 2) + pad * y);
 		x++;
 		if (x == size) {
 			x = 0;
@@ -115,6 +116,7 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 	}
 	if (v.previewEnable) {
 		v.preview.setRadius(bPound.getRadius());
+		v.preview.setPosition(v.preview.getPosition().x + bPound.getRadius() / 2, v.preview.getPosition().y + bPound.getRadius() / 2);
 		_window_.draw(v.preview);
 	}
 }
