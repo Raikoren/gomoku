@@ -13,8 +13,9 @@ private:
     Visual      _visual_;
     int         size;
     bool        titleScreen;
+    char        territory[361];
     visual_data visualData;
-    bool        turn = false;
+    bool        turn = true;
 
 public:
     Game();
@@ -26,6 +27,8 @@ public:
     void buttonEvent(Button* b, sf::Event ev, int* modified, int modifier);
     void gaming(sf::Event ev);
     bool targetingBoard(sf::Event, sf::RenderWindow& w, sf::Vector2f m, double p);
+    bool surronded(int pos, char* map);
+    void taking(int pos, char* map);
 
     int getSize() {
         return(size);
