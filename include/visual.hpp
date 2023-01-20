@@ -11,7 +11,7 @@
 
 struct visual_data
 {
-    bool            titleScreen;
+    bool            gameOn;
     bool            victoryScreen;
     int             size;
     char            map[361];
@@ -40,6 +40,8 @@ public:
     Button b2;
     Button b3;
     Button b4;
+    Button b5;
+    Button b6;
     sf::CircleShape bPound;
     sf::CircleShape wPound;
 

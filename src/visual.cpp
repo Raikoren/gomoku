@@ -19,6 +19,8 @@ Visual::Visual() {
 	b2 = Button("13 x 13", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b3 = Button("19 x 19", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b4 = Button("lesgong", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b5 = Button("rule \"KO\"", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b5 = Button("PASS", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	if (!f.loadFromFile("ressources/arial.ttf")) {
 		std::cout << "ERROR" << std::endl;
 	}
@@ -26,16 +28,18 @@ Visual::Visual() {
 	b2.setFont(f);
 	b3.setFont(f);
 	b4.setFont(f);
-	b1.setPosition({ (WIN_X / 2) - 500, 550 });
-	b2.setPosition({ (WIN_X / 2) - 100, 550 });
-	b3.setPosition({ (WIN_X / 2) + 300, 550 });
-	b4.setPosition({ (WIN_X / 2) - 100, 400 });
+	b5.setFont(f);
+	b1.setPosition({ (WIN_X / 2) - 500, 450 });
+	b2.setPosition({ (WIN_X / 2) - 100, 450 });
+	b3.setPosition({ (WIN_X / 2) + 300, 450 });
+	b4.setPosition({ (WIN_X / 2) - 100, 650 });
+	b5.setPosition({ (WIN_X / 2) - 100, 550 });
 
 }
 
 void Visual::draw(visual_data visualData) {
 	size = visualData.size;
-	if (visualData.titleScreen) {
+	if (!visualData.gameOn) {
 		drawTitleScreen();
 	}
 	else {
@@ -61,6 +65,7 @@ void Visual::drawButtons() {
 	b2.drawTo(_window_);
 	b3.drawTo(_window_);
 	b4.drawTo(_window_);
+	b5.drawTo(_window_);
 }
 
 void Visual::drawBoard(visual_data v) {
@@ -89,6 +94,7 @@ void Visual::drawBoard(visual_data v) {
 		_window_.draw(line_v, 2, sf::Lines);
 	}
 	drawPounds(v, margin, pad);
+	b6.drawTo(_window_);
 }
 
 void Visual::drawPounds(visual_data v, double margin, double pad) {

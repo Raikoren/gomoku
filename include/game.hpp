@@ -12,10 +12,11 @@ private:
     sf::Music   music;
     Visual      _visual_;
     int         size;
-    bool        titleScreen;
+    bool        gameOn = false;
     char        territory[361];
     visual_data visualData;
     bool        turn = true;
+    bool        ko = false;
 
 public:
     Game();
@@ -23,7 +24,7 @@ public:
 
     void run();
     void settingUp(sf::Event ev);
-    void buttonEvent(Button* b, sf::Event ev, bool* modified, bool modifier);
+    void buttonEvent(Button* b, sf::Event ev, bool* modified);
     void buttonEvent(Button* b, sf::Event ev, int* modified, int modifier);
     void gaming(sf::Event ev);
     bool targetingBoard(sf::Event, sf::RenderWindow& w, sf::Vector2f m, double p);

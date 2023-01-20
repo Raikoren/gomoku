@@ -24,14 +24,14 @@ void Game::run() {
                     _visual_.getWin()->close();
                 case sf::Event::MouseMoved:
                 case sf::Event::MouseButtonReleased:
-                    if (titleScreen)
+                    if (!gameOn)
                         settingUp(ev);
-                    else if (!titleScreen) {
+                    else if (gameOn) {
                         gaming(ev);
                     }
             }
             visualData.size = size;
-            visualData.titleScreen = titleScreen;
+            visualData.gameOn = gameOn;
             _visual_.getWin()->clear();
             _visual_.draw(visualData);
             _visual_.getWin()->display();
@@ -43,20 +43,23 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b1), ev, &size, 9);
     buttonEvent(&(_visual_.b2), ev, &size, 13);
     buttonEvent(&(_visual_.b3), ev, &size, 19);
-    buttonEvent(&(_visual_.b4), ev, &titleScreen, false);
+    buttonEvent(&(_visual_.b4), ev, &gameOn);
+    buttonEvent(&(_visual_.b5), ev, &ko);
 }
 
-void Game::buttonEvent(Button* b, sf::Event ev, bool* modified, bool modifier) {
+void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
     if (b->isTargeted(*(_visual_.getWin()))) {
         if (ev.key.code == sf::Mouse::Left) {
+            std::cout << ko << std::endl;
             b->setButtonColor(sf::Color::Red);
-            *modified = modifier;
+            *modified = !*modified;
+            std::cout << ko << std::endl;
         }
-        else if (*modified != modifier) {
+        else if (*modified == false) {
             b->setButtonColor(sf::Color::White);
         }
     }
-    else if (*modified != modifier) {
+    else if (*modified == false) {
         b->setButtonColor(sf::Color::Green);
     }
 }
