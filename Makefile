@@ -3,15 +3,17 @@ COMPILER 	= g++
 #VERSION 	= -std=c++17
 OPTIMIZE 	= -O3
 FLAGS 		= -Wall -Wextra -Werror $(VERSION) $(OPTIMIZE)
-LIBS		= -l:sfml-graphics -l:sfml-system -l:sfml-window -l:sfml-audio
+LIBS		= -L./SFML/lib -lsfml-graphics -lsfml-system -lsfml-window -lsfml-audio
 
 # Project
 NAME 		= gomoku
 INCLUDE_DIR = include
+INCLUDE_SFML_DIR = SFML/include
 SRC_DIR		= src/
 OBJECT_DIR	= obj/
 INCLUDE		= game.hpp \
-				visual.hpp\
+				visual.hpp \
+				env.hpp \
 
 SRCS 		= gomoku.cpp \
 				game.cpp \
@@ -36,9 +38,5 @@ clean:
 
 fclean: clean
 	rm -rf $(NAME)
-	rm -rf SFML
 
 re: fclean all
-
-dependency:
-	git clone https://github.com/SFML/SFML.git
