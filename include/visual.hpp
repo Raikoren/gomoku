@@ -7,7 +7,6 @@
 # include <SFML/Audio.hpp>
 # include "env.hpp"
 # include "button.hpp"
-# include "board.hpp"
 
 struct visual_data
 {

@@ -14,6 +14,7 @@ OBJECT_DIR	= obj/
 INCLUDE		= game.hpp \
 				visual.hpp \
 				env.hpp \
+				button.hpp \
 
 SRCS 		= gomoku.cpp \
 				game.cpp \

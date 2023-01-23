@@ -123,7 +123,7 @@ void Game::taking(int pos, char* map) {
     bool right = false;
     if (pos % size != 0 && map[pos - 1] == c) {
         territory[pos - 1] = c;
-        if (left = surronded(pos - 1, map))
+        if ((left = surronded(pos - 1, map)))
             for (int i = 0; i < size * size; i++) {
                 if (territory[i] != '0') {
                     map[i] = '0';
@@ -133,7 +133,7 @@ void Game::taking(int pos, char* map) {
     memset(territory, '0', 361);
     if (pos >= size && map[pos - size] == c) {
         territory[pos - size] = c;
-        if (top = surronded(pos - size, map))
+        if ((top = surronded(pos - size, map)))
             for (int i = 0; i < size * size; i++) {
                 if (territory[i] != '0') {
                     map[i] = '0';
@@ -143,7 +143,7 @@ void Game::taking(int pos, char* map) {
     memset(territory, '0', 361);
     if ((pos + 1) % size != 0 && map[pos + 1] == c) {
         territory[pos + 1] = c;
-        if (right = surronded(pos + 1, map))
+        if ((right = surronded(pos + 1, map)))
             for (int i = 0; i < size * size; i++) {
                 if (territory[i] != '0') {
                     map[i] = '0';
@@ -153,7 +153,7 @@ void Game::taking(int pos, char* map) {
     memset(territory, '0', 361);
     if (pos < size * size - size && map[pos + size] == c) {
         territory[pos + size] = c;
-        if (bottom = surronded(pos + size, map))
+        if ((bottom = surronded(pos + size, map)))
             for (int i = 0; i < size * size; i++) {
                 if (territory[i] != '0') {
                     map[i] = '0';
