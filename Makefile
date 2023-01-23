@@ -1,43 +1,43 @@
-# Compiler
-COMPILER 	= g++
-#VERSION 	= -std=c++17
-OPTIMIZE 	= -O3
-FLAGS 		= -Wall -Wextra -Werror $(VERSION) $(OPTIMIZE)
-LIBS		= -L./SFML/lib -lsfml-graphics -lsfml-system -lsfml-window -lsfml-audio
+NAME		= gomoku
+RM			= rm -rf
+MKDIR		= mkdir -p
 
-# Project
-NAME 		= gomoku
-INCLUDE_DIR = include
-INCLUDE_SFML_DIR = SFML/include
-SRC_DIR		= src/
-OBJECT_DIR	= obj/
-INCLUDE		= game.hpp \
-				visual.hpp \
-				env.hpp \
-				button.hpp \
+CXXFLAGS	+= -I./SFML/include -I./$(INC_PATH)
+CXXFLAGS	+= -Wall -Wextra -W -std=c++11
 
-SRCS 		= gomoku.cpp \
-				game.cpp \
-				visual.hpp \
-SRC			=	$(addprefix $(SRCS_DIR),$(SRCS))
-INC			=	$(addprefix $(INCLUDE_DIR)/,$(INCLUDE))
-OBJ			=	$(addprefix $(OBJECT_DIR),$(SRC:%.cpp=%.o))
+LDFLAGS		+= -L./SFML/lib
+
+LDFLAGS_GRAPHIC    = -lsfml-system -lsfml-window -lsfml-graphics -lsfml-audio
+
+SRC_PATH    = src
+SRC                =   gomoku.cpp \
+                    game.cpp \
+                    visual.cpp \
+
+OBJ_PATH    = obj
+OBJ        = $(SRC:%.cpp=$(OBJ_PATH)/%.o)
+
+INC_PATH    = include
+INC         =   env.hpp \
+                button.hpp \
+                game.hpp \
+                visual.hpp \
+
+DEP        = $(patsubst %,$(INC_PATH)/%,$(INC))
+
+$(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp $(DEP)
+	$(MKDIR) $(OBJ_PATH)
+	g++ $(CXXFLAGS) -c $< -o $@
+
+$(NAME): $(OBJ)
+	g++ $(OBJ) $(LDFLAGS) $(LDFLAGS_GRAPHIC) -o $(NAME)
 
 all: $(NAME)
 
-$(NAME): $(OBJECT_DIR) $(OBJ) $(INC)
-	$(COMPILER) $(FLAGS) -I./$(INCLUDE_DIR) -o $(NAME) $(OBJ) $(LIBS)
-
-$(OBJECT_DIR):
-	mkdir obj
-
-$(OBJECT_DIR)%.o: $(SRC_DIR)%.cpp
-	$(COMPILER) $(FLAGS) -I $(INCLUDE_DIR) -c -o $@ @<
-
 clean:
-	rm -rf obj
+	rm -rf $(OBJ_PATH)
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -f $(NAME)
 
 re: fclean all

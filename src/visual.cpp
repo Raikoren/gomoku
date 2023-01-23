@@ -52,8 +52,6 @@ void Visual::draw(visual_data visualData) {
 }
 
 void Visual::drawTitleScreen() {
-	
-	sf::Vector2u size = titleBg.getSize();
 	sf::Sprite bg(titleBg);
 	bg.setTextureRect(sf::IntRect(0, 0, WIN_X, WIN_Y));
 	_window_.draw(bg);

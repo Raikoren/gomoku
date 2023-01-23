@@ -29,6 +29,8 @@ void Game::run() {
                     else if (gameOn) {
                         gaming(ev);
                     }
+                default:
+                    continue;
             }
             visualData.size = size;
             visualData.gameOn = gameOn;
@@ -49,7 +51,7 @@ void Game::settingUp(sf::Event ev) {
 
 void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
     if (b->isTargeted(*(_visual_.getWin()))) {
-        if (ev.key.code == sf::Mouse::Left) {
+        if (ev.mouseButton.button == sf::Mouse::Left) {
             std::cout << ko << std::endl;
             b->setButtonColor(sf::Color::Red);
             *modified = !*modified;
@@ -66,7 +68,7 @@ void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
 
 void Game::buttonEvent(Button* b, sf::Event ev, int* modified, int modifier) {
     if (b->isTargeted(*(_visual_.getWin()))) {
-        if (ev.key.code == sf::Mouse::Left) {
+        if (ev.mouseButton.button == sf::Mouse::Left) {
             b->setButtonColor(sf::Color::Red);
             *modified = modifier;
         }
@@ -84,9 +86,8 @@ void Game::gaming(sf::Event ev) {
     double margin = (BOARD - (pad * (size - 1))) / 2;
     int x = 0;
     int y = 0;
-    bool taken;
     sf::Vector2f mouse(sf::Mouse::getPosition(*(_visual_.getWin())));
-    if (targetingBoard(ev, *(_visual_.getWin()), mouse, margin - pad / 2)) {
+    if (targetingBoard(ev, mouse, margin - pad / 2)) {
         x = (mouse.x - (WIN_X / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         y = (mouse.y - (WIN_Y / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         x = (x >= size) ? size - 1 : x;
@@ -96,7 +97,7 @@ void Game::gaming(sf::Event ev) {
             visualData.preview.setFillColor(sf::Color(255, 0, 55, 100));
             visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin - 7 - pad / 2 + pad * x,
                 (WIN_Y / 2 - BOARD / 2) + margin - 7 - pad / 2 + pad * y));
-            if (ev.key.code == sf::Mouse::Left) {
+            if (ev.mouseButton.button == sf::Mouse::Left) {
                 memset(territory, '0', 361);
                 taking(y * size + x, visualData.map);
                 if (!surronded(y * size + x, visualData.map)) {
@@ -163,7 +164,7 @@ void Game::taking(int pos, char* map) {
     map[pos] = '0';
 }
 
-bool Game::targetingBoard(sf::Event, sf::RenderWindow& w , sf::Vector2f m, double p) {
+bool Game::targetingBoard(sf::Event, sf::Vector2f m, double p) {
     float bx = (WIN_X / 2 - BOARD / 2) + p;
     float by = (WIN_Y / 2 - BOARD / 2) + p;
 
