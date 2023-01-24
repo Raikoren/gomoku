@@ -10,12 +10,17 @@
 
 struct visual_data
 {
-    bool            gameOn;
-    bool            victoryScreen;
+    bool            gameOn = false;
+    bool            endGame = false;
+    bool            scoreState = false;
+    bool            victoryScreen = false;
     int             size;
     char            map[361];
+    char            result[361];
     sf::CircleShape preview;
     bool            previewEnable = false;
+    int             bScore = 0;
+    int             wScore = 0;
 };
 
 class Visual
@@ -41,8 +46,12 @@ public:
     Button b4;
     Button b5;
     Button b6;
+    Button b7;
+    Button b8;
+    Button b9;
     sf::CircleShape bPound;
     sf::CircleShape wPound;
+    sf::CircleShape territory;
 
 
 protected:

@@ -4,5 +4,7 @@ x64/
 gomoku.vcxproj
 gomoku.vcxproj.user
 gomoku.vcxproj.filters
+.vs
+*.sln
 
 SFML

@@ -30,7 +30,7 @@ void Game::run() {
                         gaming(ev);
                     }
                 default:
-                    continue;
+                    break;
             }
             visualData.size = size;
             visualData.gameOn = gameOn;
@@ -47,15 +47,14 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b3), ev, &size, 19);
     buttonEvent(&(_visual_.b4), ev, &gameOn);
     buttonEvent(&(_visual_.b5), ev, &ko);
+    visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
 }
 
 void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
     if (b->isTargeted(*(_visual_.getWin()))) {
         if (ev.mouseButton.button == sf::Mouse::Left) {
-            std::cout << ko << std::endl;
             b->setButtonColor(sf::Color::Red);
             *modified = !*modified;
-            std::cout << ko << std::endl;
         }
         else if (*modified == false) {
             b->setButtonColor(sf::Color::White);
@@ -87,16 +86,16 @@ void Game::gaming(sf::Event ev) {
     int x = 0;
     int y = 0;
     sf::Vector2f mouse(sf::Mouse::getPosition(*(_visual_.getWin())));
-    if (targetingBoard(ev, mouse, margin - pad / 2)) {
+    if (!visualData.endGame && !visualData.scoreState && targetingBoard(ev, mouse, margin - pad / 2)) {
         x = (mouse.x - (WIN_X / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         y = (mouse.y - (WIN_Y / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         x = (x >= size) ? size - 1 : x;
         y = (y >= size) ? size - 1 : y;
         if (visualData.map[y * size + x] == '0') {
-            visualData.previewEnable = true;
+            visualData.previewEnable = previewToggle ? true : false;
             visualData.preview.setFillColor(sf::Color(255, 0, 55, 100));
-            visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin - 7 - pad / 2 + pad * x,
-                (WIN_Y / 2 - BOARD / 2) + margin - 7 - pad / 2 + pad * y));
+            visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * x - visualData.preview.getRadius(),
+                (WIN_Y / 2 - BOARD / 2) + margin + pad * y - visualData.preview.getRadius()));
             if (ev.mouseButton.button == sf::Mouse::Left) {
                 memset(territory, '0', 361);
                 taking(y * size + x, visualData.map);
@@ -108,10 +107,40 @@ void Game::gaming(sf::Event ev) {
                 }
             }
         }
+        else {
+            visualData.previewEnable = false;
+        }
     }
-    else {
+    else if (visualData.endGame && ev.mouseButton.button == sf::Mouse::Left) {
+        visualData.victoryScreen = true;
+    }
+    else if (!visualData.endGame) {
         visualData.previewEnable = false;
-    }
+        if (_visual_.b6.isTargeted(*(_visual_.getWin()))) {
+            if (ev.mouseButton.button == sf::Mouse::Left) {
+                _visual_.b6.setButtonColor(sf::Color::Red);
+                pass += 1;
+                if (pass == 1) {
+                    _visual_.b6.setText("FINISH");
+                    _visual_.b6.setButtonColor(sf::Color(255, 255, 0));
+                    turn = (turn) ? false : true;
+                }
+                else {
+                    getScore(visualData.map);
+                    visualData.endGame = true;
+                }
+            }
+            else {
+                _visual_.b6.setButtonColor((pass == 0) ? sf::Color::White : sf::Color(251,206,177));
+            }
+        }
+        buttonEvent(&(_visual_.b7), ev, &hint);
+        buttonEvent(&(_visual_.b8), ev, &previewToggle);
+        buttonEvent(&(_visual_.b9), ev, &visualData.scoreState);
+        if (visualData.scoreState) {
+            getScore(visualData.map);
+        }
+    } 
 }
 
 void Game::taking(int pos, char* map) {
@@ -217,4 +246,41 @@ bool Game::surronded(int pos, char* map) {
         }
     }
     return(left && right && top && bottom);
+}
+
+void Game::getScore(char* s) {
+    memset(visualData.result, '0', 361);
+    visualData.bScore = 0;
+    visualData.wScore = 0;
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            if (s[y * size + x] == '0') {
+                bool surroundedByBlack = false;
+                bool surroundedByWhite = false;
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        int nx = x + dx;
+                        int ny = y + dy;
+                        if (nx < 0 || nx >= size || ny < 0 || ny >= size) {
+                            continue;
+                        }
+                        if ((dx == 0 || dy == 0) && s[ny * size + nx] == '1') {
+                            surroundedByWhite = true;
+                        }
+                        if ((dx == 0 || dy == 0) && s[ny * size + nx] == '2') {
+                            surroundedByBlack = true;
+                        }
+                    }
+                }
+                if (!surroundedByBlack && surroundedByWhite) {
+                    visualData.result[y * size + x] = '1';
+                    visualData.wScore++;
+                }
+                if (!surroundedByWhite && surroundedByBlack) {
+                    visualData.result[y * size + x] = '2';
+                    visualData.bScore++;
+                }
+            }
+        }
+    }
 }

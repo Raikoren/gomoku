@@ -17,6 +17,9 @@ private:
     visual_data visualData;
     bool        turn = true;
     bool        ko = false;
+    int         pass = 0;
+    bool        hint = false;
+    bool        previewToggle = false;
 
 public:
     Game();
@@ -30,6 +33,7 @@ public:
     bool targetingBoard(sf::Event, sf::Vector2f m, double p);
     bool surronded(int pos, char* map);
     void taking(int pos, char* map);
+    void getScore(char* s);
 
     int getSize() {
         return(size);

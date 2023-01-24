@@ -4,7 +4,7 @@
 Visual::Visual() {
 	_window_.create(sf::VideoMode(WIN_X, WIN_Y), "gomoku");
 	if (!titleBg.loadFromFile("ressources/background.png")) {
-		std::cout << "Error" << std::endl;
+		std::cout << "Error while loading background.png" << std::endl;
 	}
 	titleBg.setRepeated(true);
 	wPound.setFillColor(sf::Color::White);
@@ -15,26 +15,37 @@ Visual::Visual() {
 	bPound.setOutlineThickness(3);
 	bPound.setOutlineColor(sf::Color(50, 50, 50));
 	bPound.setRadius(10);
+	territory.setRadius(5);
 	b1 = Button("9 x 9", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b2 = Button("13 x 13", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b3 = Button("19 x 19", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b4 = Button("lesgong", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b5 = Button("rule \"KO\"", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b5 = Button("PASS", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b5 = Button("rule KO", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b6 = Button("PASS", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b7 = Button("HINT", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b8 = Button("previews", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b9 = Button("show score", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	if (!f.loadFromFile("ressources/arial.ttf")) {
-		std::cout << "ERROR" << std::endl;
+		std::cout << "ERROR while loading font" << std::endl;
 	}
 	b1.setFont(f);
 	b2.setFont(f);
 	b3.setFont(f);
 	b4.setFont(f);
 	b5.setFont(f);
-	b1.setPosition({ (WIN_X / 2) - 500, 450 });
-	b2.setPosition({ (WIN_X / 2) - 100, 450 });
-	b3.setPosition({ (WIN_X / 2) + 300, 450 });
-	b4.setPosition({ (WIN_X / 2) - 100, 650 });
-	b5.setPosition({ (WIN_X / 2) - 100, 550 });
-
+	b6.setFont(f);
+	b7.setFont(f);
+	b8.setFont(f);
+	b9.setFont(f);
+	b1.setPosition({ WIN_X / 2 - 500, 450 });
+	b2.setPosition({ WIN_X / 2 - 100, 450 });
+	b3.setPosition({ WIN_X / 2 + 300, 450 });
+	b4.setPosition({ WIN_X / 2 - 100, 650 });
+	b5.setPosition({ WIN_X / 2 - 100, 550 });
+	b6.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 50 });
+	b7.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
+	b8.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 150});
+	b9.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 250});
 }
 
 void Visual::draw(visual_data visualData) {
@@ -42,12 +53,36 @@ void Visual::draw(visual_data visualData) {
 	if (!visualData.gameOn) {
 		drawTitleScreen();
 	}
-	else {
+	else if (!visualData.victoryScreen) {
 		if (wPound.getRadius() == 10) {
 			wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
 			bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
 		}
 		drawBoard(visualData);
+	}
+	else {
+		sf::Text t;
+		sf::RectangleShape r;
+		t.setFont(f);
+		t.setCharacterSize(30);
+		r.setSize(sf::Vector2f(WIN_X, WIN_Y));
+		if (visualData.bScore < visualData.wScore) {
+			r.setFillColor(sf::Color::White);
+			t.setFillColor(sf::Color::Black);
+			t.setString("BLANC GAGNED");
+		}
+		else if (visualData.bScore > visualData.wScore) {
+			r.setFillColor(sf::Color::Black);
+			t.setFillColor(sf::Color::White);
+			t.setString("NOIR GAGNED");
+		}
+		else {
+			r.setFillColor(sf::Color::Black);
+			t.setFillColor(sf::Color::White);
+			t.setString("EGALITED");
+		}
+		_window_.draw(r);
+		_window_.draw(t);
 	}
 }
 
@@ -93,6 +128,9 @@ void Visual::drawBoard(visual_data v) {
 	}
 	drawPounds(v, margin, pad);
 	b6.drawTo(_window_);
+	b7.drawTo(_window_);
+	b8.drawTo(_window_);
+	b9.drawTo(_window_);
 }
 
 void Visual::drawPounds(visual_data v, double margin, double pad) {
@@ -100,14 +138,14 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 	int y = 0;
 	
 	for (int i = 0; i < size * size; i++) {
-		sf::Vector2f pos((WIN_X / 2 - BOARD / 2) + margin + (bPound.getRadius() / 2) - 7 - pad / 2 + pad * x,
-			(WIN_Y / 2 - BOARD / 2) + margin + (bPound.getRadius() / 2) - 7 - (pad / 2) + pad * y);
+		sf::Vector2f pos((WIN_X / 2 - BOARD / 2) + margin + pad * x - bPound.getRadius(),
+			(WIN_Y / 2 - BOARD / 2) + margin + pad * y - bPound.getRadius());
 		x++;
 		if (x == size) {
 			x = 0;
 			y++;
 		}
-		if (v.map[i] == '2' || v.map[i] == '1') {
+		if (v.map[i] != '0') {
 			if (v.map[i] == '2') {
 				bPound.setPosition(pos);
 				_window_.draw(bPound);
@@ -117,10 +155,40 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 				_window_.draw(wPound);
 			}
 		}
+		if ((v.endGame || v.scoreState) && v.result[i] != '0') {
+			territory.setPosition(sf::Vector2f(pos.x + (bPound.getRadius() - 5), pos.y + (bPound.getRadius() - 5)));
+			if (v.result[i] == '2') {
+				territory.setFillColor(sf::Color::Black);
+			}
+			else if (v.result[i] == '1') {
+				territory.setFillColor(sf::Color::White);
+			}
+			_window_.draw(territory);
+		}
+	}
+	if ((v.endGame || v.scoreState)) {
+		sf::RectangleShape rb(sf::Vector2f(250, 100));
+		sf::RectangleShape rw(sf::Vector2f(250, 100));
+		sf::Text score;
+		score.setFont(f);
+		score.setCharacterSize(80);
+		score.setFillColor(sf::Color::White);
+		rb.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 - BOARD / 2)));
+		rw.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 + BOARD / 2) - 100));
+		rb.setFillColor(sf::Color(20,20,20));
+		rw.setFillColor(sf::Color(230,230,230));
+		_window_.draw(rw);
+		_window_.draw(rb);
+		score.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 200, (WIN_Y / 2 - BOARD / 2)));
+		score.setString(std::to_string(v.bScore));
+		_window_.draw(score);
+		score.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 200, (WIN_Y / 2 + BOARD / 2) - 100));
+		score.setString(std::to_string(v.wScore));
+		score.setFillColor(sf::Color::Black);
+		_window_.draw(score);
 	}
 	if (v.previewEnable) {
 		v.preview.setRadius(bPound.getRadius());
-		v.preview.setPosition(v.preview.getPosition().x + bPound.getRadius() / 2, v.preview.getPosition().y + bPound.getRadius() / 2);
 		_window_.draw(v.preview);
 	}
 }
