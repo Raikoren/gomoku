@@ -11,6 +11,7 @@
 struct visual_data
 {
     bool            gameOn = false;
+    bool            gomoku = false;
     bool            endGame = false;
     bool            scoreState = false;
     bool            victoryScreen = false;

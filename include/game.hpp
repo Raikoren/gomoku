@@ -11,15 +11,15 @@ private:
     sf::Sound   click;
     sf::Music   music;
     Visual      _visual_;
-    int         size;
-    bool        gameOn = false;
+    int         size = 9;
+    bool        gomokuOn = false;
+    bool        goOn = false;
     char        territory[361];
     visual_data visualData;
     bool        turn = true;
-    bool        ko = false;
     int         pass = 0;
     bool        hint = false;
-    bool        previewToggle = false;
+    bool        previewToggle = true;
 
 public:
     Game();
@@ -32,9 +32,11 @@ public:
     void gaming(sf::Event ev);
     bool targetingBoard(sf::Event, sf::Vector2f m, double p);
     bool surronded(int pos, char* map);
+    bool doubleThreeDetector(int pos, char* map, char p);
     void taking(int pos, char* map);
     void getScore(char* s);
-
+    bool mokuTake(int dx, int dy, int x, int y, char* m);
+    bool threeLineDetector(int dx, int dy, int x, int y, char* map);
     int getSize() {
         return(size);
     }

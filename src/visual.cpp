@@ -16,14 +16,14 @@ Visual::Visual() {
 	bPound.setOutlineColor(sf::Color(50, 50, 50));
 	bPound.setRadius(10);
 	territory.setRadius(5);
-	b1 = Button("9 x 9", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b1 = Button("9 x 9", { 200, 50 }, sf::Color::Red, sf::Color::Black);
 	b2 = Button("13 x 13", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b3 = Button("19 x 19", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b4 = Button("lesgong", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b5 = Button("rule KO", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b4 = Button("GOMOKU", { 400, 250 }, sf::Color::Green, sf::Color::Black);
+	b5 = Button("Go game", { 400, 250 }, sf::Color::Green, sf::Color::Black);
 	b6 = Button("PASS", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	b7 = Button("HINT", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b8 = Button("previews", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b8 = Button("previews", { 200, 50 }, sf::Color::Red, sf::Color::Black);
 	b9 = Button("show score", { 200, 50 }, sf::Color::Green, sf::Color::Black);
 	if (!f.loadFromFile("ressources/arial.ttf")) {
 		std::cout << "ERROR while loading font" << std::endl;
@@ -37,15 +37,15 @@ Visual::Visual() {
 	b7.setFont(f);
 	b8.setFont(f);
 	b9.setFont(f);
-	b1.setPosition({ WIN_X / 2 - 500, 450 });
-	b2.setPosition({ WIN_X / 2 - 100, 450 });
-	b3.setPosition({ WIN_X / 2 + 300, 450 });
-	b4.setPosition({ WIN_X / 2 - 100, 650 });
-	b5.setPosition({ WIN_X / 2 - 100, 550 });
+	b1.setPosition({ WIN_X / 2 - 400, 700 });
+	b2.setPosition({ WIN_X / 2 - 100, 700 });
+	b3.setPosition({ WIN_X / 2 + 200, 700 });
+	b4.setPosition({ WIN_X / 2 + 100, 200 });
+	b5.setPosition({ WIN_X / 2 - 500, 200 });
 	b6.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 50 });
 	b7.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
-	b8.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 150});
-	b9.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 250});
+	b8.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 150 });
+	b9.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
 }
 
 void Visual::draw(visual_data visualData) {
@@ -128,9 +128,11 @@ void Visual::drawBoard(visual_data v) {
 	}
 	drawPounds(v, margin, pad);
 	b6.drawTo(_window_);
-	b7.drawTo(_window_);
 	b8.drawTo(_window_);
-	b9.drawTo(_window_);
+	if (v.gomoku)
+		b7.drawTo(_window_);
+	else
+		b9.drawTo(_window_);
 }
 
 void Visual::drawPounds(visual_data v, double margin, double pad) {
@@ -155,7 +157,7 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 				_window_.draw(wPound);
 			}
 		}
-		if ((v.endGame || v.scoreState) && v.result[i] != '0') {
+		if (!v.gomoku && (v.endGame || v.scoreState) && v.result[i] != '0') {
 			territory.setPosition(sf::Vector2f(pos.x + (bPound.getRadius() - 5), pos.y + (bPound.getRadius() - 5)));
 			if (v.result[i] == '2') {
 				territory.setFillColor(sf::Color::Black);
@@ -166,7 +168,7 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 			_window_.draw(territory);
 		}
 	}
-	if ((v.endGame || v.scoreState)) {
+	if (v.endGame || v.scoreState || v.gomoku) {
 		sf::RectangleShape rb(sf::Vector2f(250, 100));
 		sf::RectangleShape rw(sf::Vector2f(250, 100));
 		sf::Text score;
@@ -186,6 +188,9 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		score.setString(std::to_string(v.wScore));
 		score.setFillColor(sf::Color::Black);
 		_window_.draw(score);
+		if (v.endGame && v.gomoku && v.bScore != 5 && v.wScore != 5) {
+			// TODO: dessiner ligne de victoire
+		}
 	}
 	if (v.previewEnable) {
 		v.preview.setRadius(bPound.getRadius());

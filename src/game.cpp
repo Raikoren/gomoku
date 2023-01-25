@@ -24,16 +24,19 @@ void Game::run() {
                     _visual_.getWin()->close();
                 case sf::Event::MouseMoved:
                 case sf::Event::MouseButtonReleased:
-                    if (!gameOn)
+                    if (!goOn && !gomokuOn)
                         settingUp(ev);
-                    else if (gameOn) {
+                    else {
                         gaming(ev);
                     }
                 default:
                     break;
             }
             visualData.size = size;
-            visualData.gameOn = gameOn;
+            if (goOn || gomokuOn) {
+                visualData.gameOn = true;
+                visualData.gomoku = (gomokuOn) ? true : false;
+            }
             _visual_.getWin()->clear();
             _visual_.draw(visualData);
             _visual_.getWin()->display();
@@ -45,8 +48,8 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b1), ev, &size, 9);
     buttonEvent(&(_visual_.b2), ev, &size, 13);
     buttonEvent(&(_visual_.b3), ev, &size, 19);
-    buttonEvent(&(_visual_.b4), ev, &gameOn);
-    buttonEvent(&(_visual_.b5), ev, &ko);
+    buttonEvent(&(_visual_.b4), ev, &gomokuOn);
+    buttonEvent(&(_visual_.b5), ev, &goOn);
     visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
 }
 
@@ -97,13 +100,22 @@ void Game::gaming(sf::Event ev) {
             visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * x - visualData.preview.getRadius(),
                 (WIN_Y / 2 - BOARD / 2) + margin + pad * y - visualData.preview.getRadius()));
             if (ev.mouseButton.button == sf::Mouse::Left) {
-                memset(territory, '0', 361);
-                taking(y * size + x, visualData.map);
-                if (!surronded(y * size + x, visualData.map)) {
+                if (goOn) {
                     memset(territory, '0', 361);
-                    visualData.map[y * size + x] = (turn) ? '2' : '1';
-                    visualData.previewEnable = false;
-                    turn = (turn) ? false : true;
+                    taking(y * size + x, visualData.map);
+                    if (!surronded(y * size + x, visualData.map)) {
+                        memset(territory, '0', 361);
+                        visualData.map[y * size + x] = (turn) ? '2' : '1';
+                        visualData.previewEnable = false;
+                        turn = (turn) ? false : true;
+                    }
+                }
+                else if (gomokuOn) {
+                    if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) {
+                        visualData.previewEnable = false;
+                        //TODO: check victory + check si ennemy a 4 pts et peut prendre ou si les pieces sont prenable
+                        turn = (turn) ? false : true;
+                    }
                 }
             }
         }
@@ -204,6 +216,92 @@ bool Game::targetingBoard(sf::Event, sf::Vector2f m, double p) {
         return(true);
     else
         return(false);
+}
+
+bool Game::doubleThreeDetector(int pos, char* map, char p) {
+    map[pos] = p;
+    char e = (p == '1') ? '2' : '1';
+    bool threeLine = false;
+    bool forbiden = false;
+    bool took = false;
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            int nx = pos % size + dx;
+            int ny = pos / size + dy;
+            if (nx < 0 || nx >= size || ny < 0 || ny >= size) {
+                continue;
+            }
+            if (map[ny * size + nx] == e && mokuTake(dx, dy, pos % size, pos / size, map)) {
+                map[ny * size + nx] = '0';
+                map[ny * size + size * dy + nx + dx] = '0';
+                visualData.bScore += (turn) ? 1 : 0;
+                visualData.wScore += (turn) ? 0 : 1;
+                if (visualData.bScore == 5 || visualData.wScore == 5)
+                    visualData.endGame = true;
+                took = true;
+            }
+            if (!took && threeLineDetector(dx, dy, pos % size, pos / size, map)) {
+                if (threeLine)
+                    forbiden = true;
+                else
+                    threeLine = true;
+            }
+        }
+    }
+    map[pos] = (forbiden && !took) ? '0' : p;
+    return(forbiden && !took);
+}
+
+bool Game::mokuTake(int dx, int dy, int x, int y, char* m) {
+    if ((x + dx * 3 >= 0 && x + dx * 3 < size && y + dy * 3 >= 0 && y + dy * 3< size)
+        && m[(y * size + ((dy * size) * 2)) + x + (dx * 2)] != m[y * size + x]
+        && m[(y * size + ((dy * size) * 2)) + x + (dx * 2)] != '0'
+        && m[(y * size + ((dy * size) * 3)) + x + (dx * 3)] == m[y * size + x]) {
+        return (true);
+    }
+    return(false);
+}
+
+bool Game::threeLineDetector(int dx, int dy, int x, int y, char* map) {
+    char    p = map[y * size + x];
+    char    e = (p == '1') ? '2' : '1';
+    int     hole = 0;
+    int     ally = 0;
+    bool    ennemy = false;
+    int     epos;
+
+    for (int i = 1; i < 5; i++) {
+        if ((x + dx * i < 0 && x + dx * i >= size && y + dy * i < 0 && y + dy * i >= size)
+        || map[(y * size + ((dy * size) * i)) + x + (dx * i)] == e) {
+            ennemy = true;
+            epos = i - 1;
+            break;
+        }
+        if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == '0') {
+            hole++;
+            if (ally == 2 || hole == 2)
+                break;
+        }
+        if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == p) {
+            if (ally == 2)
+                return false;
+            ally++;
+        }
+    }
+    if (ennemy && map[(y * size + ((dy * size) * epos)) + x + (dx * epos)] == p)
+        return(false);
+    dy *= -1;
+    dx *= -1;
+    if (ally == 2) {
+        if (map[(y * size + (dy * size)) + x + dx] == '0')
+            return(true);
+        return (false);
+    }
+    if (ally == 1 && map[(y * size + (dy * size)) + x + dx] == p && map[(y * size + ((dy * size) * 2)) + x + (dx * 2)] == '0') {
+        if (hole == 2 || (hole == 1 && (dy == -1 || (dy == 0 && dx == -1))))
+            return(true);
+    }
+    return false;
 }
 
 bool Game::surronded(int pos, char* map) {
