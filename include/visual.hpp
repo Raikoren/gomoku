@@ -22,7 +22,7 @@ struct visual_data
     bool                previewEnable = false;
     int                 bScore = 0;
     int                 wScore = 0;
-    sf::ConvexShape     line;
+    sf::Vertex          line[2];
 };
 
 class Visual

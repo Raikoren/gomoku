@@ -173,8 +173,11 @@ void Game::mokuVictory(int x, int y) {
                 break;
             }
         }
-        if (lastTurn)
+        if (lastTurn) {
             visualData.endGame = true;
+            visualData.wScore = (turn) ? 999 : 0;
+            visualData.bScore = (turn) ? 0 : 999;
+        }
     }
     if (fivePound(-1, -1, x, y, p))
         moku[2] = 1;
@@ -193,50 +196,11 @@ void Game::mokuVictory(int x, int y) {
     else
         return;
     visualData.endGame = true;
-    visualData.line.setFillColor(sf::Color::Green);
-    visualData.line.setPointCount(4);
-    sf::Vector2f p1;
-    sf::Vector2f p2;
-    sf::Vector2f p3;
-    sf::Vector2f p4;
-    double k = 2;
-    if (dy == 0) {
-        p1 = {
-            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0],
-            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] - k};
-        p2 = {
-            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0],
-            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] + k};
-    }
-    else {
-        p1 = {
-            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] - k,
-            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] };
-        p2 = {
-            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] + k,
-            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] };
-    }
-    p3 = { p1.x + pad * 4, p1.y };
-    p4 = { p2.x + pad * 4, p2.y };
-    if (dy == -1) {
-        if (dx == 0) {
-            p3 = { p1.x, p1.y + pad * 4 };
-            p4 = { p2.x, p2.y + pad * 4 };
-        }
-        else if (dx == -1) {
-            p3 = { p1.x + pad * 4, p1.y + pad * 4 };
-            p4 = { p2.x + pad * 4, p2.y + pad * 4 };
-        }
-        else {
-            p3 = { p1.x - pad * 4, p1.y + pad * 4 };
-            p4 = { p2.x - pad * 4, p2.y + pad * 4 };
-        }
-
-    }
-    visualData.line.setPoint(1, p1);
-    visualData.line.setPoint(2, p2);
-    visualData.line.setPoint(3, p3);
-    visualData.line.setPoint(4, p4);
+    visualData.line[0] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * moku[0], (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1]),
+        sf::Color::Green);
+    std::cout << "pad= " << pad << " calcul: " << ((pad * 4) * (dx * -1)) << std::endl;
+    visualData.line[1] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] + ((pad * 4) * (dx * -1)), (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] + ((pad * 4) * (dy * -1))),
+        sf::Color::Green);
     if ((turn && visualData.bScore < 4) || (!turn && visualData.wScore < 4)) {
         for (int i = 0; i <= 4; i++) {
             wLine[i] = moku[0] - (dx * i);
@@ -265,7 +229,6 @@ void Game::mokuVictory(int x, int y) {
 
 bool Game::vulnerable(int x, int y, char p) {
     char e = (p == '1') ? '2' : '1';
-    std::cout << "x: " << x << " y: " << y << "\n";
     if ((x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == e && visualData.map[(y + 1) * size + x + 1] == '0')
         || (x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == '0' && visualData.map[(y + 1) * size + x + 1] == e)
         || (x - 1 >= 0 && y - 1 >= 0 && x + 2 < size && y + 2 < size && visualData.map[(y + 1) * size + x + 1] == p && visualData.map[(y + 2) * size + x + 2] == e && visualData.map[(y - 1) * size + x - 1] == '0') 

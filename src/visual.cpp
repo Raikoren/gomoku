@@ -193,7 +193,7 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		score.setFillColor(sf::Color::Black);
 		_window_.draw(score);
 		if (v.endGame && v.gomoku && v.bScore != 5 && v.wScore != 5) {
-			_window_.draw(v.line);
+			_window_.draw(v.line, 2, sf::Lines);
 		}
 	}
 	if (v.previewEnable) {
