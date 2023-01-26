@@ -179,6 +179,10 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		rw.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 + BOARD / 2) - 100));
 		rb.setFillColor(sf::Color(20,20,20));
 		rw.setFillColor(sf::Color(230,230,230));
+		if (v.endGame && v.gomoku && v.bScore == 5)
+			rb.setFillColor(sf::Color::Green);
+		if (v.endGame && v.gomoku && v.wScore == 5)
+			rw.setFillColor(sf::Color::Green);
 		_window_.draw(rw);
 		_window_.draw(rb);
 		score.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 200, (WIN_Y / 2 - BOARD / 2)));
@@ -189,7 +193,7 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		score.setFillColor(sf::Color::Black);
 		_window_.draw(score);
 		if (v.endGame && v.gomoku && v.bScore != 5 && v.wScore != 5) {
-			// TODO: dessiner ligne de victoire
+			_window_.draw(v.line);
 		}
 	}
 	if (v.previewEnable) {

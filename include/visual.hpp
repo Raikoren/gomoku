@@ -10,18 +10,19 @@
 
 struct visual_data
 {
-    bool            gameOn = false;
-    bool            gomoku = false;
-    bool            endGame = false;
-    bool            scoreState = false;
-    bool            victoryScreen = false;
-    int             size;
-    char            map[361];
-    char            result[361];
-    sf::CircleShape preview;
-    bool            previewEnable = false;
-    int             bScore = 0;
-    int             wScore = 0;
+    bool                gameOn = false;
+    bool                gomoku = false;
+    bool                endGame = false;
+    bool                scoreState = false;
+    bool                victoryScreen = false;
+    int                 size;
+    char                map[361];
+    char                result[361];
+    sf::CircleShape     preview;
+    bool                previewEnable = false;
+    int                 bScore = 0;
+    int                 wScore = 0;
+    sf::ConvexShape     line;
 };
 
 class Visual

@@ -113,7 +113,7 @@ void Game::gaming(sf::Event ev) {
                 else if (gomokuOn) {
                     if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) {
                         visualData.previewEnable = false;
-                        //TODO: check victory + check si ennemy a 4 pts et peut prendre ou si les pieces sont prenable
+                        mokuVictory(x, y);
                         turn = (turn) ? false : true;
                     }
                 }
@@ -153,6 +153,167 @@ void Game::gaming(sf::Event ev) {
             getScore(visualData.map);
         }
     } 
+}
+
+void Game::mokuVictory(int x, int y) {
+    char p = visualData.map[y * size + x];
+    int dx = -1;
+    int dy = -1;
+    double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
+    double margin = (BOARD - (pad * (size - 1))) / 2;
+
+    if (visualData.bScore == 5 || visualData.wScore == 5) {
+        visualData.endGame = true;
+        return;
+    }
+    if (lastTurn) {
+        for (int i = 0; i <= 4; i++) {
+            if (visualData.map[wLine[i + 5] * size + wLine[i]] == '0') {
+                lastTurn = false;
+                break;
+            }
+        }
+        if (lastTurn)
+            visualData.endGame = true;
+    }
+    if (fivePound(-1, -1, x, y, p))
+        moku[2] = 1;
+    else if (fivePound(0, -1, x, y, p)) {
+        moku[2] = 2;
+        dx = 0;
+    }
+    else if (fivePound(1, -1, x, y, p)) {
+        moku[2] = 3;
+        dx = 1;
+    }
+    else if (fivePound(-1, 0, x, y, p)) {
+        moku[2] = 4;
+        dy = 0;
+    }
+    else
+        return;
+    visualData.endGame = true;
+    visualData.line.setFillColor(sf::Color::Green);
+    visualData.line.setPointCount(4);
+    sf::Vector2f p1;
+    sf::Vector2f p2;
+    sf::Vector2f p3;
+    sf::Vector2f p4;
+    double k = 2;
+    if (dy == 0) {
+        p1 = {
+            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0],
+            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] - k};
+        p2 = {
+            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0],
+            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] + k};
+    }
+    else {
+        p1 = {
+            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] - k,
+            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] };
+        p2 = {
+            (WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] + k,
+            (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] };
+    }
+    p3 = { p1.x + pad * 4, p1.y };
+    p4 = { p2.x + pad * 4, p2.y };
+    if (dy == -1) {
+        if (dx == 0) {
+            p3 = { p1.x, p1.y + pad * 4 };
+            p4 = { p2.x, p2.y + pad * 4 };
+        }
+        else if (dx == -1) {
+            p3 = { p1.x + pad * 4, p1.y + pad * 4 };
+            p4 = { p2.x + pad * 4, p2.y + pad * 4 };
+        }
+        else {
+            p3 = { p1.x - pad * 4, p1.y + pad * 4 };
+            p4 = { p2.x - pad * 4, p2.y + pad * 4 };
+        }
+
+    }
+    visualData.line.setPoint(1, p1);
+    visualData.line.setPoint(2, p2);
+    visualData.line.setPoint(3, p3);
+    visualData.line.setPoint(4, p4);
+    if ((turn && visualData.bScore < 4) || (!turn && visualData.wScore < 4)) {
+        for (int i = 0; i <= 4; i++) {
+            wLine[i] = moku[0] - (dx * i);
+            wLine[i + 5] = moku[1] - (dy * i);
+            if (vulnerable(moku[0] - (dx * i), moku[1] - (dy * i), p)) {
+                lastTurn = true;
+                visualData.endGame = false;
+            }
+        }
+    }
+    else if ((turn && visualData.bScore == 4) || (!turn && visualData.wScore == 4))
+        for (int i = 0; i < size * size; i++) {
+            if (visualData.map[i] == p && vulnerable(i % size, i / size, p)) {
+                lastTurn = true;
+                visualData.endGame = false;
+            }
+        }
+    if (visualData.endGame) {
+        visualData.bScore = (turn) ? 999 : 0;
+        visualData.wScore = (turn) ? 0 : 999;
+    }
+}
+
+// Il est tres tard donc pas de jugement svp
+// TODO: rendre ca clean parce que ca fait 1h que je passe et repasse sur cette merde et j'ai honte de zinzin
+
+bool Game::vulnerable(int x, int y, char p) {
+    char e = (p == '1') ? '2' : '1';
+    std::cout << "x: " << x << " y: " << y << "\n";
+    if ((x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == e && visualData.map[(y + 1) * size + x + 1] == '0')
+        || (x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == '0' && visualData.map[(y + 1) * size + x + 1] == e)
+        || (x - 1 >= 0 && y - 1 >= 0 && x + 2 < size && y + 2 < size && visualData.map[(y + 1) * size + x + 1] == p && visualData.map[(y + 2) * size + x + 2] == e && visualData.map[(y - 1) * size + x - 1] == '0') 
+        || (x - 1 >= 0 && y - 1 >= 0 && x + 2 < size && y + 2 < size && visualData.map[(y + 1) * size + x + 1] == p && visualData.map[(y + 2) * size + x + 2] == '0' && visualData.map[(y - 1) * size + x - 1] == e)
+        || (x - 1 >= 0 && y - 2 >= 0 && x + 2 < size && y + 1 < size && visualData.map[(y - 1) * size + x + 1] == p && visualData.map[(y - 2) * size + x + 2] == e && visualData.map[(y + 1) * size + x - 1] == '0')
+        || (x - 1 >= 0 && y - 2 >= 0 && x + 2 < size && y + 1 < size && visualData.map[(y - 1) * size + x + 1] == p && visualData.map[(y - 2) * size + x + 2] == '0' && visualData.map[(y + 1) * size + x - 1] == e)
+        || (x - 2 >= 0 && y - 1 >= 0 && x + 1 < size && y + 2 < size && visualData.map[(y + 1) * size + x - 1] == p && visualData.map[(y + 2) * size + x - 2] == e && visualData.map[(y + 1) * size + x + 1] == '0')
+        || (x - 2 >= 0 && y - 1 >= 0 && x + 1 < size && y + 2 < size && visualData.map[(y + 1) * size + x - 1] == p && visualData.map[(y + 2) * size + x - 2] == '0' && visualData.map[(y + 1) * size + x + 1] == e)
+        || (y + 2 < size && y - 1 >= 0 && visualData.map[(y + 1) * size + x] == p && visualData.map[(y + 2) * size + x] == '0' && visualData.map[(y - 1) * size + x] == e)
+        || (y + 2 < size && y - 1 >= 0 && visualData.map[(y + 1) * size + x] == p && visualData.map[(y + 2) * size + x] == e && visualData.map[(y - 1) * size + x] == '0')
+        || (y + 1 < size && y - 2 >= 0 && visualData.map[(y - 1) * size + x] == p && visualData.map[(y - 2) * size + x] == '0' && visualData.map[(y + 1) * size + x] == e)
+        || (y + 1 < size && y - 2 >= 0 && visualData.map[(y - 1) * size + x] == p && visualData.map[(y - 2) * size + x] == e && visualData.map[(y + 1) * size + x] == '0')
+        || (x + 2 < size && x - 1 >= 0 && visualData.map[y * size + x + 1] == p && visualData.map[y * size + x + 2] == '0' && visualData.map[y * size + x - 1] == e)
+        || (x + 2 < size && x - 1 >= 0 && visualData.map[y * size + x + 1] == p && visualData.map[y * size + x + 2] == e && visualData.map[y * size + x - 1] == '0')
+        || (x + 1 < size && x - 2 >= 0 && visualData.map[y * size + x - 1] == p && visualData.map[y * size + x - 2] == '0' && visualData.map[y * size + x + 1] == e)
+        || (x + 1 < size && x - 2 >= 0 && visualData.map[y * size + x - 1] == p && visualData.map[y * size + x - 2] == e && visualData.map[y * size + x + 1] == '0')
+        )
+        return true;
+    return(false);
+}
+
+bool Game::fivePound(int dx, int dy, int x, int y, char p) {
+    int nx = x;
+    int ny = y;
+    int i = 0;
+    int j = 1;
+    int hl[2];
+    while (nx >= 0 && nx < size && ny >= 0 && ny < size && visualData.map[ny * size + nx] == p && i < 5) {
+        hl[0] = nx;
+        hl[1] = ny;
+        nx += dx;
+        ny += dy;
+        i++;
+    }
+    nx = x - dx;
+    ny = y - dy;
+    while (nx >= 0 && nx < size && ny >= 0 && ny < size && visualData.map[ny * size + nx] == p && i < 5) {
+        nx -= dx;
+        ny -= dy;
+        i++;
+        j++;
+    }
+    if (i == 5) {
+        moku[0] = hl[0];
+        moku[1] = hl[1];
+        return(true);
+    }
+    return(false);
 }
 
 void Game::taking(int pos, char* map) {
