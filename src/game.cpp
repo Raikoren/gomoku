@@ -198,7 +198,6 @@ void Game::mokuVictory(int x, int y) {
     visualData.endGame = true;
     visualData.line[0] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * moku[0], (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1]),
         sf::Color::Green);
-    std::cout << "pad= " << pad << " calcul: " << ((pad * 4) * (dx * -1)) << std::endl;
     visualData.line[1] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] + ((pad * 4) * (dx * -1)), (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] + ((pad * 4) * (dy * -1))),
         sf::Color::Green);
     if ((turn && visualData.bScore < 4) || (!turn && visualData.wScore < 4)) {
