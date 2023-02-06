@@ -48,38 +48,52 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b1), ev, &size, 9);
     buttonEvent(&(_visual_.b2), ev, &size, 13);
     buttonEvent(&(_visual_.b3), ev, &size, 19);
-    buttonEvent(&(_visual_.b4), ev, &gomokuOn);
-    buttonEvent(&(_visual_.b5), ev, &goOn);
-    visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
+    if (_visual_.b4.isTargeted(*(_visual_.getWin()))) {
+        _visual_.b4.setButtonTexture(_visual_.getT7());
+        gomokuOn = (ev.mouseButton.button == sf::Mouse::Left) ? true : false;
+    }
+    else
+        _visual_.b4.setButtonTexture(_visual_.getT6());
+    if (_visual_.b5.isTargeted(*(_visual_.getWin()))) {
+        _visual_.b5.setButtonTexture(_visual_.getT5());
+        goOn = (ev.mouseButton.button == sf::Mouse::Left) ? true : false;
+    }
+    else
+        _visual_.b5.setButtonTexture(_visual_.getT4());
+    if (gomokuOn || goOn) {
+        std::cout << size << std::endl;
+        _visual_.setGoban(size);
+        visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
+    }
 }
 
 void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
     if (b->isTargeted(*(_visual_.getWin()))) {
         if (ev.mouseButton.button == sf::Mouse::Left) {
-            b->setButtonColor(sf::Color::Red);
+            b->setButtonTexture(_visual_.getT3());
             *modified = !*modified;
         }
         else if (*modified == false) {
-            b->setButtonColor(sf::Color::White);
+            b->setButtonTexture(_visual_.getT2());
         }
     }
     else if (*modified == false) {
-        b->setButtonColor(sf::Color::Green);
+        b->setButtonTexture(_visual_.getT1());
     }
 }
 
 void Game::buttonEvent(Button* b, sf::Event ev, int* modified, int modifier) {
     if (b->isTargeted(*(_visual_.getWin()))) {
         if (ev.mouseButton.button == sf::Mouse::Left) {
-            b->setButtonColor(sf::Color::Red);
+            b->setButtonTexture(_visual_.getT3());
             *modified = modifier;
         }
         else if (*modified != modifier) {
-            b->setButtonColor(sf::Color::White);
+            b->setButtonTexture(_visual_.getT2());
         }
     }
     else if (*modified != modifier) {
-        b->setButtonColor(sf::Color::Green);
+        b->setButtonTexture(_visual_.getT1());
     }
 }
 
@@ -130,11 +144,11 @@ void Game::gaming(sf::Event ev) {
         visualData.previewEnable = false;
         if (_visual_.b6.isTargeted(*(_visual_.getWin()))) {
             if (ev.mouseButton.button == sf::Mouse::Left) {
-                _visual_.b6.setButtonColor(sf::Color::Red);
+                _visual_.b6.setButtonTexture(_visual_.getT3());
                 pass += 1;
                 if (pass == 1) {
                     _visual_.b6.setText("FINISH");
-                    _visual_.b6.setButtonColor(sf::Color(255, 255, 0));
+                    _visual_.b6.setButtonTexture(_visual_.getT1());
                     turn = (turn) ? false : true;
                 }
                 else {
@@ -143,7 +157,7 @@ void Game::gaming(sf::Event ev) {
                 }
             }
             else {
-                _visual_.b6.setButtonColor((pass == 0) ? sf::Color::White : sf::Color(251,206,177));
+                _visual_.b6.setButtonTexture(_visual_.getT2());
             }
         }
         buttonEvent(&(_visual_.b7), ev, &hint);

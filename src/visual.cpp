@@ -6,6 +6,27 @@ Visual::Visual() {
 	if (!titleBg.loadFromFile("ressources/background.png")) {
 		std::cout << "Error while loading background.png" << std::endl;
 	}
+	if (!sbTextureI.loadFromFile("ressources/go_button_small_idle.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!sbTextureM.loadFromFile("ressources/go_button_small_mouseover.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!sbTextureC.loadFromFile("ressources/go_button_small_selected.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!goTextI.loadFromFile("ressources/gogame_idle.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!goTextM.loadFromFile("ressources/gogame_mouseover.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!mokuTextI.loadFromFile("ressources/gomoku_idle.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!mokuTextM.loadFromFile("ressources/gomoku_mouseover.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
 	titleBg.setRepeated(true);
 	wPound.setFillColor(sf::Color::White);
 	wPound.setOutlineThickness(3);
@@ -16,27 +37,36 @@ Visual::Visual() {
 	bPound.setOutlineColor(sf::Color(50, 50, 50));
 	bPound.setRadius(10);
 	territory.setRadius(5);
-	b1 = Button("9 x 9", { 200, 50 }, sf::Color::Red, sf::Color::Black);
-	b2 = Button("13 x 13", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b3 = Button("19 x 19", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b4 = Button("GOMOKU", { 400, 250 }, sf::Color::Green, sf::Color::Black);
-	b5 = Button("Go game", { 400, 250 }, sf::Color::Green, sf::Color::Black);
-	b6 = Button("PASS", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b7 = Button("HINT", { 200, 50 }, sf::Color::Green, sf::Color::Black);
-	b8 = Button("previews", { 200, 50 }, sf::Color::Red, sf::Color::Black);
-	b9 = Button("show score", { 200, 50 }, sf::Color::Green, sf::Color::Black);
+	b1 = Button("9 x 9", { 200, 55 }, sf::Color::Black);
+	b2 = Button("13 x 13", { 200, 55 }, sf::Color::Black);
+	b3 = Button("19 x 19", { 200, 55 }, sf::Color::Black);
+	b4 = Button("", { 400, 250 }, sf::Color::Black);
+	b5 = Button("", { 400, 250 }, sf::Color::Black);
+	b6 = Button("PASS", { 200, 50 }, sf::Color::Black);
+	b7 = Button("HINT", { 200, 50 }, sf::Color::Black);
+	b8 = Button("previews", { 200, 50 }, sf::Color::Black);
+	b9 = Button("show score", { 200, 50 }, sf::Color::Black);
 	if (!f.loadFromFile("ressources/arial.ttf")) {
 		std::cout << "ERROR while loading font" << std::endl;
 	}
 	b1.setFont(f);
+	b1.setButtonTexture(&sbTextureC);
 	b2.setFont(f);
+	b2.setButtonTexture(&sbTextureI);
 	b3.setFont(f);
+	b3.setButtonTexture(&sbTextureI);
 	b4.setFont(f);
+	b4.setButtonTexture(&mokuTextI);
 	b5.setFont(f);
+	b5.setButtonTexture(&goTextI);
 	b6.setFont(f);
+	b6.setButtonTexture(&sbTextureI);
 	b7.setFont(f);
+	b7.setButtonTexture(&sbTextureI);
 	b8.setFont(f);
+	b8.setButtonTexture(&sbTextureI);
 	b9.setFont(f);
+	b9.setButtonTexture(&sbTextureI);
 	b1.setPosition({ WIN_X / 2 - 400, 700 });
 	b2.setPosition({ WIN_X / 2 - 100, 700 });
 	b3.setPosition({ WIN_X / 2 + 200, 700 });
@@ -50,8 +80,12 @@ Visual::Visual() {
 
 void Visual::draw(visual_data visualData) {
 	size = visualData.size;
+	sf::Sprite bg(titleBg);
+	bg.setTextureRect(sf::IntRect(0, 0, WIN_X, WIN_Y));
+	bg.setColor(sf::Color(104, 80, 50));
+	_window_.draw(bg);
 	if (!visualData.gameOn) {
-		drawTitleScreen();
+		drawButtons();
 	}
 	else if (!visualData.victoryScreen) {
 		if (wPound.getRadius() == 10) {
@@ -86,13 +120,6 @@ void Visual::draw(visual_data visualData) {
 	}
 }
 
-void Visual::drawTitleScreen() {
-	sf::Sprite bg(titleBg);
-	bg.setTextureRect(sf::IntRect(0, 0, WIN_X, WIN_Y));
-	_window_.draw(bg);
-	drawButtons();
-}
-
 void Visual::drawButtons() {
 	b1.drawTo(_window_);
 	b2.drawTo(_window_);
@@ -106,7 +133,7 @@ void Visual::drawBoard(visual_data v) {
 	sf::Vector2f pos(WIN_X / 2 - BOARD / 2, WIN_Y / 2 - BOARD / 2);
 	rect.setPosition(pos);
 	rect.setSize(sf::Vector2f(BOARD, BOARD));
-	rect.setFillColor(sf::Color(194, 110, 0));
+	rect.setTexture(&goban);
 	_window_.draw(rect);
 	double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
 	double margin = (BOARD - (pad * (size - 1))) / 2;

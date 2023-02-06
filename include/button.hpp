@@ -9,20 +9,19 @@ class Button {
 public:
 	Button() { }
 
-	Button(std::string t, sf::Vector2f size, sf::Color bgColor, sf::Color textColor) {
+	Button(std::string t, sf::Vector2f size, sf::Color textColor) {
 		label.setString(t);
 		label.setFillColor(textColor);
 		label.setCharacterSize(30);
 		button.setSize(size);
-		button.setFillColor(bgColor);
 	}
 
 	void setFont(sf::Font& font) {
 		label.setFont(font);
 	}
 
-	void setButtonColor(sf::Color c) {
-		button.setFillColor(c);
+	void setButtonTexture(sf::Texture* t) {
+		button.setTexture(t);
 	}
 
 	void setTextColor(sf::Color c) {
@@ -36,7 +35,7 @@ public:
 	void setPosition(sf::Vector2f pos) {
 		button.setPosition(pos);
 		float xPos = (pos.x + button.getLocalBounds().width / 2) - (label.getLocalBounds().width / 2);
-		float yPos = (pos.y + button.getLocalBounds().height / 2) - (label.getLocalBounds().height / 2);
+		float yPos = (pos.y + button.getLocalBounds().height / 2) - (label.getLocalBounds().height / 2) - 8;
 
 		label.setPosition({ xPos, yPos });
 	}
