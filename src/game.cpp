@@ -61,8 +61,9 @@ void Game::settingUp(sf::Event ev) {
     else
         _visual_.b5.setButtonTexture(_visual_.getT4());
     if (gomokuOn || goOn) {
-        std::cout << size << std::endl;
         _visual_.setGoban(size);
+        _visual_.bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
+        _visual_.wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
         visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
     }
 }
@@ -137,6 +138,9 @@ void Game::gaming(sf::Event ev) {
             visualData.previewEnable = false;
         }
     }
+    else if (visualData.victoryScreen && ev.mouseButton.button == sf::Mouse::Left) {
+        resetGame();
+    }
     else if (visualData.endGame && ev.mouseButton.button == sf::Mouse::Left) {
         visualData.victoryScreen = true;
     }
@@ -160,6 +164,14 @@ void Game::gaming(sf::Event ev) {
                 _visual_.b6.setButtonTexture(_visual_.getT2());
             }
         }
+        if (_visual_.bReturn.isTargeted(*(_visual_.getWin()))) {
+            _visual_.bReturn.setButtonTexture(_visual_.getT3());
+            if (ev.mouseButton.button == sf::Mouse::Left) {
+                resetGame();
+            }
+        }
+        else
+            _visual_.bReturn.setButtonTexture(_visual_.getT1());
         buttonEvent(&(_visual_.b7), ev, &hint);
         buttonEvent(&(_visual_.b8), ev, &previewToggle);
         buttonEvent(&(_visual_.b9), ev, &visualData.scoreState);
@@ -167,6 +179,23 @@ void Game::gaming(sf::Event ev) {
             getScore(visualData.map);
         }
     } 
+}
+void Game::resetGame() {
+    visualData.bScore = 0;
+    visualData.wScore = 0;
+    visualData.gameOn = false;
+    visualData.gomoku = false;
+    visualData.endGame = false;
+    visualData.scoreState = false;
+    visualData.victoryScreen = false;
+    turn = true;
+    pass = 0;
+    hint = false;
+    lastTurn = false;
+    previewToggle = true;
+    gomokuOn = false;
+    goOn = false;
+    memset(visualData.map, '0', 361);
 }
 
 void Game::mokuVictory(int x, int y) {

@@ -84,6 +84,7 @@ public:
     Button b7;// gomoku mode: algo's proposition
     Button b8;// toggle red preview
     Button b9;// go mode : score's preview
+    Button bReturn; // go back to title screen
     sf::CircleShape bPound;
     sf::CircleShape wPound;
     sf::CircleShape territory;

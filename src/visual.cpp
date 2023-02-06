@@ -31,21 +31,20 @@ Visual::Visual() {
 	wPound.setFillColor(sf::Color::White);
 	wPound.setOutlineThickness(3);
 	wPound.setOutlineColor(sf::Color(50, 50, 50));
-	wPound.setRadius(10);
 	bPound.setFillColor(sf::Color::Black);
 	bPound.setOutlineThickness(3);
 	bPound.setOutlineColor(sf::Color(50, 50, 50));
-	bPound.setRadius(10);
 	territory.setRadius(5);
 	b1 = Button("9 x 9", { 200, 55 }, sf::Color::Black);
 	b2 = Button("13 x 13", { 200, 55 }, sf::Color::Black);
 	b3 = Button("19 x 19", { 200, 55 }, sf::Color::Black);
 	b4 = Button("", { 400, 250 }, sf::Color::Black);
 	b5 = Button("", { 400, 250 }, sf::Color::Black);
-	b6 = Button("PASS", { 200, 50 }, sf::Color::Black);
-	b7 = Button("HINT", { 200, 50 }, sf::Color::Black);
-	b8 = Button("previews", { 200, 50 }, sf::Color::Black);
-	b9 = Button("show score", { 200, 50 }, sf::Color::Black);
+	b6 = Button("PASS", { 200, 55 }, sf::Color::Black);
+	b7 = Button("HINT", { 200, 55 }, sf::Color::Black);
+	b8 = Button("previews", { 200, 55 }, sf::Color::Black);
+	b9 = Button("show score", { 200, 55 }, sf::Color::Black);
+	bReturn = Button("Title Screen", { 200, 55 }, sf::Color::Black);
 	if (!f.loadFromFile("ressources/arial.ttf")) {
 		std::cout << "ERROR while loading font" << std::endl;
 	}
@@ -67,15 +66,18 @@ Visual::Visual() {
 	b8.setButtonTexture(&sbTextureI);
 	b9.setFont(f);
 	b9.setButtonTexture(&sbTextureI);
+	bReturn.setFont(f);
+	bReturn.setButtonTexture(&sbTextureI);
 	b1.setPosition({ WIN_X / 2 - 400, 700 });
 	b2.setPosition({ WIN_X / 2 - 100, 700 });
 	b3.setPosition({ WIN_X / 2 + 200, 700 });
 	b4.setPosition({ WIN_X / 2 + 100, 200 });
 	b5.setPosition({ WIN_X / 2 - 500, 200 });
-	b6.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 50 });
+	b6.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 55 });
 	b7.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
 	b8.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 150 });
 	b9.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
+	bReturn.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 205 });
 }
 
 void Visual::draw(visual_data visualData) {
@@ -88,10 +90,6 @@ void Visual::draw(visual_data visualData) {
 		drawButtons();
 	}
 	else if (!visualData.victoryScreen) {
-		if (wPound.getRadius() == 10) {
-			wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
-			bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
-		}
 		drawBoard(visualData);
 	}
 	else {
@@ -156,6 +154,7 @@ void Visual::drawBoard(visual_data v) {
 	drawPounds(v, margin, pad);
 	b6.drawTo(_window_);
 	b8.drawTo(_window_);
+	bReturn.drawTo(_window_);
 	if (v.gomoku)
 		b7.drawTo(_window_);
 	else
@@ -224,7 +223,6 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		}
 	}
 	if (v.previewEnable) {
-		v.preview.setRadius(bPound.getRadius());
 		_window_.draw(v.preview);
 	}
 }

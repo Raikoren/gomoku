@@ -43,6 +43,7 @@ public:
     bool threeLineDetector(int dx, int dy, int x, int y, char* map);
     bool fivePound(int dx, int dy, int x, int y, char p);
     bool vulnerable(int x, int y, char p);
+    void resetGame();
 
     int getSize() {
         return(size);
