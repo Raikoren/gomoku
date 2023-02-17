@@ -23,6 +23,7 @@ private:
     bool        previewToggle = true;
     int         moku[3];
     int         wLine[10];
+    bool        vsAi = false;
 
 public:
     Game();

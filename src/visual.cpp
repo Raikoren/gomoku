@@ -2,7 +2,7 @@
 
 /* Constructor */
 Visual::Visual() {
-	_window_.create(sf::VideoMode(WIN_X, WIN_Y), "gomoku");
+	_window_.create(sf::VideoMode(WIN_X, WIN_Y), "gomoku", sf::Style::Close);
 	if (!titleBg.loadFromFile("ressources/background.png")) {
 		std::cout << "Error while loading background.png" << std::endl;
 	}
@@ -27,6 +27,24 @@ Visual::Visual() {
 	if (!mokuTextM.loadFromFile("ressources/gomoku_mouseover.png")) {
 		std::cout << "Error while loading button texture" << std::endl;
 	}
+	if (!textSW.loadFromFile("ressources/score_white.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!textSB.loadFromFile("ressources/score_black.png")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!egalite.loadFromFile("ressources/draw.jpg")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!wWin.loadFromFile("ressources/wWin.jpg")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!bWin.loadFromFile("ressources/draw.jpg")) {
+		std::cout << "Error while loading button texture" << std::endl;
+	}
+	if (!f.loadFromFile("ressources/arial.ttf")) {
+		std::cout << "ERROR while loading font" << std::endl;
+	}
 	titleBg.setRepeated(true);
 	wPound.setFillColor(sf::Color::White);
 	wPound.setOutlineThickness(3);
@@ -36,48 +54,49 @@ Visual::Visual() {
 	bPound.setOutlineColor(sf::Color(50, 50, 50));
 	territory.setRadius(5);
 	b1 = Button("9 x 9", { 200, 55 }, sf::Color::Black);
-	b2 = Button("13 x 13", { 200, 55 }, sf::Color::Black);
-	b3 = Button("19 x 19", { 200, 55 }, sf::Color::Black);
-	b4 = Button("", { 400, 250 }, sf::Color::Black);
-	b5 = Button("", { 400, 250 }, sf::Color::Black);
-	b6 = Button("PASS", { 200, 55 }, sf::Color::Black);
-	b7 = Button("HINT", { 200, 55 }, sf::Color::Black);
-	b8 = Button("previews", { 200, 55 }, sf::Color::Black);
-	b9 = Button("show score", { 200, 55 }, sf::Color::Black);
-	bReturn = Button("Title Screen", { 200, 55 }, sf::Color::Black);
-	if (!f.loadFromFile("ressources/arial.ttf")) {
-		std::cout << "ERROR while loading font" << std::endl;
-	}
 	b1.setFont(f);
 	b1.setButtonTexture(&sbTextureC);
+	b1.setPosition({ WIN_X / 2 - 400, 700 });
+	b2 = Button("13 x 13", { 200, 55 }, sf::Color::Black);
 	b2.setFont(f);
 	b2.setButtonTexture(&sbTextureI);
+	b2.setPosition({ WIN_X / 2 - 100, 700 });
+	b3 = Button("19 x 19", { 200, 55 }, sf::Color::Black);
 	b3.setFont(f);
 	b3.setButtonTexture(&sbTextureI);
+	b3.setPosition({ WIN_X / 2 + 200, 700 });
+	b4 = Button("", { 400, 250 }, sf::Color::Black);
 	b4.setFont(f);
 	b4.setButtonTexture(&mokuTextI);
+	b4.setPosition({ WIN_X / 2 + 100, 200 });
+	b5 = Button("", { 400, 250 }, sf::Color::Black);
 	b5.setFont(f);
 	b5.setButtonTexture(&goTextI);
+	b5.setPosition({ WIN_X / 2 - 500, 200 });
+	b6 = Button("pass", { 200, 55 }, sf::Color::Black);
 	b6.setFont(f);
 	b6.setButtonTexture(&sbTextureI);
+	b6.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 55 });
+	b7 = Button("hint", { 200, 55 }, sf::Color::Black);
 	b7.setFont(f);
 	b7.setButtonTexture(&sbTextureI);
+	b7.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
+	b8 = Button("previews", { 200, 55 }, sf::Color::Black);
 	b8.setFont(f);
-	b8.setButtonTexture(&sbTextureI);
+	b8.setButtonTexture(&sbTextureC);
+	b8.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 150 });
+	b9 = Button("show score", { 200, 55 }, sf::Color::Black);
 	b9.setFont(f);
 	b9.setButtonTexture(&sbTextureI);
+	b9.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
+	bReturn = Button("Title Screen", { 200, 55 }, sf::Color::Black);
 	bReturn.setFont(f);
 	bReturn.setButtonTexture(&sbTextureI);
-	b1.setPosition({ WIN_X / 2 - 400, 700 });
-	b2.setPosition({ WIN_X / 2 - 100, 700 });
-	b3.setPosition({ WIN_X / 2 + 200, 700 });
-	b4.setPosition({ WIN_X / 2 + 100, 200 });
-	b5.setPosition({ WIN_X / 2 - 500, 200 });
-	b6.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 55 });
-	b7.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
-	b8.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 + 150 });
-	b9.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 - BOARD / 2 });
 	bReturn.setPosition({ WIN_X / 2 + BOARD / 2 + 50, WIN_Y / 2 + BOARD / 2 - 205 });
+	bVsAi = Button("Vs AI", { 200, 55 }, sf::Color::Black);
+	bVsAi.setFont(f);
+	bVsAi.setButtonTexture(&sbTextureI);
+	bVsAi.setPosition({ WIN_X / 2 - 100, 550 });
 }
 
 void Visual::draw(visual_data visualData) {
@@ -93,28 +112,18 @@ void Visual::draw(visual_data visualData) {
 		drawBoard(visualData);
 	}
 	else {
-		sf::Text t;
 		sf::RectangleShape r;
-		t.setFont(f);
-		t.setCharacterSize(30);
 		r.setSize(sf::Vector2f(WIN_X, WIN_Y));
 		if (visualData.bScore < visualData.wScore) {
-			r.setFillColor(sf::Color::White);
-			t.setFillColor(sf::Color::Black);
-			t.setString("BLANC GAGNED");
+			r.setTexture(&wWin);
 		}
 		else if (visualData.bScore > visualData.wScore) {
-			r.setFillColor(sf::Color::Black);
-			t.setFillColor(sf::Color::White);
-			t.setString("NOIR GAGNED");
+			r.setTexture(&egalite);
 		}
 		else {
-			r.setFillColor(sf::Color::Black);
-			t.setFillColor(sf::Color::White);
-			t.setString("EGALITED");
+			r.setTexture(&egalite);
 		}
 		_window_.draw(r);
-		_window_.draw(t);
 	}
 }
 
@@ -124,6 +133,7 @@ void Visual::drawButtons() {
 	b3.drawTo(_window_);
 	b4.drawTo(_window_);
 	b5.drawTo(_window_);
+	bVsAi.drawTo(_window_);
 }
 
 void Visual::drawBoard(visual_data v) {
@@ -152,13 +162,14 @@ void Visual::drawBoard(visual_data v) {
 		_window_.draw(line_v, 2, sf::Lines);
 	}
 	drawPounds(v, margin, pad);
-	b6.drawTo(_window_);
 	b8.drawTo(_window_);
 	bReturn.drawTo(_window_);
 	if (v.gomoku)
 		b7.drawTo(_window_);
-	else
+	else {
+		b6.drawTo(_window_);
 		b9.drawTo(_window_);
+	}
 }
 
 void Visual::drawPounds(visual_data v, double margin, double pad) {
@@ -203,8 +214,8 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		score.setFillColor(sf::Color::White);
 		rb.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 - BOARD / 2)));
 		rw.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 + BOARD / 2) - 100));
-		rb.setFillColor(sf::Color(20,20,20));
-		rw.setFillColor(sf::Color(230,230,230));
+		rb.setTexture(&textSB);
+		rw.setTexture(&textSW);
 		if (v.endGame && v.gomoku && v.bScore == 5)
 			rb.setFillColor(sf::Color::Green);
 		if (v.endGame && v.gomoku && v.wScore == 5)

@@ -18,10 +18,12 @@ void Game::run() {
         while (_visual_.getWin()->pollEvent(ev)) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
                 _visual_.getWin()->close();
+                return;
             }
             switch (ev.type) {
                 case sf::Event::Closed:
                     _visual_.getWin()->close();
+                    return;
                 case sf::Event::MouseMoved:
                 case sf::Event::MouseButtonReleased:
                     if (!goOn && !gomokuOn)
@@ -48,6 +50,7 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b1), ev, &size, 9);
     buttonEvent(&(_visual_.b2), ev, &size, 13);
     buttonEvent(&(_visual_.b3), ev, &size, 19);
+    buttonEvent(&(_visual_.bVsAi), ev, &vsAi);
     if (_visual_.b4.isTargeted(*(_visual_.getWin()))) {
         _visual_.b4.setButtonTexture(_visual_.getT7());
         gomokuOn = (ev.mouseButton.button == sf::Mouse::Left) ? true : false;
@@ -57,6 +60,7 @@ void Game::settingUp(sf::Event ev) {
     if (_visual_.b5.isTargeted(*(_visual_.getWin()))) {
         _visual_.b5.setButtonTexture(_visual_.getT5());
         goOn = (ev.mouseButton.button == sf::Mouse::Left) ? true : false;
+        vsAi = goOn ? false : vsAi;
     }
     else
         _visual_.b5.setButtonTexture(_visual_.getT4());
@@ -129,7 +133,7 @@ void Game::gaming(sf::Event ev) {
                     if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) {
                         visualData.previewEnable = false;
                         mokuVictory(x, y);
-                        turn = (turn) ? false : true;
+                        turn = (turn) ? false : true; // TODO: Implementer algo min max ici (vsAi == true quand les blancs sont l'algo)
                     }
                 }
             }
@@ -172,7 +176,7 @@ void Game::gaming(sf::Event ev) {
         }
         else
             _visual_.bReturn.setButtonTexture(_visual_.getT1());
-        buttonEvent(&(_visual_.b7), ev, &hint);
+        buttonEvent(&(_visual_.b7), ev, &hint); // TODO: setup visualData.hint avec l'algo (meme system que preview, un pion transparent en plus qu'on place et qui montre le hint)
         buttonEvent(&(_visual_.b8), ev, &previewToggle);
         buttonEvent(&(_visual_.b9), ev, &visualData.scoreState);
         if (visualData.scoreState) {
@@ -190,6 +194,8 @@ void Game::resetGame() {
     visualData.victoryScreen = false;
     turn = true;
     pass = 0;
+    _visual_.b6.setText("pass");
+    _visual_.b6.setButtonTexture(_visual_.getT1());
     hint = false;
     lastTurn = false;
     previewToggle = true;

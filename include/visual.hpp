@@ -19,6 +19,7 @@ struct visual_data
     char                map[361];
     char                result[361];
     sf::CircleShape     preview;
+    sf::CircleShape     hint;
     bool                previewEnable = false;
     int                 bScore = 0;
     int                 wScore = 0;
@@ -85,6 +86,7 @@ public:
     Button b8;// toggle red preview
     Button b9;// go mode : score's preview
     Button bReturn; // go back to title screen
+    Button bVsAi; // toggle VsAI
     sf::CircleShape bPound;
     sf::CircleShape wPound;
     sf::CircleShape territory;
@@ -101,7 +103,12 @@ protected:
     sf::Texture goTextM;
     sf::Texture mokuTextI;
     sf::Texture mokuTextM;
+    sf::Texture textSB;
+    sf::Texture textSW;
     sf::Texture goban;
+    sf::Texture egalite;
+    sf::Texture bWin;
+    sf::Texture wWin;
     sf::Font f;
 
 };
