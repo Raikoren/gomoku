@@ -46,6 +46,7 @@ void Game::run() {
     }
 }
 
+// Fonction qui gères les event de l'ecran titre 
 void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b1), ev, &size, 9);
     buttonEvent(&(_visual_.b2), ev, &size, 13);
@@ -72,6 +73,7 @@ void Game::settingUp(sf::Event ev) {
     }
 }
 
+// gères les animation des boutons et toggle les boolean qui leur sont reliés
 void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
     if (b->isTargeted(*(_visual_.getWin()))) {
         if (ev.mouseButton.button == sf::Mouse::Left) {
@@ -87,6 +89,7 @@ void Game::buttonEvent(Button* b, sf::Event ev, bool* modified) {
     }
 }
 
+// same fonction mais change un int à un autre int (utilisé leggit que pour la size de goban)
 void Game::buttonEvent(Button* b, sf::Event ev, int* modified, int modifier) {
     if (b->isTargeted(*(_visual_.getWin()))) {
         if (ev.mouseButton.button == sf::Mouse::Left) {
@@ -102,55 +105,56 @@ void Game::buttonEvent(Button* b, sf::Event ev, int* modified, int modifier) {
     }
 }
 
+// Fonction qui gère les event en jeu (go, gomoku et ecran de fin)
 void Game::gaming(sf::Event ev) {
     double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
     double margin = (BOARD - (pad * (size - 1))) / 2;
     int x = 0;
     int y = 0;
     sf::Vector2f mouse(sf::Mouse::getPosition(*(_visual_.getWin())));
-    if (!visualData.endGame && !visualData.scoreState && targetingBoard(ev, mouse, margin - pad / 2)) {
+    if (!visualData.endGame && !visualData.scoreState && targetingBoard(ev, mouse, margin - pad / 2)) { // si on est en jeu et que la souris est sur le board
         x = (mouse.x - (WIN_X / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         y = (mouse.y - (WIN_Y / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         x = (x >= size) ? size - 1 : x;
         y = (y >= size) ? size - 1 : y;
-        if (visualData.map[y * size + x] == '0') {
+        if (visualData.map[y * size + x] == '0') { // si la position ciblée est vide
             visualData.previewEnable = previewToggle ? true : false;
             visualData.preview.setFillColor(sf::Color(255, 0, 55, 100));
             visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * x - visualData.preview.getRadius(),
                 (WIN_Y / 2 - BOARD / 2) + margin + pad * y - visualData.preview.getRadius()));
-            if (ev.mouseButton.button == sf::Mouse::Left) {
-                if (goOn) {
+            if (ev.mouseButton.button == sf::Mouse::Left) { // clique gauche
+                if (goOn) { // ruleset du go
                     memset(territory, '0', 361);
-                    taking(y * size + x, visualData.map);
-                    if (!surronded(y * size + x, visualData.map)) {
+                    taking(y * size + x, visualData.map); // Si il y a une capture, on l'enregistre car le move ne pourras pas etre interdit
+                    if (!surronded(y * size + x, visualData.map)) { // on vérifie si il s'agit d'un suicide pour eviter les suicide
                         memset(territory, '0', 361);
                         visualData.map[y * size + x] = (turn) ? '2' : '1';
                         visualData.previewEnable = false;
                         turn = (turn) ? false : true;
                     }
                 }
-                else if (gomokuOn) {
-                    if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) {
+                else if (gomokuOn) { // ruleset du go
+                    if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) { // vérifie l'introduction d'une double three
                         visualData.previewEnable = false;
-                        mokuVictory(x, y);
+                        mokuVictory(x, y); // Vérifie les diverse condition de victoire 
                         turn = (turn) ? false : true; // TODO: Implementer algo min max ici (vsAi == true quand les blancs sont l'algo)
                     }
                 }
             }
         }
-        else {
+        else { // enlève la preview si souris hors du goban
             visualData.previewEnable = false;
         }
     }
-    else if (visualData.victoryScreen && ev.mouseButton.button == sf::Mouse::Left) {
+    else if (visualData.victoryScreen && ev.mouseButton.button == sf::Mouse::Left) { // retour à l'ecran titre avec un clique dans l'ecran de victoire
         resetGame();
     }
-    else if (visualData.endGame && ev.mouseButton.button == sf::Mouse::Left) {
+    else if (visualData.endGame && ev.mouseButton.button == sf::Mouse::Left) { // montre les condition de victoire pour les deux jeux avant de mettre l'ecran de victoire
         visualData.victoryScreen = true;
     }
-    else if (!visualData.endGame) {
+    else if (!visualData.endGame) { // gères les boutons en dehors du goban
         visualData.previewEnable = false;
-        if (_visual_.b6.isTargeted(*(_visual_.getWin()))) {
+        if (goOn && _visual_.b6.isTargeted(*(_visual_.getWin()))) { // gères le bouton pour passer et fini les game de Go
             if (ev.mouseButton.button == sf::Mouse::Left) {
                 _visual_.b6.setButtonTexture(_visual_.getT3());
                 pass += 1;
@@ -168,22 +172,25 @@ void Game::gaming(sf::Event ev) {
                 _visual_.b6.setButtonTexture(_visual_.getT2());
             }
         }
-        if (_visual_.bReturn.isTargeted(*(_visual_.getWin()))) {
+        if (_visual_.bReturn.isTargeted(*(_visual_.getWin()))) { // gère le bouton de retour à l'écran titre
             _visual_.bReturn.setButtonTexture(_visual_.getT3());
             if (ev.mouseButton.button == sf::Mouse::Left) {
                 resetGame();
+                _visual_.bReturn.setButtonTexture(_visual_.getT1());
             }
         }
         else
             _visual_.bReturn.setButtonTexture(_visual_.getT1());
-        buttonEvent(&(_visual_.b7), ev, &hint); // TODO: setup visualData.hint avec l'algo (meme system que preview, un pion transparent en plus qu'on place et qui montre le hint)
-        buttonEvent(&(_visual_.b8), ev, &previewToggle);
-        buttonEvent(&(_visual_.b9), ev, &visualData.scoreState);
+        // le ternère gere les bouton de hint (par l'algo) et de preview de score pour le Go
+        buttonEvent(goOn ? &(_visual_.b9) : &(_visual_.b7), ev, goOn ? &visualData.scoreState : &hint); // TODO: setup visualData.hint avec l'algo (meme system que preview, un pion transparent en plus qu'on place et qui montre le hint)
+        buttonEvent(&(_visual_.b8), ev, &previewToggle); //toggle la preview rouge
         if (visualData.scoreState) {
             getScore(visualData.map);
         }
     } 
 }
+
+// reset le jeu et reviens à l'ecran titre (si vous voyez des comportement bizarre apres lors d'une deuxieme partie ca viendra peut-etre de la)
 void Game::resetGame() {
     visualData.bScore = 0;
     visualData.wScore = 0;
@@ -204,6 +211,8 @@ void Game::resetGame() {
     memset(visualData.map, '0', 361);
 }
 
+
+// fonction qui vérifie si la game de gomoku est finie ou si le prochain coup empeche une victoire
 void Game::mokuVictory(int x, int y) {
     char p = visualData.map[y * size + x];
     int dx = -1;
@@ -211,18 +220,18 @@ void Game::mokuVictory(int x, int y) {
     double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
     double margin = (BOARD - (pad * (size - 1))) / 2;
 
-    if (visualData.bScore == 5 || visualData.wScore == 5) {
+    if (visualData.bScore == 5 || visualData.wScore == 5) { // score à 5 victoire, incontestable
         visualData.endGame = true;
         return;
     }
-    if (lastTurn) {
-        for (int i = 0; i <= 4; i++) {
+    if (lastTurn) { // il y a une ligne de 5 mais le coup actuel a pu la briser
+        for (int i = 0; i <= 4; i++) { // Vérifie l'intégrité de la ligne
             if (visualData.map[wLine[i + 5] * size + wLine[i]] == '0') {
                 lastTurn = false;
-                break;
+                break; // pour setup l'ecran de fin à la fin de la fonction
             }
         }
-        if (lastTurn) {
+        if (lastTurn) { // ligne pas brisée fin de jeu
             visualData.endGame = true;
             visualData.wScore = (turn) ? 999 : 0;
             visualData.bScore = (turn) ? 0 : 999;
@@ -274,7 +283,7 @@ void Game::mokuVictory(int x, int y) {
 
 // Il est tres tard donc pas de jugement svp
 // TODO: rendre ca clean parce que ca fait 1h que je passe et repasse sur cette merde et j'ai honte de zinzin
-
+// Fonction de la honte qui vérifie si le pion d'équipe p en position x,y est vulnérable 
 bool Game::vulnerable(int x, int y, char p) {
     char e = (p == '1') ? '2' : '1';
     if ((x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == e && visualData.map[(y + 1) * size + x + 1] == '0')
@@ -298,6 +307,7 @@ bool Game::vulnerable(int x, int y, char p) {
     return(false);
 }
 
+// ca check et stock une ligne de 5 en cas de contestation
 bool Game::fivePound(int dx, int dy, int x, int y, char p) {
     int nx = x;
     int ny = y;
@@ -327,6 +337,7 @@ bool Game::fivePound(int dx, int dy, int x, int y, char p) {
     return(false);
 }
 
+//Fonction de prise pour le jeu du Go
 void Game::taking(int pos, char* map) {
     char c = (turn) ? '1' : '2';
     map[pos] = (turn) ? '2' : '1';
@@ -390,6 +401,7 @@ bool Game::targetingBoard(sf::Event, sf::Vector2f m, double p) {
         return(false);
 }
 
+//detecte si y'a un coup interdit et provoque les prises
 bool Game::doubleThreeDetector(int pos, char* map, char p) {
     map[pos] = p;
     char e = (p == '1') ? '2' : '1';
@@ -403,7 +415,7 @@ bool Game::doubleThreeDetector(int pos, char* map, char p) {
             if (nx < 0 || nx >= size || ny < 0 || ny >= size) {
                 continue;
             }
-            if (map[ny * size + nx] == e && mokuTake(dx, dy, pos % size, pos / size, map)) {
+            if (map[ny * size + nx] == e && mokuTake(dx, dy, pos % size, pos / size, map)) { // Prise de pions
                 map[ny * size + nx] = '0';
                 map[ny * size + size * dy + nx + dx] = '0';
                 visualData.bScore += (turn) ? 1 : 0;
@@ -412,7 +424,7 @@ bool Game::doubleThreeDetector(int pos, char* map, char p) {
                     visualData.endGame = true;
                 took = true;
             }
-            if (!took && threeLineDetector(dx, dy, pos % size, pos / size, map)) {
+            if (!took && threeLineDetector(dx, dy, pos % size, pos / size, map)) { // en gros ca rentrera la 2 fois pour trigger l'interdiction si ya pas de prise
                 if (threeLine)
                     forbiden = true;
                 else
@@ -424,6 +436,7 @@ bool Game::doubleThreeDetector(int pos, char* map, char p) {
     return(forbiden && !took);
 }
 
+// vérifie si une prise est possible
 bool Game::mokuTake(int dx, int dy, int x, int y, char* m) {
     if ((x + dx * 3 >= 0 && x + dx * 3 < size && y + dy * 3 >= 0 && y + dy * 3< size)
         && m[(y * size + ((dy * size) * 2)) + x + (dx * 2)] != m[y * size + x]
@@ -434,6 +447,7 @@ bool Game::mokuTake(int dx, int dy, int x, int y, char* m) {
     return(false);
 }
 
+// Fonction qui detecte si une position et une direction provoque un threeline
 bool Game::threeLineDetector(int dx, int dy, int x, int y, char* map) {
     char    p = map[y * size + x];
     char    e = (p == '1') ? '2' : '1';
@@ -476,6 +490,7 @@ bool Game::threeLineDetector(int dx, int dy, int x, int y, char* map) {
     return false;
 }
 
+//fonction qui dit si le territoire de la position est sujet à la mort
 bool Game::surronded(int pos, char* map) {
     if (territory[pos] == '0')
         territory[pos] = (turn) ? '2' : '1';

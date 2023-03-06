@@ -6,5 +6,6 @@ gomoku.vcxproj.user
 gomoku.vcxproj.filters
 .vs
 *.sln
+.idea/
 
 SFML
