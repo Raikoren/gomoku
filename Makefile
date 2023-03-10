@@ -13,6 +13,7 @@ SRC_PATH    = src
 SRC                =   gomoku.cpp \
                     game.cpp \
                     visual.cpp \
+					algo.cpp \
 
 OBJ_PATH    = obj
 OBJ        = $(SRC:%.cpp=$(OBJ_PATH)/%.o)
@@ -22,6 +23,7 @@ INC         =   env.hpp \
                 button.hpp \
                 game.hpp \
                 visual.hpp \
+				algo.hpp \
 
 DEP        = $(patsubst %,$(INC_PATH)/%,$(INC))
 

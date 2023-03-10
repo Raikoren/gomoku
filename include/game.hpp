@@ -2,6 +2,7 @@
 # define GAME_HPP
 
 # include "visual.hpp"
+# include "algo.hpp"
 # include <iostream>
 # include <string.h>
 
@@ -24,6 +25,8 @@ private:
     int         moku[3];
     int         wLine[10];
     bool        vsAi = false;
+
+	Algo 	  algo;
 
 public:
     Game();
