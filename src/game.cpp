@@ -188,7 +188,8 @@ void Game::gaming(sf::Event ev) {
 
 			// algo.test_main(visualData.map, 361, turn, visualData.bScore, visualData.wScore);
 			// int score = algo.min(2, turn, -100000, 100000, visualData.map);
-			int score = algo.minimax_v2(visualData.map, 2, true);
+			// int score = algo.minimax_v2(visualData.map, 3, true);
+			int score = algo.coup(visualData.map, turn);
 			turn = (turn) ? false : true;
 			printf("score = %d\n", score);
 			hint = false;

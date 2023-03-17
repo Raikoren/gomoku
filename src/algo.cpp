@@ -1,4 +1,5 @@
 #include "algo.hpp"
+#include <chrono>
 
 
 // v�rifie si une prise est possible
@@ -206,7 +207,7 @@ int Algo::evaluerLigne(int ligne_score, char joueur) {
         case 4:
             return 1000;
         case 5:
-            return INT_MAX;
+            return 10000;
         default:
             return 0;
     }
@@ -247,83 +248,106 @@ int Algo::test_main(char *map, int mapSize, int player, int black_score, int whi
 	return score;
 }
 
-int Algo::coup(char *map, char pion) {
-	int meilleur_score = INT_MIN;
-	int meilleur_coup;
-	int mapSize = 19;
-	int score = 0;
-
-	for (int i = 0; i < mapSize; i++) {
-		for (int j = 0; j < mapSize; j++) {
-			if (map[i * mapSize + j] == '0') {
-				map[i * mapSize + j] = pion;
-				if (pion == '1')
-					score = test_main(map,mapSize, false, 0, 0);
-				else
-					score = test_main(map,mapSize, true, 0, 0);
-				map[i * mapSize + j] = '0';
-				if (score > meilleur_score) {
-					meilleur_score = score;
-					meilleur_coup = (i * mapSize + j);
-				}
-			}
-		}
-	}
-	map[meilleur_coup] = '2';
-}
-
-int Algo::minimax_v2(char *map, int depth, bool EstMax) {
-	// je veux une variable globale qui compte le nombre de fois que la fonction est appelée
-	static int call_count = 0;
+int Algo::minimax_v2(char *map, int depth, bool EstMax, int alpha, int beta) {
+    // je veux une variable globale qui compte le nombre de fois que la fonction est appelée
+    static int call_count = 0;
     call_count++;
 
-	if (test_main(map, 19, true, 0, 0) == INT_MAX) {
-		return INT_MAX;
-	}
+    if (test_main(map, 19, true, 0, 0) == INT_MAX) {
+        return INT_MAX;
+    }
 
-	else if (test_main(map, 19, false, 0, 0) == INT_MAX) {
-		return INT_MIN;
-	}
+    else if (test_main(map, 19, false, 0, 0) == INT_MAX) {
+        return INT_MIN;
+    }
 
-	if (depth == 0) {
-		return test_main(map, 19, true, 0, 0);
-	}
+    if (depth == 0) {
+        return test_main(map, 19, true, 0, 0);
+    }
 
-	int score;
-	if (EstMax) {
-		// dprintf(1, "EstMax = %d", EstMax);
-		// dprintf(1, "call_count = %d", call_count);
-		int meilleur_score = INT_MIN;
-		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < 19; j++) {
-				if (map[i * 19 + j] == '0') {
-					map[i * 19 + j] = '2'; // 2 pour le moment
-					score =  minimax_v2(map, depth - 1, false);
-					map[i * 19 + j] = '0';
-					if (score > meilleur_score) {
-						meilleur_score = score;
-						// dprintf(1, "score noir = %d", score);
-					}
-				}
-			}
-		}
-		return meilleur_score;
-	}
-	else {
-		int meilleur_score = INT_MAX;
-		for (int i = 0; i < 19; i++) {
-			for (int j = 0; j < 19; j++) {
-				if (map[i * 19 + j] == '0') {
-					map[i * 19 + j] = '1'; // 1 pour le moment
-					score =  minimax_v2(map, depth - 1, true);
-					map[i * 19 + j] = '0';
-					if (score < meilleur_score) {
-						meilleur_score = score;
-						// dprintf(1, "score blanc = %d", score);
-					}
-				}
-			}
-		}
-		return meilleur_score;
-	}
+    int score;
+    if (EstMax) {
+        int meilleur_score = INT_MIN;
+        for (int i = 0; i < 19; i++) {
+            for (int j = 0; j < 19; j++) {
+                if (map[i * 19 + j] == '0') {
+                    map[i * 19 + j] = '2'; // 2 pour le moment
+                    score = minimax_v2(map, depth - 1, false, alpha, beta);
+                    map[i * 19 + j] = '0';
+                    meilleur_score = std::max(meilleur_score, score);
+
+                    alpha = std::max(alpha, meilleur_score);
+                    if (beta <= alpha) { // Élagage bêta
+                        return meilleur_score;
+                    }
+                }
+            }
+        }
+        return meilleur_score;
+    }
+    else {
+        int meilleur_score = INT_MAX;
+        for (int i = 0; i < 19; i++) {
+            for (int j = 0; j < 19; j++) {
+                if (map[i * 19 + j] == '0') {
+                    map[i * 19 + j] = '1'; // 1 pour le moment
+                    score = minimax_v2(map, depth - 1, true, alpha, beta);
+                    map[i * 19 + j] = '0';
+                    meilleur_score = std::min(meilleur_score, score);
+
+                    beta = std::min(beta, meilleur_score);
+                    if (beta <= alpha) { // Élagage alpha
+                        return meilleur_score;
+                    }
+                }
+            }
+        }
+        return meilleur_score;
+    }
+}
+
+
+int Algo::coup(char *map, bool joueur) {
+    int meilleur_coup;
+    int mapSize = 19;
+    int score = 0;
+	char pion;
+	dprintf(1, "joueur = %d", joueur);
+
+	if (joueur == true)
+		pion = '2';
+	else 
+		pion = '1';
+
+	int meilleur_score = pion == '1' ? INT_MAX : INT_MIN;
+
+    for (int i = 0; i < mapSize; i++) {
+        for (int j = 0; j < mapSize; j++) {
+            if (map[i * mapSize + j] == '0') {
+                map[i * mapSize + j] = pion;
+				// auto start = std::chrono::high_resolution_clock::now();
+                if (pion == '1') {
+                    score = minimax_v2(map, 2, true, INT_MIN, INT_MAX);
+                } else {
+                    score = minimax_v2(map, 2, false, INT_MIN, INT_MAX);
+                }
+
+				// // Enregistrez le temps de fin juste après l'appel à minimax_v2
+                // auto end = std::chrono::high_resolution_clock::now();
+
+                // // Calculez et affichez la durée en millisecondes
+                // std::chrono::duration<double, std::milli> elapsed = end - start;
+                // std::cout << "Temps écoulé pour minimax_v2 : " << elapsed.count() << " ms" << std::endl;
+
+                map[i * mapSize + j] = '0';
+
+                if ((pion == '1' && score < meilleur_score) || (pion == '2' && score > meilleur_score)) {
+                    meilleur_score = score;
+                    meilleur_coup = (i * mapSize + j);
+                }
+            }
+        }
+    }
+    map[meilleur_coup] = pion;
+    return meilleur_coup;
 }

@@ -14,7 +14,7 @@ class Algo {
 		int min(int minEval, int eval);
 		int max(int maxEval, int eval);
 
-		int coup(char *map, char pion);
+		int coup(char *map, bool joueur);
 
 		int Take_algo(char *map, int mapSize, int player);
 
@@ -22,7 +22,7 @@ class Algo {
 
 		int test_main(char *map, int mapSize, int player, int black_score, int white_score);
 
-		int minimax_v2(char *map, int depth, bool EstMax);
+		int minimax_v2(char *map, int depth, bool EstMax, int alpha, int beta);
 		int evaluerPosition_line(char *grille, char joueur);
 		int evaluerLigne(int ligne_score, char joueur);
 
