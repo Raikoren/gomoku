@@ -32,14 +32,27 @@ int Algo::max(int maxEval, int eval) {
 
 
 // int minimax(int depth, bool maximizingPlayer, int alpha, int beta, int position, int coup);
-int Algo::minimax(int depth, bool maximizingPlayer, int alpha, int beta, int position, int coup) {
+int Algo::minimax(int depth, bool maximizingPlayer, int alpha, int beta, char *map) {
 	if (depth == 0) {
-		return ;// static evaluation of position
+		// static evaluation of position
+		// dprintf(1, "depth = 0\n map = %s\n", map);
+		// printf("%d\n", test_main(map, 19, maximizingPlayer, 0, 0));
+		dprintf(1, "map = %s\n", map);
+		return test_main(map, 19, maximizingPlayer, 0, 0);
 	}
+	// dprintf(1,"depth = %d\n", depth);
+	// dprintf(1,"maximizingPlayer = %d\n", maximizingPlayer);
 	if (maximizingPlayer) {
 		int maxEval = -1000000;
 		for (int i = 0; i < 361; i++) {
-			int eval = minimax(depth - 1, false, alpha, beta, position, coup);
+			if (map[i] != '0') {
+				continue;
+			}
+			char newMap[361];
+			memcpy(newMap, map, 361);
+			newMap[i] = '1';
+			// dprintf(1, "newMap = %s\n", newMap);
+			int eval = minimax(depth - 1, false, alpha, beta, newMap);
 			maxEval = max(maxEval, eval);
 			alpha = max(alpha, eval);
 			if (beta <= alpha) {
@@ -51,7 +64,13 @@ int Algo::minimax(int depth, bool maximizingPlayer, int alpha, int beta, int pos
 	else {
 		int minEval = 1000000;
 		for (int i = 0; i < 361; i++) {
-			int eval = minimax(depth - 1, true, alpha, beta, position, coup);
+			if (map[i] != '0') {
+				continue;
+			}
+			char newMap[361];
+			memcpy(newMap, map, 361);
+			newMap[i] = '2';
+			int eval = minimax(depth - 1, true, alpha, beta, newMap);
 			minEval = min(minEval, eval);
 			beta = min(beta, eval);
 			if (beta <= alpha) {
@@ -61,6 +80,7 @@ int Algo::minimax(int depth, bool maximizingPlayer, int alpha, int beta, int pos
 		return minEval;
 	}
 }
+
 
 int Algo::Take_algo(char *map, int mapSize, int player) {
 	dprintf(1, "player = %d\n", player);
@@ -138,78 +158,59 @@ int Algo::Take_algo(char *map, int mapSize, int player) {
 }
 
 
-int evaluerPosition_line(char *grille, char joueur) {
+int Algo::evaluerPosition_line(char *grille, char joueur) {
     int score = 0;
-	int N = 19; // taille de la grille
+    int N = 19; // taille de la grille
 
-    // Evaluer les lignes horizontales
+    // Directions : horizontale, verticale, diagonale droite, diagonale gauche
+    int direction[4][2] = {{1, 0}, {0, 1}, {1, 1}, {1, -1}};
+
     for (int i = 0; i < N; i++) {
-        for (int j = 0; j <= N - 3; j++) {
-			if (*(grille + i*N + j) == joueur && *(grille + i*N + j+1) == joueur) {
-                score += 3;
-            }
-            else if (*(grille + i*N + j) == joueur && *(grille + i*N + j+1) == joueur && *(grille + i*N + j+2) == joueur) {
-                score += 10;
-            } else if (j <= N - 4 && *(grille + i*N + j) == joueur && *(grille + i*N + j+1) == joueur && *(grille + i*N + j+2) == joueur && *(grille + i*N + j+3) == joueur) {
-                score += 50;
-            } else if (j <= N - 5 && *(grille + i*N + j) == joueur && *(grille + i*N + j+1) == joueur && *(grille + i*N + j+2) == joueur && *(grille + i*N + j+3) == joueur && *(grille + i*N + j+4) == joueur) {
-                return INT_MAX; // joueur a gagné
-            }
-        }
-    }
-    // Evaluer les lignes verticales
-    for (int i = 0; i <= N - 3; i++) {
         for (int j = 0; j < N; j++) {
-			 if (*(grille + i*N + j) == joueur && *(grille + (i+1)*N + j) == joueur) {
-                score += 3;
-            }
-            else if (*(grille + i*N + j) == joueur && *(grille + (i+1)*N + j) == joueur && *(grille + (i+2)*N + j) == joueur) {
-                score += 10;
-            } else if (i <= N - 4 && *(grille + i*N + j) == joueur && *(grille + (i+1)*N + j) == joueur && *(grille + (i+2)*N + j) == joueur && *(grille + (i+3)*N + j) == joueur) {
-                score += 50;
-            } else if (i <= N - 5 && *(grille + i*N + j) == joueur && *(grille + (i+1)*N + j) == joueur && *(grille + (i+2)*N + j) == joueur && *(grille + (i+3)*N + j) == joueur && *(grille + (i+4)*N + j) == joueur) {
-                return INT_MAX; // joueur a gagné
-            }
-        }
-    }
-	    // Evaluer les diagonales de haut en bas
-    for (int i = 0; i <= N - 3; i++) {
-        for (int j = 0; j <= N - 3; j++) {
-            int index = i * N + j;
-			if (grille[index] == joueur && grille[index + N + 1] == joueur) {
-                score += 3;
-            }
-            else if (grille[index] == joueur && grille[index + N + 1] == joueur && grille[index + 2 * N + 2] == joueur) {
-                score += 10;
-            } else if (i <= N - 4 && j <= N - 4 && grille[index] == joueur && grille[index + N + 1] == joueur && grille[index + 2 * N + 2] == joueur && grille[index + 3 * N + 3] == joueur) {
-                score += 50;
-            } else if (i <= N - 5 && j <= N - 5 && grille[index] == joueur && grille[index + N + 1] == joueur && grille[index + 2 * N + 2] == joueur && grille[index + 3 * N + 3] == joueur && grille[index + 4 * N + 4] == joueur) {
-                return INT_MAX; // joueur a gagné
+            if (grille[i * N + j] == joueur) {
+                for (int d = 0; d < 4; ++d) {
+                    int count = 1;
+
+                    for (int k = 1; k < 5; ++k) {
+                        int x = i + k * direction[d][0];
+                        int y = j + k * direction[d][1];
+                        if (0 <= x && x < N && 0 <= y && y < N) {
+                            if (grille[x * N + y] == joueur) {
+                                count += 1;
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+
+                    score += evaluerLigne(count, joueur);
+                }
             }
         }
     }
-    // Evaluer les diagonales de bas en haut
-    for (int i = N - 1; i >= 4; i--) {
-        for (int j = 0; j <= N-4; j++) {
-            int index = i * N + j;
-			if (grille[index] == joueur && grille[index - N + 1] == joueur) {
-                score += 3;
-            }
-            else if (grille[index] == joueur && grille[index - N + 1] == joueur && grille[index - 2 * N + 2] == joueur) {
-                score += 10;
-            } else if (i >= 3 && j <= N-4 && grille[index] == joueur && grille[index - N + 1] == joueur && grille[index - 2 * N + 2] == joueur && grille[index - 3 * N + 3] == joueur) {
-                score += 50;
-            } else if (i >= 4 && j <= N-5 && grille[index] == joueur && grille[index - N + 1] == joueur && grille[index - 2 * N + 2] == joueur && grille[index - 3 * N + 3] == joueur && grille[index - 4 * N + 4] == joueur) {
-                return INT_MAX; // joueur a gagné
-            }
-        }
-    }
+
     return score;
 }
 
-// int evaluer_score(char *grille, char joueur) {
-
-// }
+// Fonction qui évalue une ligne de jetons
+int Algo::evaluerLigne(int ligne_score, char joueur) {
+    switch(ligne_score) {
+        case 1:
+            return 1;
+        case 2:
+            return 10;
+        case 3:
+            return 100;
+        case 4:
+            return 1000;
+        case 5:
+            return INT_MAX;
+        default:
+            return 0;
+    }
+}
 
 
 
@@ -217,7 +218,7 @@ int evaluerPosition_line(char *grille, char joueur) {
 int Algo::test_main(char *map, int mapSize, int player, int black_score, int white_score) {
 	// je veux qu'il calcule le score de la map en fonction du player
 
-	dprintf(1, "back_score = %d\nwhite_score = %d\n", black_score, white_score);
+	// dprintf(1, "back_score = %d\nwhite_score = %d\n", black_score, white_score);
 	int score = 0;
 	// black 2
 	// white 1
@@ -237,9 +238,92 @@ int Algo::test_main(char *map, int mapSize, int player, int black_score, int whi
 		return INT_MAX;
 
 	score = evaluerPosition_line(map, temp_player);
+	if (score == INT_MAX)
+		return INT_MAX;
 	score -= evaluerPosition_line(map, other_player);
+	if (score == INT_MAX)
+		return INT_MAX;
 
 	return score;
+}
 
-	dprintf(1, "player = %c\nscore = %d\n", temp_player, score);
+int Algo::coup(char *map, char pion) {
+	int meilleur_score = INT_MIN;
+	int meilleur_coup;
+	int mapSize = 19;
+	int score = 0;
+
+	for (int i = 0; i < mapSize; i++) {
+		for (int j = 0; j < mapSize; j++) {
+			if (map[i * mapSize + j] == '0') {
+				map[i * mapSize + j] = pion;
+				if (pion == '1')
+					score = test_main(map,mapSize, false, 0, 0);
+				else
+					score = test_main(map,mapSize, true, 0, 0);
+				map[i * mapSize + j] = '0';
+				if (score > meilleur_score) {
+					meilleur_score = score;
+					meilleur_coup = (i * mapSize + j);
+				}
+			}
+		}
+	}
+	map[meilleur_coup] = '2';
+}
+
+int Algo::minimax_v2(char *map, int depth, bool EstMax) {
+	// je veux une variable globale qui compte le nombre de fois que la fonction est appelée
+	static int call_count = 0;
+    call_count++;
+
+	if (test_main(map, 19, true, 0, 0) == INT_MAX) {
+		return INT_MAX;
+	}
+
+	else if (test_main(map, 19, false, 0, 0) == INT_MAX) {
+		return INT_MIN;
+	}
+
+	if (depth == 0) {
+		return test_main(map, 19, true, 0, 0);
+	}
+
+	int score;
+	if (EstMax) {
+		// dprintf(1, "EstMax = %d", EstMax);
+		// dprintf(1, "call_count = %d", call_count);
+		int meilleur_score = INT_MIN;
+		for (int i = 0; i < 19; i++) {
+			for (int j = 0; j < 19; j++) {
+				if (map[i * 19 + j] == '0') {
+					map[i * 19 + j] = '2'; // 2 pour le moment
+					score =  minimax_v2(map, depth - 1, false);
+					map[i * 19 + j] = '0';
+					if (score > meilleur_score) {
+						meilleur_score = score;
+						// dprintf(1, "score noir = %d", score);
+					}
+				}
+			}
+		}
+		return meilleur_score;
+	}
+	else {
+		int meilleur_score = INT_MAX;
+		for (int i = 0; i < 19; i++) {
+			for (int j = 0; j < 19; j++) {
+				if (map[i * 19 + j] == '0') {
+					map[i * 19 + j] = '1'; // 1 pour le moment
+					score =  minimax_v2(map, depth - 1, true);
+					map[i * 19 + j] = '0';
+					if (score < meilleur_score) {
+						meilleur_score = score;
+						// dprintf(1, "score blanc = %d", score);
+					}
+				}
+			}
+		}
+		return meilleur_score;
+	}
 }
