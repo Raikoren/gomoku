@@ -8,5 +8,6 @@
 # define MEDIUM_BOARD 13
 # define BIG_BOARD 19
 # define MIN_MARGIN 50
+# define DEPTH 10
 
 #endif
