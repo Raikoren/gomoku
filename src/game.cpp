@@ -35,6 +35,7 @@ void Game::run() {
                     break;
             }
             visualData.size = size;
+            algoData.size = size;
             if (goOn || gomokuOn) {
                 visualData.gameOn = true;
                 visualData.gomoku = (gomokuOn) ? true : false;
@@ -52,6 +53,7 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b2), ev, &size, 13);
     buttonEvent(&(_visual_.b3), ev, &size, 19);
     buttonEvent(&(_visual_.bVsAi), ev, &vsAi);
+    algoData.lastPound = size * size / 2;
     if (_visual_.b4.isTargeted(*(_visual_.getWin()))) {
         _visual_.b4.setButtonTexture(_visual_.getT7());
         gomokuOn = (ev.mouseButton.button == sf::Mouse::Left) ? true : false;
@@ -136,6 +138,7 @@ void Game::gaming(sf::Event ev) {
                 else if (gomokuOn) { // ruleset du go
                     if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) { // v�rifie l'introduction d'une double three
                         visualData.previewEnable = false;
+                        algoData.lastPound = y * size + x;
                         mokuVictory(x, y); // V�rifie les diverse condition de victoire 
                         turn = (turn) ? false : true; // TODO: Implementer algo min max ici (vsAi == true quand les blancs sont l'algo)
                     }
@@ -184,14 +187,12 @@ void Game::gaming(sf::Event ev) {
         // le tern�re gere les bouton de hint (par l'algo) et de preview de score pour le Go
         buttonEvent(goOn ? &(_visual_.b9) : &(_visual_.b7), ev, goOn ? &visualData.scoreState : &hint); // TODO: setup visualData.hint avec l'algo (meme system que preview, un pion transparent en plus qu'on place et qui montre le hint)
 		if (hint == true) {
-			// algo.Take_algo(visualData.map, 361 ,turn);
-
-			// algo.test_main(visualData.map, 361, turn, visualData.bScore, visualData.wScore);
-			// int score = algo.min(2, turn, -100000, 100000, visualData.map);
-			// int score = algo.minimax_v2(visualData.map, 3, true);
-			int score = algo.coup(visualData.map, turn);
-			turn = (turn) ? false : true;
-			printf("score = %d\n", score);
+            algoData.wScore = visualData.wScore;
+            algoData.bScore = visualData.bScore;
+            memcpy(algoData.map,visualData.map, 361);
+            algoData.turn = turn;
+            int score = algo.ask(algoData);
+			//printf("score = %d\n", score);
 			hint = false;
 		}
 

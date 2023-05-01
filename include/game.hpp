@@ -17,6 +17,7 @@ private:
     bool        goOn = false;
     char        territory[361];
     visual_data visualData;
+    AlgoData    algoData;
     bool        turn = true;
     int         pass = 0;
     bool        hint = false;

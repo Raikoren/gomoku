@@ -6,29 +6,38 @@
 #include <chrono>
 #include <vector>
 #include <utility>
-// # include "game.hpp"
+#include "env.hpp"
 
-struct algoData {
+struct AlgoData {
     int     wScore;// une fois a 5 l'algo ne doit pas aller plus loin
     int     bScore;// une fois a 5 l'algo ne doit pas aller plus loin
-    char    map[362];// map original
-    bool    turn;// true = blanc || false == noir
+    char    map[361];// map original
+    bool    turn;// true = black || false == white
+    int     lastPound;// position du dernier pion posé
+    int     size;
 };
 
 class Algo {
 	public:
 		Algo() { }
-        int     algo(algoData data); // fonction d'appel
-        void    minMax(int position, float alpha, float beta, int depth, bool turn);
+        int     ask(AlgoData data); // fonction d'appel
+        int     minMax(std::vector<std::string>::iterator position, float alpha, float beta, int depth, bool turn);
         // position = position dans l'historique (0 <-> DEPTH)
         // alpha = meilleur score actuel pour les blancs
         // beta = meilleur score actuel pour les noirs
         // depth = profondeur actuelle
-        bool    newPosition(int child, int position);
+        std::vector<int> setMovesOrder(std::vector<std::string>::iterator i, bool turn); // retourne un vecteur contenent dans l'ordre les coups à tester 
+        bool    checkPos(int x, int y, std::string map, bool firstRound, bool turn); // check valibilité d'un coup et si firstRound == true, si le coup créé une ligne ou une prise
+        bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
+        bool    canTake(int x, int y, std::string map, bool turn);
 	private:
-        int     bScore;
-        int     wScore;
-        // vector historique de taille DEPTH
+        int                         bScore;
+        int                         wScore;
+        int                         size;
+        int                         lastPoundY;
+        int                         lastPoundX;
+        std::vector<std::string>    historique; //historique de longueur DEPTH
+        std::vector<std::string>    movesOrder; //historique de longueur DEPTH
 };
 
 #endif
