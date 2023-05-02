@@ -194,6 +194,7 @@ void Game::gaming(sf::Event ev) {
             int score = algo.ask(algoData);
 			//printf("score = %d\n", score);
 			hint = false;
+
 		}
 
 
@@ -497,7 +498,11 @@ bool Game::threeLineDetector(int dx, int dy, int x, int y, char* map) {
             return(true);
         return (false);
     }
-    if (ally == 1 && map[(y * size + (dy * size)) + x + dx] == p && map[(y * size + ((dy * size) * 2)) + x + (dx * 2)] == '0') {
+    if (ally == 1
+        && x + dx >= 0 && x + dx < size && x + (dx * 2) >= 0 && x + (dx * 2) < size
+        && y + dy >= 0 && y + dy < size && y + (dy * 2) >= 0 && y + (dy * 2) < size
+        && map[((y + dy) * size) + x + dx] == p
+        && map[((y + (dy * 2)) * size) + (x + (dx * 2))] == '0') {
         if (hole == 2 || (hole == 1 && (dy == -1 || (dy == 0 && dx == -1))))
             return(true);
     }

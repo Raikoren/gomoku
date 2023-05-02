@@ -8,7 +8,13 @@ int Algo::ask(AlgoData data) {
     lastPoundY = data.lastPound / data.size;
     lastPoundX = data.lastPound % data.size;
     std::cout << data.lastPound << " " << lastPoundX << " " << lastPoundY << std::endl;
-    return minMax(historique.begin(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), DEPTH, data.turn);
+
+	int result = 0;
+    result = minMax(historique.begin(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), DEPTH, data.turn);
+	historique.clear();
+	historique.resize(0);
+	movesOrder.clear();
+	return result;
 }
 
 int Algo::minMax(std::vector<std::string>::iterator position, float alpha, float beta, int depth, bool turn) {
@@ -18,32 +24,37 @@ int Algo::minMax(std::vector<std::string>::iterator position, float alpha, float
     for (int move : moves)
         std::cout << move << std::endl;
     std::cout << std::endl;
-    //if (turn) {
-    //    int maxEval = -std::numeric_limits<float>::infinity();
-    //    int child = 0;
-    //    for (int move : moves) {
-    //        int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
-    //        //maxEval = heuristique(maxEval, eval);
-    //        //alpha = heuristique(alpha, eval);
-    //        if (beta <= alpha) {
-    //            break;
-    //        }
-    //    }
-    //    return maxEval;
-    //}
-    //else {
-    //    int minEval = std::numeric_limits<float>::infinity();
-    //    int child = 0;
-    //    for (int move : moves) {
-    //        int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
-    //        //minEval = heuristique(minEval, eval);
-    //        //alpha = heuristique(alpha, eval) * -1;
-    //        if (beta <= alpha) {
-    //            break;
-    //        }
-    //    }
-    //    return minEval;
-    //}
+    if (turn) {
+       int maxEval = -std::numeric_limits<float>::infinity();
+       int child = 0;
+       for (int move : moves) {
+           // push_back move to historique avec strcpy de *position
+		   
+		   int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
+           //maxEval = heuristique(maxEval, eval);
+           //alpha = heuristique(alpha, eval);
+           if (beta <= alpha) {
+               break;
+           }
+       }
+	   moves.clear();
+       return maxEval;
+    }
+    else {
+       int minEval = std::numeric_limits<float>::infinity();
+       int child = 0;
+       for (int move : moves) {
+           int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
+           //minEval = heuristique(minEval, eval);
+           //alpha = heuristique(alpha, eval) * -1;
+           if (beta <= alpha) {
+               break;
+           }
+       }
+	   moves.clear();
+       return minEval;
+    }
+	moves.clear();
     return 0;
 }
 
@@ -55,7 +66,7 @@ std::vector<int> Algo::setMovesOrder(std::vector<std::string>::iterator i, bool 
     bool                firstRound = true;
     std::vector<int>    res;
 
-    while (round < size) { // boucle pour chaques "anneaux" autour du dernier pion vraiment placé
+    while (round < size) { // boucle pour chaques "anneaux" autour du dernier pion vraiment placï¿½
         int x = lastPoundX - (round + 1);
         int y = lastPoundY - (round + 1);
         while (line < 4) { // boucle pour chacune des 4 lignes composant un anneau
@@ -81,6 +92,7 @@ std::vector<int> Algo::setMovesOrder(std::vector<std::string>::iterator i, bool 
             round = 0;
         }
     }
+
     return res;
 }
 
