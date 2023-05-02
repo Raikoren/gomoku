@@ -1,5 +1,9 @@
 #include "algo.hpp"
 
+int Algo::heuristique(int currentEval, int newEval) {
+	int score = 0;
+}
+
 int Algo::ask(AlgoData data) {
     wScore = data.wScore;
     bScore = data.bScore;
@@ -17,7 +21,7 @@ int Algo::ask(AlgoData data) {
 	return result;
 }
 
-int Algo::minMax(std::vector<std::string>::iterator position, float alpha, float beta, int depth, bool turn) {
+int Algo::minMax(std::vector<std::string>::iterator position, int alpha, int beta, int depth, bool turn) {
     if (depth == 0 || bScore == 5 || wScore == 5)
         return 0; // return current score
     std::vector<int> moves = setMovesOrder(position, turn);
@@ -29,10 +33,10 @@ int Algo::minMax(std::vector<std::string>::iterator position, float alpha, float
        int child = 0;
        for (int move : moves) {
            // push_back move to historique avec strcpy de *position
-		   
+
 		   int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
-           //maxEval = heuristique(maxEval, eval);
-           //alpha = heuristique(alpha, eval);
+           maxEval = std::max(maxEval, eval);
+           alpha = std::max(alpha, maxEval);
            if (beta <= alpha) {
                break;
            }
@@ -45,8 +49,8 @@ int Algo::minMax(std::vector<std::string>::iterator position, float alpha, float
        int child = 0;
        for (int move : moves) {
            int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
-           //minEval = heuristique(minEval, eval);
-           //alpha = heuristique(alpha, eval) * -1;
+		   minEval = std::min(minEval, eval);
+		   beta = std::min(beta, minEval);
            if (beta <= alpha) {
                break;
            }

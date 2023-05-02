@@ -9,3 +9,6 @@ gomoku.vcxproj.filters
 .idea/
 
 SFML
+gomoku
+obj
+.vscode
