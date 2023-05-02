@@ -1,6 +1,7 @@
 #include "algo.hpp"
 
 int Algo::heuristique(const std::string& map, bool turn) {
+	static int i = 100;
 	// dprintf(1, "heuristique\n");
 	// dprintf(1, "map: %s\n", map.c_str());
 	int score = 0;
@@ -23,7 +24,6 @@ int Algo::ask(AlgoData data) {
 	// historique.resize(0);
 	movesOrder.clear();
 
-	dprintf(1, "result = %d\n", result);
 	return result;
 }
 
@@ -35,7 +35,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
         return heuristique(position, turn); // return current score
 	}
     std::vector<int> moves = setMovesOrder(position, turn);
-	// dprintf(1, "moves.size() = %lu\n", moves.size());
     // for (int move : moves)
     //     std::cout << move << std::endl;
     if (turn) {
@@ -52,6 +51,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
 			maxEval = std::max(maxEval, eval);
 			alpha = std::max(alpha, maxEval);
+			if (beta <= alpha){
+				int i = 0; // pour test
+				return maxEval;
+			}
        }
 	   moves.clear();
        return maxEval;
@@ -70,6 +73,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
 			minEval = std::min(minEval, eval);
 			beta = std::min(beta, minEval);
+			if (beta >= alpha){
+				int i = 0; // pour test
+				return minEval;
+			}
        }
 	   moves.clear();
        return minEval;
