@@ -1,45 +1,57 @@
 #include "algo.hpp"
 
-int Algo::heuristique(int currentEval, int newEval) {
+int Algo::heuristique(const std::string& map, bool turn) {
+	// dprintf(1, "heuristique\n");
+	// dprintf(1, "map: %s\n", map.c_str());
 	int score = 0;
+	// return un random de 1 a 100
+    return std::rand() % 100 + 1;
 }
 
 int Algo::ask(AlgoData data) {
     wScore = data.wScore;
     bScore = data.bScore;
-    historique.push_back(data.map);
+    // historique.push_back(data.map);
     size = data.size;
     lastPoundY = data.lastPound / data.size;
     lastPoundX = data.lastPound % data.size;
     std::cout << data.lastPound << " " << lastPoundX << " " << lastPoundY << std::endl;
 
 	int result = 0;
-    result = minMax(historique.begin(), std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), DEPTH, data.turn);
-	historique.clear();
-	historique.resize(0);
+    result = minMax(data.map, INT_MAX, INT_MIN, DEPTH, data.turn);
+	// historique.clear();
+	// historique.resize(0);
 	movesOrder.clear();
+
+	dprintf(1, "result = %d\n", result);
 	return result;
 }
 
-int Algo::minMax(std::vector<std::string>::iterator position, int alpha, int beta, int depth, bool turn) {
-    if (depth == 0 || bScore == 5 || wScore == 5)
-        return 0; // return current score
+int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn) {
+	static int i = 0;
+    if (depth == 0 || bScore == 5 || wScore == 5){
+		// dprintf(1, "i = %d\n", i);
+		i ++;
+        return heuristique(position, turn); // return current score
+	}
     std::vector<int> moves = setMovesOrder(position, turn);
-    for (int move : moves)
-        std::cout << move << std::endl;
-    std::cout << std::endl;
+	// dprintf(1, "moves.size() = %lu\n", moves.size());
+    // for (int move : moves)
+    //     std::cout << move << std::endl;
     if (turn) {
        int maxEval = -std::numeric_limits<float>::infinity();
        int child = 0;
        for (int move : moves) {
-           // push_back move to historique avec strcpy de *position
-		   int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
+			std::string updatedMap = position;
 
-        //    maxEval = std::max(maxEval, eval);
-        //    alpha = std::max(alpha, maxEval);
-           if (beta <= alpha) {
-               break;
-           }
+			// Modifiez updatedMap pour inclure le mouvement en cours
+			updatedMap[move] = turn ? '1' : '2';
+
+			// Passez updatedMap directement à minMax
+			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn);
+
+			maxEval = std::max(maxEval, eval);
+			alpha = std::max(alpha, maxEval);
        }
 	   moves.clear();
        return maxEval;
@@ -48,13 +60,16 @@ int Algo::minMax(std::vector<std::string>::iterator position, int alpha, int bet
        int minEval = std::numeric_limits<float>::infinity();
        int child = 0;
        for (int move : moves) {
-           int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
+			std::string updatedMap = position;
 
-		//    minEval = std::min(minEval, eval);
-		//    beta = std::min(beta, minEval);
-           if (beta <= alpha) {
-               break;
-           }
+			// Modifiez updatedMap pour inclure le mouvement en cours
+			updatedMap[move] = turn ? '1' : '2';
+
+			// Passez updatedMap directement à minMax
+			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn);
+
+			minEval = std::min(minEval, eval);
+			beta = std::min(beta, minEval);
        }
 	   moves.clear();
        return minEval;
@@ -63,8 +78,8 @@ int Algo::minMax(std::vector<std::string>::iterator position, int alpha, int bet
     return 0;
 }
 
-std::vector<int> Algo::setMovesOrder(std::vector<std::string>::iterator i, bool turn) {
-    std::string         pos = *i;
+std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
+    std::string         pos = i;
     int                 round = 0;
     int                 line = 0;
     int                 cell = 0;
