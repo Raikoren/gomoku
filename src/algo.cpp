@@ -33,10 +33,10 @@ int Algo::minMax(std::vector<std::string>::iterator position, int alpha, int bet
        int child = 0;
        for (int move : moves) {
            // push_back move to historique avec strcpy de *position
-
 		   int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
-           maxEval = std::max(maxEval, eval);
-           alpha = std::max(alpha, maxEval);
+
+        //    maxEval = std::max(maxEval, eval);
+        //    alpha = std::max(alpha, maxEval);
            if (beta <= alpha) {
                break;
            }
@@ -49,8 +49,9 @@ int Algo::minMax(std::vector<std::string>::iterator position, int alpha, int bet
        int child = 0;
        for (int move : moves) {
            int eval = minMax(position + 1, alpha, beta, depth - 1, !turn);
-		   minEval = std::min(minEval, eval);
-		   beta = std::min(beta, minEval);
+
+		//    minEval = std::min(minEval, eval);
+		//    beta = std::min(beta, minEval);
            if (beta <= alpha) {
                break;
            }
