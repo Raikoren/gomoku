@@ -6,6 +6,7 @@
 #include <chrono>
 #include <vector>
 #include <utility>
+#include <tgmath.h>
 #include "env.hpp"
 
 struct AlgoData {

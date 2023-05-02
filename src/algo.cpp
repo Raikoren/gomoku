@@ -19,7 +19,7 @@ int Algo::ask(AlgoData data) {
     std::cout << data.lastPound << " " << lastPoundX << " " << lastPoundY << std::endl;
 
 	int result = 0;
-    result = minMax(data.map, INT_MAX, INT_MIN, DEPTH, data.turn);
+    result = minMax(data.map, INT_MIN, INT_MAX, DEPTH, data.turn);
 	// historique.clear();
 	// historique.resize(0);
 	movesOrder.clear();
@@ -29,16 +29,23 @@ int Algo::ask(AlgoData data) {
 
 int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn) {
 	static int i = 0;
+	int prise;
     if (depth == 0 || bScore == 5 || wScore == 5){
-		// dprintf(1, "i = %d\n", i);
+		dprintf(1, "i = %d\n", i);
 		i ++;
         return heuristique(position, turn); // return current score
 	}
     std::vector<int> moves = setMovesOrder(position, turn);
+
+	// Prendre les 20% premiers mouvements
+	int movesToTake = std::ceil(moves.size() * 0.2);
+	moves.resize(movesToTake);
+
+
     // for (int move : moves)
     //     std::cout << move << std::endl;
     if (turn) {
-       int maxEval = -std::numeric_limits<float>::infinity();
+       int maxEval = INT_MIN;
        int child = 0;
        for (int move : moves) {
 			std::string updatedMap = position;
@@ -52,15 +59,14 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 			maxEval = std::max(maxEval, eval);
 			alpha = std::max(alpha, maxEval);
 			if (beta <= alpha){
-				int i = 0; // pour test
-				return maxEval;
+				break;
 			}
        }
-	   moves.clear();
+	//    moves.clear();
        return maxEval;
     }
     else {
-       int minEval = std::numeric_limits<float>::infinity();
+       int minEval = INT_MAX;
        int child = 0;
        for (int move : moves) {
 			std::string updatedMap = position;
@@ -73,15 +79,14 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
 			minEval = std::min(minEval, eval);
 			beta = std::min(beta, minEval);
-			if (beta >= alpha){
-				int i = 0; // pour test
-				return minEval;
+			if (beta <= alpha){
+				break;
 			}
        }
-	   moves.clear();
+	//    moves.clear();
        return minEval;
     }
-	moves.clear();
+	// moves.clear();
     return 0;
 }
 
