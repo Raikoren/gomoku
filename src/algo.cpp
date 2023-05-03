@@ -19,7 +19,10 @@ int Algo::ask(AlgoData data) {
     std::cout << data.lastPound << " " << lastPoundX << " " << lastPoundY << std::endl;
 
 	int result = 0;
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     result = minMax(data.map, INT_MIN, INT_MAX, DEPTH, data.turn);
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	dprintf(1, "Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 	// historique.clear();
 	// historique.resize(0);
 	movesOrder.clear();
@@ -31,19 +34,22 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 	static int i = 0;
 	int prise;
     if (depth == 0 || bScore == 5 || wScore == 5){
-		dprintf(1, "i = %d\n", i);
+		// dprintf(1, "i = %d\n", i);
 		i ++;
         return heuristique(position, turn); // return current score
 	}
     std::vector<int> moves = setMovesOrder(position, turn);
 
 	// Prendre les 20% premiers mouvements
-	int movesToTake = std::ceil(moves.size() * 0.2);
-	moves.resize(movesToTake);
+	if (moves.size() > 20){
+		int movesToTake = std::ceil(moves.size() * 0.2);
+		moves.resize(movesToTake);
+	}
 
 
     // for (int move : moves)
     //     std::cout << move << std::endl;
+	// dprintf(1, "nb moves: %d\n", moves.size());
     if (turn) {
        int maxEval = INT_MIN;
        int child = 0;
@@ -90,43 +96,60 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     return 0;
 }
 
-std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
-    std::string         pos = i;
-    int                 round = 0;
-    int                 line = 0;
-    int                 cell = 0;
-    bool                firstRound = true;
-    std::vector<int>    res;
+std::vector<std::pair<int, int>> Algo::getWindowBounds(const std::string& map) {
+    int min_x = size, min_y = size, max_x = 0, max_y = 0;
 
-    while (round < size) { // boucle pour chaques "anneaux" autour du dernier pion vraiment plac�
-        int x = lastPoundX - (round + 1);
-        int y = lastPoundY - (round + 1);
-        while (line < 4) { // boucle pour chacune des 4 lignes composant un anneau
-            int dx = line % 2 == 0 ? 1 : 0;
-            int dy = dx == 0 ? 1 : 0;
-            dx *= line == 2 ? -1 : 1;
-            dy *= line == 3 ? -1 : 1;
-            while (cell < 2 + (2 * round)) {
-                if (!(x < 0 || x >= size || y < 0 || y >= size || (dx == 0 && dy == 0)) && checkPos(x, y, pos, firstRound, turn)) {
-                    res.push_back(y * size + x);
-                }
-                x += dx;
-                y += dy;
-                cell++;
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            if (map[y * size + x] != '0') {
+                min_x = std::min(min_x, x);
+                min_y = std::min(min_y, y);
+                max_x = std::max(max_x, x);
+                max_y = std::max(max_y, y);
             }
-            line++;
-            cell = 0;
-        }
-        round++;
-        line = 0;
-        if (firstRound && round == size) {
-            firstRound = false;
-            round = 0;
         }
     }
 
+    return {{min_x, min_y}, {max_x, max_y}};
+}
+
+std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
+    std::string pos = i;
+    std::vector<int> res;
+    static bool firstRound = true;
+    if (firstRound) {
+        firstRound = false;
+        res.push_back(size * size / 2);
+    }
+
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            if (pos[y * size + x] != '0') {
+                for (int dy = -1; dy <= 1; ++dy) {
+                    for (int dx = -1; dx <= 1; ++dx) {
+                        int newX = x + dx;
+                        int newY = y + dy;
+
+                        if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
+                            continue;
+                        }
+
+                        if (checkPos(newX, newY, pos, firstRound, turn)) {
+                            res.push_back(newY * size + newX);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Supprimez les doublons de la liste des mouvements
+    std::sort(res.begin(), res.end());
+    res.erase(std::unique(res.begin(), res.end()), res.end());
+
     return res;
 }
+
 
 bool Algo::checkPos(int x, int y, std::string map, bool firstRound, bool turn) {
     bool first = false;

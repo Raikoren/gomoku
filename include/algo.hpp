@@ -28,6 +28,7 @@ class Algo {
         // beta = meilleur score actuel pour les noirs
         // depth = profondeur actuelle
         std::vector<int> setMovesOrder(const std::string& i, bool turn); // retourne un vecteur contenent dans l'ordre les coups � tester 
+		std::vector<std::pair<int, int>> getWindowBounds(const std::string& map);
         bool    checkPos(int x, int y, std::string map, bool firstRound, bool turn); // check valibilit� d'un coup et si firstRound == true, si le coup cr�� une ligne ou une prise
 		int		heuristique(const std::string& map, bool turn);
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
