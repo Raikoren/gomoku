@@ -316,8 +316,8 @@ bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool t
         return(false);
     dy *= -1;
     dx *= -1;
-    if (ally == 2) {
-        if (map[(y * size + (dy * size)) + x + dx] == '0')
+	if (ally == 2) {
+        if ((y + dy >= 0 && y + dy < size && x + dx < size && x + dx >= 0) && map[((y + dy) * size) + x + dx] == '0')
             return(true);
         return (false);
     }
