@@ -32,13 +32,18 @@ class Algo {
         bool    checkPos(int x, int y, std::string map, bool firstRound, bool turn); // check valibilit� d'un coup et si firstRound == true, si le coup cr�� une ligne ou une prise
 		int		heuristique(const std::string& map, bool turn);
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
+		bool	fourLine(int dx, int dy, int x, int y, const std::string map, bool turn);
         bool    canTake(int x, int y, std::string map, bool turn);
+		bool	FiveInRow(const std::string& map, bool turn, char player);
 	private:
+
+		int							optimalMove;
         int                         bScore;
         int                         wScore;
         int                         size;
         int                         lastPoundY;
         int                         lastPoundX;
+		bool						player_dark;
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH
 };
