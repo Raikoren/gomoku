@@ -259,11 +259,7 @@ std::vector<std::pair<int, int>> Algo::getWindowBounds(const std::string& map) {
 std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     std::string pos = i;
     std::vector<int> res;
-    static bool firstRound = true;
-    if (firstRound) {
-        firstRound = false;
-        res.push_back(size * size / 2);
-    }
+    bool firstCheck = true;
 
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
@@ -272,20 +268,23 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
                     for (int dx = -1; dx <= 1; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
-
                         if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
                             continue;
                         }
-
-                        if (checkPos(newX, newY, pos, firstRound, turn)) {
+                        if (checkPos(newX, newY, pos, firstCheck, turn)) {
                             res.push_back(newY * size + newX);
                         }
                     }
                 }
             }
         }
+        if (y == size - 1) {
+            firstCheck = false;
+            y = 0;
+        }
     }
-
+    if (res.empty())
+        res.push_back(size * size / 2);
     // Supprimez les doublons de la liste des mouvements
     std::sort(res.begin(), res.end());
     res.erase(std::unique(res.begin(), res.end()), res.end());
