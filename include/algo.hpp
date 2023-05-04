@@ -8,7 +8,14 @@
 #include <vector>
 #include <utility>
 #include <tgmath.h>
+#include <unordered_map>
 #include "env.hpp"
+
+struct TranspositionTableEntry {
+    std::string map;
+    int score;
+};
+
 
 struct AlgoData {
     int     wScore;// une fois a 5 l'algo ne doit pas aller plus loin
@@ -53,6 +60,7 @@ class Algo {
 		bool						player_dark;
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH
+		std::unordered_map<std::string, TranspositionTableEntry> transpositionTable;
 };
 
 #endif

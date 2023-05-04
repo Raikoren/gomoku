@@ -1,7 +1,16 @@
 #include "algo.hpp"
 
 int Algo::calculateScoreRow(const std::string& map, char player) {
+	std::string cacheKey = map + player;
+    auto it = transpositionTable.find(cacheKey);
+    if (it != transpositionTable.end()) {
+        // Utilisez la valeur stockée dans la table de transposition si la profondeur est plus petite ou égale à celle stockée.
+        if (map <= it->second.map) {
+            return it->second.score;
+        }
+    }
     int score = 0;
+    char opponent = (player == '2') ? '1' : '2';
 
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
@@ -13,37 +22,72 @@ int Algo::calculateScoreRow(const std::string& map, char player) {
                         }
 
                         int count = 0;
+                        bool blocked_start = false;
+                        bool blocked_end = false;
 
-                        for (int i = 0; i < 4; ++i) {
+                        for (int i = -1; i <= 4; ++i) {
                             int newX = x + dx * i;
                             int newY = y + dy * i;
 
                             if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
-                                break;
+                                if (i == -1) {
+                                    blocked_start = true;
+                                } else if (i == 4) {
+                                    blocked_end = true;
+                                } else {
+                                    blocked_end = true;
+                                }
+                                continue;
                             }
 
-                            if (map[newY * size + newX] == player) {
-                                count++;
+                            if (i == -1 || i == 4) {
+                                if (map[newY * size + newX] == opponent) {
+                                    i == -1 ? blocked_start = true : blocked_end = true;
+                                }
                             } else {
-                                break;
+                                if (map[newY * size + newX] == opponent) {
+                                    blocked_end = true;
+                                }
+                                if (map[newY * size + newX] == player) {
+                                    count++;
+                                } else {
+                                    break;
+                                }
                             }
                         }
 
+                        int base_score = 0;
                         if (count == 2) {
-                            score += 10;
+                            base_score = 10;
                         } else if (count == 3) {
-                            score += 100;
+                            base_score = 100;
                         } else if (count == 4) {
-                            score += 1000;
+                            base_score = 1000;
+                        } else if (count == 5) {
+                            return 100000;
                         }
+
+                        if (blocked_start && blocked_end) {
+                            base_score = 0;
+                        } else if (blocked_start || blocked_end) {
+                            base_score /= 3;
+                        }
+
+                        score += base_score;
                     }
                 }
             }
         }
     }
 
+	TranspositionTableEntry entry;
+    entry.map = map;
+    entry.score = score;
+
+    transpositionTable[cacheKey] = entry;
     return score;
 }
+
 
 bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
     int count = 0;
@@ -99,24 +143,21 @@ int Algo::heuristique(const std::string& map, bool turn) {
 	score -= calculateScoreRow(map, '1');
 
 // VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
-	if (fiveInRow(map, turn, player)) {
-		printf("PLAYER fiveInRow\n");
-		printf("turn %d\n", turn);
-		return score + 10000;
-	}
-	else if (fiveInRow(map, turn, opponent)) {
-		printf("OPPO fiveInRow\n");
-		return score + 10000;
-	}
+	// if (calculateScoreRow(map, player) == 100000) {
+	// 	return score + 10000;
+	// }
+	// else if (calculateScoreRow(map, opponent) == 100000) {
+	// 	return score + 10000;
+	// }
 
     // return std::rand() % 100 + 1;
 	return score;
 
-	// if (fiveInRow(map, turn)) {
+	// if (FiveInRow(map, turn)) {
 	// 	return INT_MAX;
 	// }
 
-	//	fiveInRow
+	//	FiveInRow
 	//	LiveFour
 	//	DeadFour
 	//	LiveThree
@@ -124,6 +165,7 @@ int Algo::heuristique(const std::string& map, bool turn) {
 	//	LiveTwo
 	//	DeadTwo
 }
+
 
 
 int Algo::ask(AlgoData data) {
@@ -175,10 +217,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     std::vector<int> moves = setMovesOrder(position, turn);
 
 	// Prendre les 50% premiers mouvements
-	// if (moves.size() > 50){
-	// 	int movesToTake = std::ceil(moves.size() * 0.5);
-	// 	moves.resize(movesToTake);
-	// }
+	if (moves.size() > 50){
+		int movesToTake = std::ceil(moves.size() * 0.5);
+		moves.resize(movesToTake);
+	}
 
 
     // for (int move : moves)
@@ -278,6 +320,8 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
                 }
             }
         }
+		if (y == size - 1 && firstCheck == false)
+			break;
         if (y == size - 1) {
             firstCheck = false;
             y = 0;
