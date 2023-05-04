@@ -232,6 +232,9 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		if (v.endGame && v.gomoku && v.bScore != 5 && v.wScore != 5) {
 			_window_.draw(v.line, 2, sf::Lines);
 		}
+		if (v.hintOn) {
+			_window_.draw(v.hint);
+		}
 	}
 	if (v.previewEnable) {
 		_window_.draw(v.preview);

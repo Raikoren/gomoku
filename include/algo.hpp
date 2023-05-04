@@ -22,7 +22,6 @@ struct AlgoData {
     int     bScore;// une fois a 5 l'algo ne doit pas aller plus loin
     char    map[361];// map original
     bool    turn;// true = black || false == white
-    int     lastPound;// position du dernier pion pos�
     int     size;
 };
 
@@ -55,8 +54,6 @@ class Algo {
         int                         bScore;
         int                         wScore;
         int                         size;
-        int                         lastPoundY;
-        int                         lastPoundX;
 		bool						player_dark;
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH

@@ -24,6 +24,7 @@ struct visual_data
     int                 bScore = 0;
     int                 wScore = 0;
     sf::Vertex          line[2];
+    bool                hintOn = false;
 };
 
 class Visual

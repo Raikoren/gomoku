@@ -3,6 +3,8 @@
 /* Constructor */
 Game::Game() {
     memset(visualData.map, '0', 361);
+    visualData.preview.setFillColor(sf::Color(255, 0, 55, 100));
+    visualData.hint.setFillColor(sf::Color(0, 0, 255, 100));
 }
 
 /* Destructor */
@@ -53,7 +55,6 @@ void Game::settingUp(sf::Event ev) {
     buttonEvent(&(_visual_.b2), ev, &size, 13);
     buttonEvent(&(_visual_.b3), ev, &size, 19);
     buttonEvent(&(_visual_.bVsAi), ev, &vsAi);
-    algoData.lastPound = size * size / 2;
     if (_visual_.b4.isTargeted(*(_visual_.getWin()))) {
         _visual_.b4.setButtonTexture(_visual_.getT7());
         gomokuOn = (ev.mouseButton.button == sf::Mouse::Left) ? true : false;
@@ -72,6 +73,7 @@ void Game::settingUp(sf::Event ev) {
         _visual_.bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 6) / 2);
         _visual_.wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 6) / 2);
         visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
+        visualData.hint.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
     }
 }
 
@@ -119,9 +121,16 @@ void Game::gaming(sf::Event ev) {
         y = (mouse.y - (WIN_Y / 2 - BOARD / 2) - pad / 2) / ((BOARD - pad) / size);
         x = (x >= size) ? size - 1 : x;
         y = (y >= size) ? size - 1 : y;
+        if (vsAi && !turn) {
+            algoData.wScore = visualData.wScore;
+            algoData.bScore = visualData.bScore;
+            memcpy(algoData.map, visualData.map, 361);
+            algoData.turn = turn;
+            visualData.map[algo.ask(algoData)] = '1';
+            turn = !turn;
+        }
         if (visualData.map[y * size + x] == '0') { // si la position cibl�e est vide
             visualData.previewEnable = previewToggle ? true : false;
-            visualData.preview.setFillColor(sf::Color(255, 0, 55, 100));
             visualData.preview.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * x - visualData.preview.getRadius(),
                 (WIN_Y / 2 - BOARD / 2) + margin + pad * y - visualData.preview.getRadius()));
             if (ev.mouseButton.button == sf::Mouse::Left) { // clique gauche
@@ -138,9 +147,9 @@ void Game::gaming(sf::Event ev) {
                 else if (gomokuOn) { // ruleset du go
                     if (!doubleThreeDetector(y * size + x, visualData.map, (turn) ? '2' : '1')) { // v�rifie l'introduction d'une double three
                         visualData.previewEnable = false;
-                        algoData.lastPound = y * size + x;
-                        mokuVictory(x, y); // V�rifie les diverse condition de victoire 
-                        turn = (turn) ? false : true; // TODO: Implementer algo min max ici (vsAi == true quand les blancs sont l'algo)
+                        visualData.hintOn = false;
+                        mokuVictory(x, y); // V�rifie les diverse condition de victoire
+                        turn = !turn;
                     }
                 }
             }
@@ -191,10 +200,12 @@ void Game::gaming(sf::Event ev) {
             algoData.bScore = visualData.bScore;
             memcpy(algoData.map,visualData.map, 361);
             algoData.turn = turn;
-            int score = algo.ask(algoData);
-			//printf("score = %d\n", score);
-			hint = false;
-
+            visualData.hintOn = true;
+            int res = algo.ask(algoData);
+            visualData.hintOn = true;
+            visualData.hint.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * (res % size) - visualData.hint.getRadius(),
+                (WIN_Y / 2 - BOARD / 2) + margin + pad * (res / size) - visualData.hint.getRadius()));
+            hint = false;
 		}
 
 
@@ -468,44 +479,45 @@ bool Game::threeLineDetector(int dx, int dy, int x, int y, char* map) {
     char    e = (p == '1') ? '2' : '1';
     int     hole = 0;
     int     ally = 0;
-    bool    ennemy = false;
-    int     epos;
+    bool    safeBreak = false;
+    bool    lastHitEmpty = false;
+    int     ennemy;
 
-    for (int i = 1; i < 5; i++) {
-        if ((x + dx * i < 0 && x + dx * i >= size && y + dy * i < 0 && y + dy * i >= size)
-        || map[(y * size + ((dy * size) * i)) + x + (dx * i)] == e) {
-            ennemy = true;
-            epos = i - 1;
+    for (int i = 1; i < 5 && !(x + dx * i < 0 || x + dx * i >= size || y + dy * i < 0 || y + dy * i >= size); i++) {
+        lastHitEmpty = false;
+        if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == e) {
+            if (map[(y * size + ((dy * size) * (i - 1))) + x + (dx * (i - 1))] == p)
+                return false;
+            ennemy = i - 1;
+            safeBreak = true;
             break;
         }
-        if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == '0') {
+        else if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == '0') {
             hole++;
-            if (ally == 2 || hole == 2)
+            lastHitEmpty = true;
+            if (ally == 2 || hole == 2) {
+                safeBreak = true;
                 break;
+            }
         }
-        if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == p) {
+        else if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == p) {
             if (ally == 2)
                 return false;
             ally++;
         }
     }
-    if (ennemy && map[(y * size + ((dy * size) * epos)) + x + (dx * epos)] == p)
-        return(false);
     dy *= -1;
     dx *= -1;
-	if (ally == 2) {
-        if ((y + dy >= 0 && y + dy < size && x + dx < size && x + dx >= 0) && map[((y + dy) * size) + x + dx] == '0')
-            return(true);
-        return (false);
-    }
-    if (ally == 1
-        && x + dx >= 0 && x + dx < size && x + (dx * 2) >= 0 && x + (dx * 2) < size
-        && y + dy >= 0 && y + dy < size && y + (dy * 2) >= 0 && y + (dy * 2) < size
+    if (!safeBreak && !lastHitEmpty)
+        return false;
+    if (ally == 2)
+        return ((y + dy >= 0 && y + dy < size&& x + dx < size&& x + dx >= 0) && map[((y + dy) * size) + x + dx] == '0');
+    else if (ally == 1 && dy != 1 && !(dx == 1 && dy == 0)
+        && x + (dx * 2) >= 0 && x + (dx * 2) < size
+        && y + (dy * 2) >= 0 && y + (dy * 2) < size
         && map[((y + dy) * size) + x + dx] == p
-        && map[((y + (dy * 2)) * size) + (x + (dx * 2))] == '0') {
-        if (hole == 2 || (hole == 1 && (dy == -1 || (dy == 0 && dx == -1))))
+        && map[((y + (dy * 2)) * size) + (x + (dx * 2))] == '0')
             return(true);
-    }
     return false;
 }
 

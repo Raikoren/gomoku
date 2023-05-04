@@ -171,13 +171,8 @@ int Algo::heuristique(const std::string& map, bool turn) {
 int Algo::ask(AlgoData data) {
     wScore = data.wScore;
     bScore = data.bScore;
-    // historique.push_back(data.map);
     size = data.size;
-    lastPoundY = data.lastPound / data.size;
-    lastPoundX = data.lastPound % data.size;
 	player_dark = data.turn ? true : false;
-
-    std::cout << data.lastPound << " " << lastPoundX << " " << lastPoundY << std::endl;
 
 	int result = 0;
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -310,7 +305,7 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
                     for (int dx = -1; dx <= 1; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
-                        if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
+                        if (newX < 0 || newX >= size || newY < 0 || newY >= size || pos[newY * size + newX] != '0') {
                             continue;
                         }
                         if (checkPos(newX, newY, pos, firstCheck, turn)) {
@@ -371,47 +366,48 @@ bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool t
     char    e = (p == '1') ? '2' : '1';
     int     hole = 0;
     int     ally = 0;
-    bool    ennemy = false;
-    int     epos;
+    bool    safeBreak = false;
+    bool    lastHitEmpty = false;
+    int     ennemy;
 
     if (x < 0 || y < 0 || x >= size || y >= size) {
         return false;
     }
-    for (int i = 1; i < 5; i++) {
-        if (x + (dx * i) < 0 || x + (dx * i) >= size || y + (dy * i) < 0 || y + (dy * i) >= size
-            || map[((y + (dy * i)) * size) + (x + (dx * i))] == e) {
-            ennemy = true;
-            epos = i - 1;
+    for (int i = 1; i < 5 && !(x + dx * i < 0 || x + dx * i >= size || y + dy * i < 0 || y + dy * i >= size); i++) {
+        lastHitEmpty = false;
+        if (map[((dy * i + y) * size) + x + (dx * i)] == e) {
+            if (map[((dy * (i - 1) + y) * size) + x + (dx * (i - 1))] == p)
+                return false;
+            ennemy = i - 1;
+            safeBreak = true;
             break;
         }
-        if (map[((y + (dy * i)) * size) + (x + (dx * i))] == '0') {
+        else if (map[((dy * i + y) * size) + x + (dx * i)] == '0') {
             hole++;
-            if (ally == 2 || hole == 2)
+            lastHitEmpty = true;
+            if (ally == 2 || hole == 2) {
+                safeBreak = true;
                 break;
+            }
         }
-        if (map[((y + (dy * i)) * size) + (x + (dx * i))] == p) {
+        else if (map[((dy * i + y) * size) + x + (dx * i)] == p) {
             if (ally == 2)
                 return false;
             ally++;
         }
     }
-    if (ennemy && map[(y * size + ((dy * size) * epos)) + x + (dx * epos)] == p)
-        return(false);
     dy *= -1;
     dx *= -1;
-	if (ally == 2) {
-        if ((y + dy >= 0 && y + dy < size && x + dx < size && x + dx >= 0) && map[((y + dy) * size) + x + dx] == '0')
-            return(true);
-        return (false);
-    }
-    if (ally == 1
-        && x + dx >= 0 && x + dx < size && x + (dx * 2) >= 0 && x + (dx * 2) < size
-        && y + dy >= 0 && y + dy < size && y + (dy * 2) >= 0 && y + (dy * 2) < size
+    if (!safeBreak && !lastHitEmpty)
+        return false;
+    if (ally == 2)
+        return ((y + dy >= 0 && y + dy < size&& x + dx < size&& x + dx >= 0) && map[((y + dy) * size) + x + dx] == '0');
+    else if (ally == 1 && dy != 1 && !(dx == 1 && dy == 0)
+        && x + (dx * 2) >= 0 && x + (dx * 2) < size
+        && y + (dy * 2) >= 0 && y + (dy * 2) < size
         && map[((y + dy) * size) + x + dx] == p
-        && map[((y + (dy * 2)) * size) + (x + (dx * 2))] == '0') {
-        if (hole == 2 || (hole == 1 && (dy == -1 || (dy == 0 && dx == -1))))
-            return(true);
-    }
+        && map[((y + (dy * 2)) * size) + (x + (dx * 2))] == '0')
+        return(true);
     return false;
 }
 
