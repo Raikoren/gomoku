@@ -69,8 +69,8 @@ void Game::settingUp(sf::Event ev) {
         _visual_.b5.setButtonTexture(_visual_.getT4());
     if (gomokuOn || goOn) {
         _visual_.setGoban(size);
-        _visual_.bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
-        _visual_.wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
+        _visual_.bPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 6) / 2);
+        _visual_.wPound.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 6) / 2);
         visualData.preview.setRadius((BOARD - (MIN_MARGIN * 2)) / (size + 1) / 2);
     }
 }

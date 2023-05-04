@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string.h>
+# include <algorithm>
 #include <chrono>
 #include <vector>
 #include <utility>
@@ -31,11 +32,16 @@ class Algo {
 		std::vector<std::pair<int, int>> getWindowBounds(const std::string& map);
         bool    checkPos(int x, int y, std::string map, bool firstRound, bool turn); // check valibilit� d'un coup et si firstRound == true, si le coup cr�� une ligne ou une prise
 		int		heuristique(const std::string& map, bool turn);
+        // threeLine() detecte si le placement genere une ligne de trois
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
+        // antiline() detecte si le coup contre une ligne de trois déjà presente (take advantage est la meme fonction je pense faut quej e vois)
+        bool    antiLine();
+        // takeAdvantage() detecte si le coup génère un paterne qui provoque un puissance 5 dans deux tour à l'aide d'une ligne de 3
+        bool    takeAdvantage(int dx, int dy, int x, int y, std::string map, bool turn);
 		bool	fourLine(int dx, int dy, int x, int y, const std::string map, bool turn);
 		int		calculateScoreRow(const std::string& map, char player);
         bool    canTake(int x, int y, std::string map, bool turn);
-		bool	FiveInRow(const std::string& map, bool turn, char player);
+		bool	fiveInRow(const std::string& map, bool turn, char player);
 	private:
 
 		int							optimalMove;

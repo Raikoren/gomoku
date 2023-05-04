@@ -45,7 +45,7 @@ int Algo::calculateScoreRow(const std::string& map, char player) {
     return score;
 }
 
-bool Algo::FiveInRow(const std::string& map, bool turn, char player) {
+bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
     int count = 0;
 
     for (int y = 0; y < size; ++y) {
@@ -99,24 +99,24 @@ int Algo::heuristique(const std::string& map, bool turn) {
 	score -= calculateScoreRow(map, '1');
 
 // VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
-	if (FiveInRow(map, turn, player)) {
-		dprintf(1, "PLAYER FiveInRow\n");
-		dprintf(1,"turn %d\n", turn);
+	if (fiveInRow(map, turn, player)) {
+		printf("PLAYER fiveInRow\n");
+		printf("turn %d\n", turn);
 		return score + 10000;
 	}
-	else if (FiveInRow(map, turn, opponent)) {
-		dprintf(1, "OPPO FiveInRow\n");
+	else if (fiveInRow(map, turn, opponent)) {
+		printf("OPPO fiveInRow\n");
 		return score + 10000;
 	}
 
     // return std::rand() % 100 + 1;
 	return score;
 
-	// if (FiveInRow(map, turn)) {
+	// if (fiveInRow(map, turn)) {
 	// 	return INT_MAX;
 	// }
 
-	//	FiveInRow
+	//	fiveInRow
 	//	LiveFour
 	//	DeadFour
 	//	LiveThree
@@ -140,15 +140,15 @@ int Algo::ask(AlgoData data) {
 	int result = 0;
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     result = minMax(data.map, INT_MIN, INT_MAX, DEPTH, data.turn);
-	dprintf(1, "turn: %d\n", data.turn);
-	dprintf(1, "player: %d\n", player_dark);
+	printf("turn: %d\n", data.turn);
+	printf("player: %d\n", player_dark);
 
 
-	dprintf(1, "result: %d\n", result);
-	dprintf(1, "optimalMove: %d\n", optimalMove);
-	dprintf(1, "optimalMove: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
+	printf("result: %d\n", result);
+	printf("optimalMove: %d\n", optimalMove);
+	printf("optimalMove: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	dprintf(1, "Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+	printf("Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 	// historique.clear();
 	// historique.resize(0);
 	movesOrder.clear();
@@ -160,10 +160,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 	static int i = 0;
 	int prise;
 
-	if (FiveInRow(position, turn, '2')) {
+	if (fiveInRow(position, turn, '2')) {
 		return 10000 * depth;
 	}
-	else if (FiveInRow(position, turn, '1')) {
+	else if (fiveInRow(position, turn, '1')) {
 		return -10000 * depth;
 	}
 
@@ -296,6 +296,7 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
 
 bool Algo::checkPos(int x, int y, std::string map, bool firstRound, bool turn) {
     bool first = false;
+    bool important = false;
     if (map[y * size + x] != '0')
         return false;
     if (canTake(x, y, map, turn)) {
@@ -306,9 +307,9 @@ bool Algo::checkPos(int x, int y, std::string map, bool firstRound, bool turn) {
             if (dx == 0 && dy == 0) {
                 continue;
             }
-			// if (fourLine(dx, dy, x, y, map, turn)) {
-			// 	return true;
-			// }
+            if (takeAdvantage(dx, dy, x, y, map, turn) || threeLine(dx, dy, x + dx, y + dy, map, !turn)) {
+                important = true;
+            }
             if (threeLine(dx, dy, x, y, map, turn)) {
                 if (!first)
                     first = true;
@@ -317,15 +318,10 @@ bool Algo::checkPos(int x, int y, std::string map, bool firstRound, bool turn) {
             }
         }
     }
+    if (important && firstRound)
+        return true;
     return firstRound == first ? true : false;
 }
-
-// bool Algo::fourLine(int dx, int dy, int x, int y, const std::string map, bool turn) {
-// 	// count 4 in a row
-// 	char    p = turn ? '2' : '1';
-
-
-// }
 
 bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool turn) {
     char    p = turn ? '2' : '1';
@@ -335,6 +331,9 @@ bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool t
     bool    ennemy = false;
     int     epos;
 
+    if (x < 0 || y < 0 || x >= size || y >= size) {
+        return false;
+    }
     for (int i = 1; i < 5; i++) {
         if (x + (dx * i) < 0 || x + (dx * i) >= size || y + (dy * i) < 0 || y + (dy * i) >= size
             || map[((y + (dy * i)) * size) + (x + (dx * i))] == e) {
@@ -374,17 +373,55 @@ bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool t
 }
 
 bool Algo::canTake(int x, int y, std::string map, bool turn) {
-    char e = turn ? '1' : '2';
-    char a = !turn ? '1' : '2';
+    char ennemy = turn ? '1' : '2';
+    char ally = !turn ? '1' : '2';
     for (int dy = -1; dy <= 1; dy++) {
         for (int dx = -1; dx <= 1; dx++) {
             if (x + (dx * 3) < size && y + (dy * 3) < size
                 && x + (dx * 3) >= 0 && y + (dy * 3) >= 0
-                && map[(y + (dy * 1)) * size + (x + (dx * 1))] == e
-                && map[(y + (dy * 2)) * size + (x + (dx * 2))] == e
-                && map[(y + (dy * 3)) * size + (x + (dx * 3))] == a)
+                && map[(y + (dy * 1)) * size + (x + (dx * 1))] == ennemy
+                && map[(y + (dy * 2)) * size + (x + (dx * 2))] == ennemy
+                && map[(y + (dy * 3)) * size + (x + (dx * 3))] == ally)
                 return true;
         }
     }
     return false;
+}
+
+bool Algo::takeAdvantage(int dx, int dy, int x, int y, std::string map, bool turn) {
+    int i = 1;
+    int count = 0;
+    char ennemy = turn ? '1' : '2';
+    char ally = !turn ? '1' : '2';
+    int  safeBreak = 0;
+    while (x + dx * i >= 0 && y + dy * i >= 0 && x + dx * i < size && y + dy * i < size) {
+        if (map[(y + dy * i) * size + (x + dx * i)] == ally)
+            count++;
+        if (map[(y + dy * i) * size + (x + dx * i)] == ennemy)
+            return false;
+        if (map[(y + dy * i) * size + (x + dx * i)] == '0') {
+            dy *= -1;
+            dx *= -1;
+            safeBreak++;
+            break;
+        }
+        i++;
+    }
+    i = 1;
+    if (safeBreak == 1) {
+        while (x + dx * i >= 0 && y + dy * i >= 0 && x + dx * i < size && y + dy * i < size) {
+            if (map[(y + dy * i) * size + (x + dx * i)] == ally)
+                count++;
+            if (map[(y + dy * i) * size + (x + dx * i)] == ennemy)
+                return false;
+            if (map[(y + dy * i) * size + (x + dx * i)] == '0') {
+                dy *= -1;
+                dx *= -1;
+                safeBreak++;
+                break;
+            }
+            i++;
+        }
+    }
+    return safeBreak == 2 && count == 3;
 }
