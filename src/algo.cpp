@@ -1,5 +1,50 @@
 #include "algo.hpp"
 
+int Algo::calculateScoreRow(const std::string& map, char player) {
+    int score = 0;
+
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            if (map[y * size + x] == player) {
+                for (int dy = -1; dy <= 1; ++dy) {
+                    for (int dx = -1; dx <= 1; ++dx) {
+                        if (dx == 0 && dy == 0) {
+                            continue;
+                        }
+
+                        int count = 0;
+
+                        for (int i = 0; i < 4; ++i) {
+                            int newX = x + dx * i;
+                            int newY = y + dy * i;
+
+                            if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
+                                break;
+                            }
+
+                            if (map[newY * size + newX] == player) {
+                                count++;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (count == 2) {
+                            score += 10;
+                        } else if (count == 3) {
+                            score += 100;
+                        } else if (count == 4) {
+                            score += 1000;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return score;
+}
+
 bool Algo::FiveInRow(const std::string& map, bool turn, char player) {
     int count = 0;
 
@@ -50,26 +95,22 @@ int Algo::heuristique(const std::string& map, bool turn) {
 	char player = turn ? '2': '1';
 	char opponent = turn ? '1': '2';
 
+	score += calculateScoreRow(map, '2');
+	score -= calculateScoreRow(map, '1');
+
+// VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
 	if (FiveInRow(map, turn, player)) {
 		dprintf(1, "PLAYER FiveInRow\n");
 		dprintf(1,"turn %d\n", turn);
-		return 10000;
+		return score + 10000;
 	}
 	else if (FiveInRow(map, turn, opponent)) {
 		dprintf(1, "OPPO FiveInRow\n");
-		return -10000;
-	}
-	else {
-		if (turn) {
-			return std::rand() % 100 + 1;
-		}
-		else {
-			return -std::rand() % 100 + 1;
-		}
+		return score + 10000;
 	}
 
     // return std::rand() % 100 + 1;
-	return 0;
+	return score;
 
 	// if (FiveInRow(map, turn)) {
 	// 	return INT_MAX;

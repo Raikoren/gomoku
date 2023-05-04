@@ -33,6 +33,7 @@ class Algo {
 		int		heuristique(const std::string& map, bool turn);
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
 		bool	fourLine(int dx, int dy, int x, int y, const std::string map, bool turn);
+		int		calculateScoreRow(const std::string& map, char player);
         bool    canTake(int x, int y, std::string map, bool turn);
 		bool	FiveInRow(const std::string& map, bool turn, char player);
 	private:
