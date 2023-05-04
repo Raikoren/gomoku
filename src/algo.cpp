@@ -308,7 +308,7 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
                         if (newX < 0 || newX >= size || newY < 0 || newY >= size || pos[newY * size + newX] != '0') {
                             continue;
                         }
-                        if (checkPos(newX, newY, pos, firstCheck, turn)) {
+                        if (std::find(res.begin(), res.end(), newY * size + newX) == res.end() && checkPos(newX, newY, pos, firstCheck, turn)) {
                             res.push_back(newY * size + newX);
                         }
                     }
@@ -324,10 +324,6 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     }
     if (res.empty())
         res.push_back(size * size / 2);
-    // Supprimez les doublons de la liste des mouvements
-    std::sort(res.begin(), res.end());
-    res.erase(std::unique(res.begin(), res.end()), res.end());
-
     return res;
 }
 
