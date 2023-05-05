@@ -98,7 +98,9 @@ class Algo {
 		int		calculateScoreRow(const std::string& map, char player);
         bool    canTake(int x, int y, std::string map, bool turn);
 		bool	fiveInRow(const std::string& map, bool turn, char player);
+
 		int		FindPattern(const std::string line, char player);
+		std::pair<int, int> FindPatternBothPlayers(const std::string &line);
 
 		std::string	getRow(const std::string& map, int row);
 		std::string getCol(const std::string& map, int col);
@@ -115,12 +117,6 @@ class Algo {
 				return h1 ^ h2;
 			}
 		};
-		// struct hash
-		struct hash {
-			std::size_t operator()(const std::string& s) const {
-				return std::hash<std::string>()(s);
-			}
-		};
 
 		int							optimalMove;
         int                         bScore;
@@ -132,7 +128,9 @@ class Algo {
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH
 		std::unordered_map<std::string, TranspositionTableEntry> transpositionTable;
-		std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
+		std::unordered_map<std::string, std::__1::pair<int, int>> transpositionTable_Line;
+
+		// std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
 
 };
 

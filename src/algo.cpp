@@ -1,90 +1,133 @@
 #include "algo.hpp"
 
+std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
+    std::pair<int, int> scores = std::make_pair(0, 0);
 
-int Algo::FindPattern(const std::string line, char player){
-
-	static int i = 0;
-
-	// auto start = std::chrono::steady_clock::now();
-	// static long long time = 0;
-	i ++;
-	dprintf(1, "i = %d\n", i);
-	std::pair<std::string, char> key = std::make_pair(line, player);
-    auto it = transpositionTable_Line.find(key);
+	auto it = transpositionTable_Line.find(line);
     if (it != transpositionTable_Line.end()) {
-		// i ++;
-		// dprintf(1, "i = %d\n", i);
         return it->second;
     }
 
-	int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
-	int nb_pion_noir = std::count(line.begin(), line.end(), '2');
-	int score = 0;
+    // Calculer les scores pour les deux joueurs sans répéter les recherches
+    int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
+    int nb_pion_noir = std::count(line.begin(), line.end(), '2');
 
+    if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
+        scores.first += 100000;
+    }
+    if (nb_pion_noir >= 5 && line.find(FiveInRow_Noir) != -1) {
+        scores.second += 100000;
+    }
 
-	if (player == '1'){
-		if (nb_pion_blanc >= 5) {
-			if (line.find(FiveInRow_Blanc) != -1){
-				nb_pion_blanc -= 5;
-				score += 100000;
-			}
-		}
-		if (nb_pion_blanc >= 4) {
-			if (line.find(LiveFour_Blanc) != -1){
-				nb_pion_blanc -= 4;
-				score += 15000;
-			}
-		}
-		if (nb_pion_blanc >= 3){
-			if (line.find(LiveThree_Blanc) != -1){
-				nb_pion_blanc -= 3;
-				score += 3000;
-			}
-		}
-		if (nb_pion_blanc >= 2) {
-			if (line.find(LiveTwo_Blanc) != -1){
-				nb_pion_blanc -= 2;
-				score += 1000;
-			}
-		}
-	}
-	
-	
-	if (player == '2'){
-		if (nb_pion_noir >= 5) {
-			if (line.find(FiveInRow_Noir) != -1){
-				nb_pion_noir -= 5;
-				score += 100000;
-			}
-		}
-		if (nb_pion_noir >= 4) {
-			if (line.find(LiveFour_Noir) != -1){
-				nb_pion_noir -= 4;
-				score += 15000;
-			}
-		}
-		if (nb_pion_noir >= 3){
-			if (line.find(LiveThree_Noir) != -1){
-				nb_pion_noir -= 3;
-				score += 3000;
-			}
-		}
-		if (nb_pion_noir >= 2) {
-			if (line.find(LiveTwo_Noir) != -1){
-				nb_pion_noir -= 2;
-				score += 1000;
-			}
-		}
-	}
+    if (nb_pion_blanc >= 4 && line.find(LiveFour_Blanc) != -1) {
+        scores.first += 15000;
+    }
+    if (nb_pion_noir >= 4 && line.find(LiveFour_Noir) != -1) {
+        scores.second += 15000;
+    }
 
-	// auto end = std::chrono::steady_clock::now();
-    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-	// time += duration;
-	// dprintf(1, "duration (microseconds) = %lld\n", time);
+    if (nb_pion_blanc >= 3 && line.find(LiveThree_Blanc) != -1) {
+        scores.first += 3000;
+    }
+    if (nb_pion_noir >= 3 && line.find(LiveThree_Noir) != -1) {
+        scores.second += 3000;
+    }
 
-	transpositionTable_Line[key] = score;
-	return score;
+    if (nb_pion_blanc >= 2 && line.find(LiveTwo_Blanc) != -1) {
+        scores.first += 1000;
+    }
+    if (nb_pion_noir >= 2 && line.find(LiveTwo_Noir) != -1) {
+        scores.second += 1000;
+    }
+
+	transpositionTable_Line[line] = scores;
+    return scores;
 }
+
+
+// int Algo::FindPattern(const std::string line, char player){
+
+
+// 	// auto start = std::chrono::steady_clock::now();
+// 	// static long long time = 0;
+// 	std::pair<std::string, char> key = std::make_pair(line, player);
+//     auto it = transpositionTable_Line.find(key);
+//     if (it != transpositionTable_Line.end()) {
+// 		// i ++;
+// 		// dprintf(1, "i = %d\n", i);
+//         return it->second;
+//     }
+
+// 	int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
+// 	int nb_pion_noir = std::count(line.begin(), line.end(), '2');
+// 	int score = 0;
+
+
+// 	if (player == '1'){
+// 		if (nb_pion_blanc >= 5) {
+// 			if (line.find(FiveInRow_Blanc) != -1){
+// 				nb_pion_blanc -= 5;
+// 				score += 100000;
+// 				return score;
+// 			}
+// 		}
+// 		if (nb_pion_blanc >= 4) {
+// 			if (line.find(LiveFour_Blanc) != -1){
+// 				nb_pion_blanc -= 4;
+// 				score += 15000;
+// 			}
+// 		}
+// 		if (nb_pion_blanc >= 3){
+// 			if (line.find(LiveThree_Blanc) != -1){
+// 				nb_pion_blanc -= 3;
+// 				score += 3000;
+// 			}
+// 		}
+// 		if (nb_pion_blanc >= 2) {
+// 			if (line.find(LiveTwo_Blanc) != -1){
+// 				nb_pion_blanc -= 2;
+// 				score += 1000;
+// 			}
+// 		}
+// 	}
+	
+	
+// 	if (player == '2'){
+// 		if (nb_pion_noir >= 5) {
+// 			if (line.find(FiveInRow_Noir) != -1){
+// 				nb_pion_noir -= 5;
+// 				score += 100000;
+// 				return score;
+// 			}
+// 		}
+// 		if (nb_pion_noir >= 4) {
+// 			if (line.find(LiveFour_Noir) != -1){
+// 				nb_pion_noir -= 4;
+// 				score += 15000;
+// 			}
+// 		}
+// 		if (nb_pion_noir >= 3){
+// 			if (line.find(LiveThree_Noir) != -1){
+// 				nb_pion_noir -= 3;
+// 				score += 3000;
+// 			}
+// 		}
+// 		if (nb_pion_noir >= 2) {
+// 			if (line.find(LiveTwo_Noir) != -1){
+// 				nb_pion_noir -= 2;
+// 				score += 1000;
+// 			}
+// 		}
+// 	}
+
+// 	// auto end = std::chrono::steady_clock::now();
+//     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+// 	// time += duration;
+// 	// dprintf(1, "duration (microseconds) = %lld\n", time);
+
+// 	transpositionTable_Line[key] = score;
+// 	return score;
+// }
 
 
 int Algo::calculateScoreRow(const std::string& map, char player) {
@@ -219,59 +262,92 @@ bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
 }
 
 int Algo::heuristique(const std::string& map, bool turn) {
-	// dprintf(1, "heuristique\n");
-	// dprintf(1, "map: %s\n", map.c_str());
-	int score = 0;
-	// return un random de 1 a 100
-	char player = turn ? '2': '1';
-	char opponent = turn ? '1': '2';
+    int score = 0;
+    char player = turn ? '2': '1';
+    char opponent = turn ? '1': '2';
 
-
-	// score += calculateScoreRow(map, '2');
-	// score -= calculateScoreRow(map, '1');
-
-
-	for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         std::string row = getRow(map, i);
-        score -= FindPattern(row, '1');
-		score += FindPattern(row, '2');
+        auto scores = FindPatternBothPlayers(row);
+        score += scores.second - scores.first;
     }
 
-    // Récupérer toutes les colonnes
     for (int i = 0; i < size; i++) {
         std::string col = getCol(map, i);
-        score -= FindPattern(col, '1');
-		score += FindPattern(col, '2');
+        auto scores = FindPatternBothPlayers(col);
+        score += scores.second - scores.first;
     }
 	
-	// Récupérer toutes les diagonales à partir des lignes
-	for (int i = 0; i < size; i++) {
-		std::string diagonal = getDiagonalFromRow(map, i);
-		score -= FindPattern(diagonal, '1');
-		score += FindPattern(diagonal, '2');
-	}
+    for (int i = 0; i < size; i++) {
+        std::string diagonal = getDiagonalFromRow(map, i);
+        auto scores = FindPatternBothPlayers(diagonal);
+        score += scores.second - scores.first;
+    }
 
-	// Récupérer toutes les diagonales à partir des colonnes
-	for (int i = 0; i < size; i++) {
-		std::string diagonal = getDiagonalFromCol(map, i);
-		score -= FindPattern(diagonal, '1');
-		score += FindPattern(diagonal, '2');
-	}
+    for (int i = 0; i < size; i++) {
+        std::string diagonal = getDiagonalFromCol(map, i);
+        auto scores = FindPatternBothPlayers(diagonal);
+        score += scores.second - scores.first;
+    }
 
-
-
-
-// VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
-	// if (calculateScoreRow(map, player) == 100000) {
-	// 	return score + 10000;
-	// }
-	// else if (calculateScoreRow(map, opponent) == 100000) {
-	// 	return score + 10000;
-	// }
-
-    // return std::rand() % 100 + 1;
-	return score;
+    return score;
 }
+
+
+// int Algo::heuristique(const std::string& map, bool turn) {
+// 	// dprintf(1, "heuristique\n");
+// 	// dprintf(1, "map: %s\n", map.c_str());
+// 	int score = 0;
+// 	// return un random de 1 a 100
+// 	char player = turn ? '2': '1';
+// 	char opponent = turn ? '1': '2';
+
+
+// 	// score += calculateScoreRow(map, '2');
+// 	// score -= calculateScoreRow(map, '1');
+
+
+// 	for (int i = 0; i < size; i++) {
+//         std::string row = getRow(map, i);
+//         score -= FindPattern(row, '1');
+// 		score += FindPattern(row, '2');
+//     }
+
+//     // Récupérer toutes les colonnes
+//     for (int i = 0; i < size; i++) {
+//         std::string col = getCol(map, i);
+//         score -= FindPattern(col, '1');
+// 		score += FindPattern(col, '2');
+//     }
+	
+// 	// Récupérer toutes les diagonales à partir des lignes
+// 	for (int i = 0; i < size; i++) {
+// 		std::string diagonal = getDiagonalFromRow(map, i);
+// 		score -= FindPattern(diagonal, '1');
+// 		score += FindPattern(diagonal, '2');
+// 	}
+
+// 	// Récupérer toutes les diagonales à partir des colonnes
+// 	for (int i = 0; i < size; i++) {
+// 		std::string diagonal = getDiagonalFromCol(map, i);
+// 		score -= FindPattern(diagonal, '1');
+// 		score += FindPattern(diagonal, '2');
+// 	}
+
+
+
+
+// // VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
+// 	// if (calculateScoreRow(map, player) == 100000) {
+// 	// 	return score + 10000;
+// 	// }
+// 	// else if (calculateScoreRow(map, opponent) == 100000) {
+// 	// 	return score + 10000;
+// 	// }
+
+//     // return std::rand() % 100 + 1;
+// 	return score;
+// }
 
 std::string Algo::getRow(const std::string& map, int row) {
     return map.substr(row * size, size);
