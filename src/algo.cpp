@@ -12,210 +12,62 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
     int nb_pion_noir = std::count(line.begin(), line.end(), '2');
 
+	std::string patterns_blanc[] = {LiveTwo_Blanc, LiveTwo_Blanc2, LiveTwo_Blanc2_2, LiveTwo_Blanc3, LiveTwo_Blanc4};
+	std::string patterns_noir[] = {LiveTwo_Noir, LiveTwo_Noir2, LiveTwo_Noir2_2, LiveTwo_Noir3, LiveTwo_Noir4};
+
+
     if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
+		nb_pion_blanc -= 5;
         scores.first += 100000;
     }
     if (nb_pion_noir >= 5 && line.find(FiveInRow_Noir) != -1) {
+		nb_pion_noir -= 5;
         scores.second += 100000;
     }
 
     if (nb_pion_blanc >= 4 && line.find(LiveFour_Blanc) != -1) {
+		nb_pion_blanc -= 4;
         scores.first += 15000;
     }
     if (nb_pion_noir >= 4 && line.find(LiveFour_Noir) != -1) {
+		nb_pion_noir -= 4;
         scores.second += 15000;
     }
 
     if (nb_pion_blanc >= 3 && line.find(LiveThree_Blanc) != -1) {
+		nb_pion_blanc -= 3;
         scores.first += 3000;
     }
     if (nb_pion_noir >= 3 && line.find(LiveThree_Noir) != -1) {
+		nb_pion_noir -= 3;
         scores.second += 3000;
     }
 
-    if (nb_pion_blanc >= 2 && line.find(LiveTwo_Blanc) != -1) {
-        scores.first += 1000;
-    }
-    if (nb_pion_noir >= 2 && line.find(LiveTwo_Noir) != -1) {
-        scores.second += 1000;
-    }
+   
+	if (nb_pion_blanc >= 2) {
+		for (const auto& pattern : patterns_blanc) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_blanc -= 2;
+				scores.first += 1000;
+			}
+			if (nb_pion_blanc < 2)
+				break;
+		}
+	}
+
+	if (nb_pion_blanc >= 2) {
+		for (const auto& pattern : patterns_noir) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_noir -= 2;
+				scores.second += 1000;
+			}
+			if (nb_pion_noir < 2)
+				break;
+		}
+	}
 
 	transpositionTable_Line[line] = scores;
     return scores;
-}
-
-
-// int Algo::FindPattern(const std::string line, char player){
-
-
-// 	// auto start = std::chrono::steady_clock::now();
-// 	// static long long time = 0;
-// 	std::pair<std::string, char> key = std::make_pair(line, player);
-//     auto it = transpositionTable_Line.find(key);
-//     if (it != transpositionTable_Line.end()) {
-// 		// i ++;
-// 		// dprintf(1, "i = %d\n", i);
-//         return it->second;
-//     }
-
-// 	int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
-// 	int nb_pion_noir = std::count(line.begin(), line.end(), '2');
-// 	int score = 0;
-
-
-// 	if (player == '1'){
-// 		if (nb_pion_blanc >= 5) {
-// 			if (line.find(FiveInRow_Blanc) != -1){
-// 				nb_pion_blanc -= 5;
-// 				score += 100000;
-// 				return score;
-// 			}
-// 		}
-// 		if (nb_pion_blanc >= 4) {
-// 			if (line.find(LiveFour_Blanc) != -1){
-// 				nb_pion_blanc -= 4;
-// 				score += 15000;
-// 			}
-// 		}
-// 		if (nb_pion_blanc >= 3){
-// 			if (line.find(LiveThree_Blanc) != -1){
-// 				nb_pion_blanc -= 3;
-// 				score += 3000;
-// 			}
-// 		}
-// 		if (nb_pion_blanc >= 2) {
-// 			if (line.find(LiveTwo_Blanc) != -1){
-// 				nb_pion_blanc -= 2;
-// 				score += 1000;
-// 			}
-// 		}
-// 	}
-	
-	
-// 	if (player == '2'){
-// 		if (nb_pion_noir >= 5) {
-// 			if (line.find(FiveInRow_Noir) != -1){
-// 				nb_pion_noir -= 5;
-// 				score += 100000;
-// 				return score;
-// 			}
-// 		}
-// 		if (nb_pion_noir >= 4) {
-// 			if (line.find(LiveFour_Noir) != -1){
-// 				nb_pion_noir -= 4;
-// 				score += 15000;
-// 			}
-// 		}
-// 		if (nb_pion_noir >= 3){
-// 			if (line.find(LiveThree_Noir) != -1){
-// 				nb_pion_noir -= 3;
-// 				score += 3000;
-// 			}
-// 		}
-// 		if (nb_pion_noir >= 2) {
-// 			if (line.find(LiveTwo_Noir) != -1){
-// 				nb_pion_noir -= 2;
-// 				score += 1000;
-// 			}
-// 		}
-// 	}
-
-// 	// auto end = std::chrono::steady_clock::now();
-//     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-// 	// time += duration;
-// 	// dprintf(1, "duration (microseconds) = %lld\n", time);
-
-// 	transpositionTable_Line[key] = score;
-// 	return score;
-// }
-
-
-int Algo::calculateScoreRow(const std::string& map, char player) {
-	std::string cacheKey = map + player;
-    auto it = transpositionTable.find(cacheKey);
-    if (it != transpositionTable.end()) {
-        // Utilisez la valeur stockée dans la table de transposition si la profondeur est plus petite ou égale à celle stockée.
-        if (map <= it->second.map) {
-            return it->second.score;
-        }
-    }
-    int score = 0;
-    char opponent = (player == '2') ? '1' : '2';
-
-    for (int y = 0; y < size; ++y) {
-        for (int x = 0; x < size; ++x) {
-            if (map[y * size + x] == player) {
-                for (int dy = -1; dy <= 1; ++dy) {
-                    for (int dx = -1; dx <= 1; ++dx) {
-                        if (dx == 0 && dy == 0) {
-                            continue;
-                        }
-
-                        int count = 0;
-                        bool blocked_start = false;
-                        bool blocked_end = false;
-
-                        for (int i = -1; i <= 4; ++i) {
-                            int newX = x + dx * i;
-                            int newY = y + dy * i;
-
-                            if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
-                                if (i == -1) {
-                                    blocked_start = true;
-                                } else if (i == 4) {
-                                    blocked_end = true;
-                                } else {
-                                    blocked_end = true;
-                                }
-                                continue;
-                            }
-
-                            if (i == -1 || i == 4) {
-                                if (map[newY * size + newX] == opponent) {
-                                    i == -1 ? blocked_start = true : blocked_end = true;
-                                }
-                            } else {
-                                if (map[newY * size + newX] == opponent) {
-                                    blocked_end = true;
-                                }
-                                if (map[newY * size + newX] == player) {
-                                    count++;
-                                } else {
-                                    break;
-                                }
-                            }
-                        }
-
-                        int base_score = 0;
-                        if (count == 2) {
-                            base_score = 10;
-                        } else if (count == 3) {
-                            base_score = 100;
-                        } else if (count == 4) {
-                            base_score = 1000;
-                        } else if (count == 5) {
-                            return 100000;
-                        }
-
-                        if (blocked_start && blocked_end) {
-                            base_score = 0;
-                        } else if (blocked_start || blocked_end) {
-                            base_score /= 3;
-                        }
-
-                        score += base_score;
-                    }
-                }
-            }
-        }
-    }
-
-	TranspositionTableEntry entry;
-    entry.map = map;
-    entry.score = score;
-
-    transpositionTable[cacheKey] = entry;
-    return score;
 }
 
 
@@ -294,61 +146,6 @@ int Algo::heuristique(const std::string& map, bool turn) {
 }
 
 
-// int Algo::heuristique(const std::string& map, bool turn) {
-// 	// dprintf(1, "heuristique\n");
-// 	// dprintf(1, "map: %s\n", map.c_str());
-// 	int score = 0;
-// 	// return un random de 1 a 100
-// 	char player = turn ? '2': '1';
-// 	char opponent = turn ? '1': '2';
-
-
-// 	// score += calculateScoreRow(map, '2');
-// 	// score -= calculateScoreRow(map, '1');
-
-
-// 	for (int i = 0; i < size; i++) {
-//         std::string row = getRow(map, i);
-//         score -= FindPattern(row, '1');
-// 		score += FindPattern(row, '2');
-//     }
-
-//     // Récupérer toutes les colonnes
-//     for (int i = 0; i < size; i++) {
-//         std::string col = getCol(map, i);
-//         score -= FindPattern(col, '1');
-// 		score += FindPattern(col, '2');
-//     }
-	
-// 	// Récupérer toutes les diagonales à partir des lignes
-// 	for (int i = 0; i < size; i++) {
-// 		std::string diagonal = getDiagonalFromRow(map, i);
-// 		score -= FindPattern(diagonal, '1');
-// 		score += FindPattern(diagonal, '2');
-// 	}
-
-// 	// Récupérer toutes les diagonales à partir des colonnes
-// 	for (int i = 0; i < size; i++) {
-// 		std::string diagonal = getDiagonalFromCol(map, i);
-// 		score -= FindPattern(diagonal, '1');
-// 		score += FindPattern(diagonal, '2');
-// 	}
-
-
-
-
-// // VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
-// 	// if (calculateScoreRow(map, player) == 100000) {
-// 	// 	return score + 10000;
-// 	// }
-// 	// else if (calculateScoreRow(map, opponent) == 100000) {
-// 	// 	return score + 10000;
-// 	// }
-
-//     // return std::rand() % 100 + 1;
-// 	return score;
-// }
-
 std::string Algo::getRow(const std::string& map, int row) {
     return map.substr(row * size, size);
 }
@@ -414,27 +211,23 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 	int prise;
 
 	if (fiveInRow(position, turn, '2')) {
-		heuristique(position, turn); // test
-		return 10000 * depth;
+		return 100000 * depth;
 	}
 	else if (fiveInRow(position, turn, '1')) {
-		heuristique(position, turn); // test
-		return -10000 * depth;
+		return -100000 * depth;
 	}
 
     if (depth == 0 || bScore == 5 || wScore == 5){
-		// dprintf(1, "i = %d\n", i);
-		// i ++;
-		
         return heuristique(position, turn); // return current score
 	}
+
     std::vector<int> moves = setMovesOrder(position, turn);
 
 	// Prendre les 50% premiers mouvements
-	if (moves.size() > 50){
-		int movesToTake = std::ceil(moves.size() * 0.5);
-		moves.resize(movesToTake);
-	}
+	// if (moves.size() > 50){
+	// 	int movesToTake = std::ceil(moves.size() * 0.5);
+	// 	moves.resize(movesToTake);
+	// }
 
 
     // for (int move : moves)

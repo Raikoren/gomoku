@@ -3,7 +3,7 @@ RM			= rm -rf
 MKDIR		= mkdir -p
 
 CXXFLAGS	+= -I./SFML/include -I./$(INC_PATH)
-CXXFLAGS	+= -Wall -Wextra -W -std=c++11
+CXXFLAGS	+= -Wall -Wextra -W -std=c++11 -O3
 
 LDFLAGS		+= -L./SFML/lib
 
