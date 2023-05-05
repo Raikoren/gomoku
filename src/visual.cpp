@@ -46,6 +46,10 @@ Visual::Visual() {
 		std::cout << "ERROR while loading font" << std::endl;
 	}
 	titleBg.setRepeated(true);
+	gameState.setFont(f);
+	gameState.setFillColor(sf::Color::White);
+	gameState.setString("C'est le tour des NOIRS ^^");
+	gameState.setPosition({ WIN_X / 2 - 800, WIN_Y / 2 - 200});
 	wPound.setFillColor(sf::Color::White);
 	wPound.setOutlineThickness(3);
 	wPound.setOutlineColor(sf::Color(50, 50, 50));
@@ -209,9 +213,15 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 		sf::RectangleShape rb(sf::Vector2f(250, 100));
 		sf::RectangleShape rw(sf::Vector2f(250, 100));
 		sf::Text score;
+		sf::Text rounds;
 		score.setFont(f);
 		score.setCharacterSize(80);
 		score.setFillColor(sf::Color::White);
+		rounds.setFont(f);
+		rounds.setCharacterSize(30);
+		rounds.setFillColor(sf::Color::White);
+		rounds.setPosition({ WIN_X / 2 - 50, 10});
+		rounds.setString("round: " + std::to_string(v.totalTurn));
 		rb.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 - BOARD / 2)));
 		rw.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 300, (WIN_Y / 2 + BOARD / 2) - 100));
 		rb.setTexture(&textSB);
@@ -222,6 +232,8 @@ void Visual::drawPounds(visual_data v, double margin, double pad) {
 			rw.setFillColor(sf::Color::Green);
 		_window_.draw(rw);
 		_window_.draw(rb);
+		_window_.draw(gameState);
+		_window_.draw(rounds);
 		score.setPosition(sf::Vector2f((WIN_X / 2 - BOARD / 2) - 200, (WIN_Y / 2 - BOARD / 2)));
 		score.setString(std::to_string(v.bScore));
 		_window_.draw(score);

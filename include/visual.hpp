@@ -25,6 +25,7 @@ struct visual_data
     int                 wScore = 0;
     sf::Vertex          line[2];
     bool                hintOn = false;
+    int                 totalTurn = 0;
 };
 
 class Visual
@@ -76,6 +77,9 @@ public:
     sf::Texture* getT7() {
         return(&mokuTextM);
     }
+    sf::Text* getGameState() {
+        return &gameState;
+    }
 
     Button b1;// set map size > 9
     Button b2;// set map size > 13
@@ -111,6 +115,7 @@ protected:
     sf::Texture bWin;
     sf::Texture wWin;
     sf::Font f;
+    sf::Text gameState;
 
 };
 #endif

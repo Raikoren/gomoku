@@ -128,6 +128,8 @@ void Game::gaming(sf::Event ev) {
             algoData.turn = turn;
             visualData.map[algo.ask(algoData)] = '1';
             turn = !turn;
+            visualData.totalTurn++;
+            _visual_.getGameState()->setString("C'est le tour des NOIRS ^^");
         }
         if (visualData.map[y * size + x] == '0') { // si la position cibl�e est vide
             visualData.previewEnable = previewToggle ? true : false;
@@ -150,6 +152,10 @@ void Game::gaming(sf::Event ev) {
                         visualData.hintOn = false;
                         mokuVictory(x, y); // V�rifie les diverse condition de victoire
                         turn = !turn;
+                        _visual_.getGameState()->setString(turn ? "C'est le tour des NOIRS ^^" : "C'est le tour des BLANCS ^^");
+                        if (vsAi)
+                            _visual_.getGameState()->setString("Att je reflechie la xD");
+                        visualData.totalTurn++;
                     }
                 }
             }
