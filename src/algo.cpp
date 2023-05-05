@@ -18,11 +18,13 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
     if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
 		nb_pion_blanc -= 5;
-        scores.first += 100000;
+        scores.first += 1000000;
+		return scores;
     }
     if (nb_pion_noir >= 5 && line.find(FiveInRow_Noir) != -1) {
 		nb_pion_noir -= 5;
-        scores.second += 100000;
+        scores.second += 1000000;
+		return scores;
     }
 
     if (nb_pion_blanc >= 4 && line.find(LiveFour_Blanc) != -1) {
@@ -118,6 +120,12 @@ int Algo::heuristique(const std::string& map, bool turn) {
     char player = turn ? '2': '1';
     char opponent = turn ? '1': '2';
 
+
+	if (fiveInRow(map, turn, '2'))
+		return 1000000;
+	if (fiveInRow(map, turn, '1'))
+		return -1000000;
+
     for (int i = 0; i < size; i++) {
         std::string row = getRow(map, i);
         auto scores = FindPatternBothPlayers(row);
@@ -206,10 +214,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 	int prise;
 
 	if (fiveInRow(position, turn, '2')) {
-		return 100000 * depth;
+		return 10000000 * depth;
 	}
 	else if (fiveInRow(position, turn, '1')) {
-		return -100000 * depth;
+		return -10000000 * depth;
 	}
 
     if (depth == 0 || bScore == 5 || wScore == 5){

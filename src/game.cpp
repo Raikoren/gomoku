@@ -231,6 +231,7 @@ void Game::resetGame() {
     visualData.endGame = false;
     visualData.scoreState = false;
     visualData.victoryScreen = false;
+	visualData.totalTurn = 0;
     turn = true;
     pass = 0;
     _visual_.b6.setText("pass");
