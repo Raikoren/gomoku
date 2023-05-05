@@ -1,5 +1,92 @@
 #include "algo.hpp"
 
+
+int Algo::FindPattern(const std::string line, char player){
+
+	static int i = 0;
+
+	// auto start = std::chrono::steady_clock::now();
+	// static long long time = 0;
+	i ++;
+	dprintf(1, "i = %d\n", i);
+	std::pair<std::string, char> key = std::make_pair(line, player);
+    auto it = transpositionTable_Line.find(key);
+    if (it != transpositionTable_Line.end()) {
+		// i ++;
+		// dprintf(1, "i = %d\n", i);
+        return it->second;
+    }
+
+	int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
+	int nb_pion_noir = std::count(line.begin(), line.end(), '2');
+	int score = 0;
+
+
+	if (player == '1'){
+		if (nb_pion_blanc >= 5) {
+			if (line.find(FiveInRow_Blanc) != -1){
+				nb_pion_blanc -= 5;
+				score += 100000;
+			}
+		}
+		if (nb_pion_blanc >= 4) {
+			if (line.find(LiveFour_Blanc) != -1){
+				nb_pion_blanc -= 4;
+				score += 15000;
+			}
+		}
+		if (nb_pion_blanc >= 3){
+			if (line.find(LiveThree_Blanc) != -1){
+				nb_pion_blanc -= 3;
+				score += 3000;
+			}
+		}
+		if (nb_pion_blanc >= 2) {
+			if (line.find(LiveTwo_Blanc) != -1){
+				nb_pion_blanc -= 2;
+				score += 1000;
+			}
+		}
+	}
+	
+	
+	if (player == '2'){
+		if (nb_pion_noir >= 5) {
+			if (line.find(FiveInRow_Noir) != -1){
+				nb_pion_noir -= 5;
+				score += 100000;
+			}
+		}
+		if (nb_pion_noir >= 4) {
+			if (line.find(LiveFour_Noir) != -1){
+				nb_pion_noir -= 4;
+				score += 15000;
+			}
+		}
+		if (nb_pion_noir >= 3){
+			if (line.find(LiveThree_Noir) != -1){
+				nb_pion_noir -= 3;
+				score += 3000;
+			}
+		}
+		if (nb_pion_noir >= 2) {
+			if (line.find(LiveTwo_Noir) != -1){
+				nb_pion_noir -= 2;
+				score += 1000;
+			}
+		}
+	}
+
+	// auto end = std::chrono::steady_clock::now();
+    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	// time += duration;
+	// dprintf(1, "duration (microseconds) = %lld\n", time);
+
+	transpositionTable_Line[key] = score;
+	return score;
+}
+
+
 int Algo::calculateScoreRow(const std::string& map, char player) {
 	std::string cacheKey = map + player;
     auto it = transpositionTable.find(cacheKey);
@@ -139,8 +226,40 @@ int Algo::heuristique(const std::string& map, bool turn) {
 	char player = turn ? '2': '1';
 	char opponent = turn ? '1': '2';
 
-	score += calculateScoreRow(map, '2');
-	score -= calculateScoreRow(map, '1');
+
+	// score += calculateScoreRow(map, '2');
+	// score -= calculateScoreRow(map, '1');
+
+
+	for (int i = 0; i < size; i++) {
+        std::string row = getRow(map, i);
+        score -= FindPattern(row, '1');
+		score += FindPattern(row, '2');
+    }
+
+    // Récupérer toutes les colonnes
+    for (int i = 0; i < size; i++) {
+        std::string col = getCol(map, i);
+        score -= FindPattern(col, '1');
+		score += FindPattern(col, '2');
+    }
+	
+	// Récupérer toutes les diagonales à partir des lignes
+	for (int i = 0; i < size; i++) {
+		std::string diagonal = getDiagonalFromRow(map, i);
+		score -= FindPattern(diagonal, '1');
+		score += FindPattern(diagonal, '2');
+	}
+
+	// Récupérer toutes les diagonales à partir des colonnes
+	for (int i = 0; i < size; i++) {
+		std::string diagonal = getDiagonalFromCol(map, i);
+		score -= FindPattern(diagonal, '1');
+		score += FindPattern(diagonal, '2');
+	}
+
+
+
 
 // VOIR EN FONCTION DU TOUR CAR ON PEUT AVOIR UN MOVE GAGNANT MAIS L'ENEMIE AUSSI
 	// if (calculateScoreRow(map, player) == 100000) {
@@ -152,18 +271,34 @@ int Algo::heuristique(const std::string& map, bool turn) {
 
     // return std::rand() % 100 + 1;
 	return score;
+}
 
-	// if (FiveInRow(map, turn)) {
-	// 	return INT_MAX;
-	// }
+std::string Algo::getRow(const std::string& map, int row) {
+    return map.substr(row * size, size);
+}
 
-	//	FiveInRow
-	//	LiveFour
-	//	DeadFour
-	//	LiveThree
-	//	DeadThree
-	//	LiveTwo
-	//	DeadTwo
+std::string Algo::getCol(const std::string& map, int col) {
+    std::string column;
+    for (int i = 0; i < size; i++) {
+        column += map[col + i * size];
+    }
+    return column;
+}
+
+std::string Algo::getDiagonalFromRow(const std::string& map, int row) {
+    std::string diagonal;
+    for (int i = row, j = 0; i < size && j < size; i++, j++) {
+        diagonal += map[i * size + j];
+    }
+    return diagonal;
+}
+
+std::string Algo::getDiagonalFromCol(const std::string& map, int col) {
+    std::string diagonal;
+    for (int i = 0, j = col; i < size && j < size; i++, j++) {
+        diagonal += map[i * size + j];
+    }
+    return diagonal;
 }
 
 
@@ -203,15 +338,18 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 	int prise;
 
 	if (fiveInRow(position, turn, '2')) {
+		heuristique(position, turn); // test
 		return 10000 * depth;
 	}
 	else if (fiveInRow(position, turn, '1')) {
+		heuristique(position, turn); // test
 		return -10000 * depth;
 	}
 
     if (depth == 0 || bScore == 5 || wScore == 5){
 		// dprintf(1, "i = %d\n", i);
 		// i ++;
+		
         return heuristique(position, turn); // return current score
 	}
     std::vector<int> moves = setMovesOrder(position, turn);
@@ -264,7 +402,8 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 			updatedMap[move] = '1';
 
 			// Passez updatedMap directement à minMax
-			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn);	
+			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn);
+
 			if (eval < minEval){
 				minEval = eval;
 				if (depth == DEPTH){

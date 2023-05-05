@@ -11,6 +11,55 @@
 #include <unordered_map>
 #include "env.hpp"
 
+# define FiveInRow_Blanc	"11111"
+# define LiveFour_Blanc		"011110"
+# define DeadFour_Blanc		"211110"
+# define DeadFour_Blanc2	"11101"
+# define DeadFour_Blanc2_2	"10111"
+# define DeadFour_Blanc3	"11011"
+# define LiveThree_Blanc	"01110"
+# define DeadThree_Blanc	"21110"
+# define DeadThree_Blanc2	"1101"
+# define DeadThree_Blanc2_2	"1011"
+# define DeadThree_Blanc3	"011001"
+# define DeadThree_Blanc3_2	"100110"
+# define DeadThree_Blanc4	"10101"
+# define LiveTwo_Blanc		"10001"
+# define LiveTwo_Blanc2		"10010"
+# define LiveTwo_Blanc2_2	"01001"
+# define LiveTwo_Blanc3		"01010"
+# define LiveTwo_Blanc4		"0110"
+# define DeadTwo_Blanc		"2110"
+# define DeadTwo_Blanc2		"2101"
+# define DeadTwo_Blanc2_2	"1012"
+# define DeadTwo_Blanc3		"21001"
+
+
+
+
+# define FiveInRow_Noir		"22222"
+# define LiveFour_Noir		"022220"
+# define DeadFour_Noir		"122220"
+# define DeadFour_Noir2		"22202"
+# define DeadFour_Noir3		"22022"
+# define LiveThree_Noir		"02220"
+# define DeadThree_Noir		"12220"
+# define DeadThree_Noir2	"2202"
+# define DeadThree_Noir2_2	"2022"
+# define DeadThree_Noir3	"022002"
+# define DeadThree_Noir3_2	"200220"
+# define DeadThree_Noir4	"20202"
+# define LiveTwo_Noir		"20002"
+# define LiveTwo_Noir2		"20020"
+# define LiveTwo_Noir2_2	"02002"
+# define LiveTwo_Noir3		"02020"
+# define LiveTwo_Noir4		"0220"
+# define DeadTwo_Noir		"1220"
+# define DeadTwo_Noir2		"1202"
+# define DeadTwo_Noir2_2	"2021"
+# define DeadTwo_Noir3		"12002"
+
+
 struct TranspositionTableEntry {
     std::string map;
     int score;
@@ -49,7 +98,29 @@ class Algo {
 		int		calculateScoreRow(const std::string& map, char player);
         bool    canTake(int x, int y, std::string map, bool turn);
 		bool	fiveInRow(const std::string& map, bool turn, char player);
+		int		FindPattern(const std::string line, char player);
+
+		std::string	getRow(const std::string& map, int row);
+		std::string getCol(const std::string& map, int col);
+		std::string getDiagonalFromRow(const std::string& map, int row);
+		std::string getDiagonalFromCol(const std::string& map, int col);
+
 	private:
+
+		struct pair_hash {
+			template <class T1, class T2>
+			std::size_t operator () (const std::pair<T1, T2> &pair) const {
+				std::size_t h1 = std::hash<T1>()(pair.first);
+				std::size_t h2 = std::hash<T2>()(pair.second);
+				return h1 ^ h2;
+			}
+		};
+		// struct hash
+		struct hash {
+			std::size_t operator()(const std::string& s) const {
+				return std::hash<std::string>()(s);
+			}
+		};
 
 		int							optimalMove;
         int                         bScore;
@@ -61,6 +132,8 @@ class Algo {
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH
 		std::unordered_map<std::string, TranspositionTableEntry> transpositionTable;
+		std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
+
 };
 
 #endif
