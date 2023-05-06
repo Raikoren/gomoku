@@ -265,6 +265,19 @@ int Algo::heuristique(const std::string& map, bool turn) {
         score += scores.second - scores.first;
     }
 
+	for (int i = 0; i < size; i++) {
+		std::string diagonal = getDiagonalSecondaryFromRow(map, i);
+		auto scores = FindPatternBothPlayers(diagonal);
+		score += scores.second - scores.first;
+	}
+
+	for (int i = 0; i < size; i++) {
+		std::string diagonal = getDiagonalSecondaryFromCol(map, i);
+		auto scores = FindPatternBothPlayers(diagonal);
+		score += scores.second - scores.first;
+	}
+
+
     return score;
 }
 
@@ -297,6 +310,23 @@ std::string Algo::getDiagonalFromCol(const std::string& map, int col) {
     return diagonal;
 }
 
+std::string Algo::getDiagonalSecondaryFromRow(const std::string& map, int row) {
+    std::string diagonal;
+    for (int i = row, j = 0; i >= 0 && j < size; i--, j++) {
+        diagonal += map[i * size + j];
+    }
+    return diagonal;
+}
+
+std::string Algo::getDiagonalSecondaryFromCol(const std::string& map, int col) {
+    std::string diagonal;
+    for (int i = size - 1, j = col; i >= 0 && j < size; i--, j++) {
+        diagonal += map[i * size + j];
+    }
+    return diagonal;
+}
+
+
 
 
 int Algo::ask(AlgoData data) {
@@ -318,18 +348,18 @@ int Algo::ask(AlgoData data) {
 			best_result = result;
 			best_move = optimalMove;
 
-			printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-			dprintf(1, "best_result: %d\n", best_result);
-			dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
-			dprintf(1, "optimalBeta: %d\n", optimalBeta);
+			// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
+			// dprintf(1, "best_result: %d\n", best_result);
+			// dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+			// dprintf(1, "optimalBeta: %d\n", optimalBeta);
 		}
 		else if (data.turn == false ){
 			best_result = result;
 			best_move = optimalMove;
-			printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-			dprintf(1, "best_result: %d\n", best_result);
-			dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
-			dprintf(1, "optimalBeta: %d\n", optimalBeta);
+			// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
+			// dprintf(1, "best_result: %d\n", best_result);
+			// dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+			// dprintf(1, "optimalBeta: %d\n", optimalBeta);
 		}
 		
 

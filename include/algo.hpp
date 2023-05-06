@@ -127,6 +127,9 @@ class Algo {
 		std::string getCol(const std::string& map, int col);
 		std::string getDiagonalFromRow(const std::string& map, int row);
 		std::string getDiagonalFromCol(const std::string& map, int col);
+		std::string getDiagonalSecondaryFromRow(const std::string& map, int row);
+		std::string getDiagonalSecondaryFromCol(const std::string& map, int col);
+
 
 	private:
 
