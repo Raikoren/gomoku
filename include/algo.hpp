@@ -14,11 +14,13 @@
 # define FiveInRow_Blanc	"11111"
 # define LiveFour_Blanc		"011110"
 # define DeadFour_Blanc		"211110"
+# define DeadFour_Blanc1_1	"011112"
 # define DeadFour_Blanc2	"11101"
 # define DeadFour_Blanc2_2	"10111"
 # define DeadFour_Blanc3	"11011"
 # define LiveThree_Blanc	"01110"
 # define DeadThree_Blanc	"21110"
+# define DeadThree_Blanc1_1	"01112"
 # define DeadThree_Blanc2	"1101"
 # define DeadThree_Blanc2_2	"1011"
 # define DeadThree_Blanc3	"011001"
@@ -30,9 +32,18 @@
 # define LiveTwo_Blanc3		"01010"
 # define LiveTwo_Blanc4		"0110"
 # define DeadTwo_Blanc		"2110"
+# define DeadTwo_Blanc1_1	"0112"
 # define DeadTwo_Blanc2		"2101"
 # define DeadTwo_Blanc2_2	"1012"
 # define DeadTwo_Blanc3		"21001"
+
+
+# define Edge_Four_Blanc	"11110"
+# define Edge_Three_Blanc	"1110"
+# define Edge_Two_Blanc		"110"
+# define Edge_Four_Blanc2	"01111"
+# define Edge_Three_Blanc2	"0111"
+# define Edge_Two_Blanc2	"011"
 
 
 
@@ -40,10 +51,13 @@
 # define FiveInRow_Noir		"22222"
 # define LiveFour_Noir		"022220"
 # define DeadFour_Noir		"122220"
+# define DeadFour_Noir1_1	"022221"
 # define DeadFour_Noir2		"22202"
+# define DeadFour_Noir2_2	"20222"
 # define DeadFour_Noir3		"22022"
 # define LiveThree_Noir		"02220"
 # define DeadThree_Noir		"12220"
+# define DeadThree_Noir1_1	"02221"
 # define DeadThree_Noir2	"2202"
 # define DeadThree_Noir2_2	"2022"
 # define DeadThree_Noir3	"022002"
@@ -55,9 +69,17 @@
 # define LiveTwo_Noir3		"02020"
 # define LiveTwo_Noir4		"0220"
 # define DeadTwo_Noir		"1220"
+# define DeadTwo_Noir1_1	"0221"
 # define DeadTwo_Noir2		"1202"
 # define DeadTwo_Noir2_2	"2021"
 # define DeadTwo_Noir3		"12002"
+
+# define Edge_Four_Noir		"22220"
+# define Edge_Three_Noir	"2220"
+# define Edge_Two_Noir		"220"
+# define Edge_Four_Noir2	"02222"
+# define Edge_Three_Noir2	"0222"
+# define Edge_Two_Noir2		"022"
 
 
 struct TranspositionTableEntry {
@@ -78,7 +100,7 @@ class Algo {
 	public:
 		Algo() { }
         int     ask(AlgoData data); // fonction d'appel
-        int     minMax(const std::string& position, int alpha, int beta, int depth, bool turn);
+        int     minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin);
         // position = position dans l'historique (0 <-> DEPTH)
         // alpha = meilleur score actuel pour les blancs
         // beta = meilleur score actuel pour les noirs
@@ -117,7 +139,10 @@ class Algo {
 			}
 		};
 
+		int							iterativeDepth;
 		int							optimalMove;
+		int							optimalAlpha;
+		int							optimalBeta;
         int                         bScore;
         int                         wScore;
         int                         size;

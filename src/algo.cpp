@@ -12,8 +12,16 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
     int nb_pion_noir = std::count(line.begin(), line.end(), '2');
 
-	std::string patterns_blanc[] = {LiveTwo_Blanc, LiveTwo_Blanc2, LiveTwo_Blanc2_2, LiveTwo_Blanc3, LiveTwo_Blanc4};
-	std::string patterns_noir[] = {LiveTwo_Noir, LiveTwo_Noir2, LiveTwo_Noir2_2, LiveTwo_Noir3, LiveTwo_Noir4};
+	std::string patterns_blanc_LiveTwo[] = {LiveTwo_Blanc, LiveTwo_Blanc2, LiveTwo_Blanc2_2, LiveTwo_Blanc3, LiveTwo_Blanc4};
+	std::string patterns_blanc_DeadFour[] = {DeadFour_Blanc, DeadFour_Blanc1_1, DeadFour_Blanc2, DeadFour_Blanc2_2, DeadFour_Blanc3};
+	std::string patterns_blanc_DeadThree[] = {DeadThree_Blanc, DeadThree_Blanc1_1, DeadThree_Blanc2, DeadThree_Blanc2_2, DeadThree_Blanc3, DeadThree_Blanc3_2, DeadThree_Blanc4};
+	std::string patterns_blanc_DeadTwo[] = {DeadTwo_Blanc, DeadTwo_Blanc1_1, DeadTwo_Blanc2, DeadTwo_Blanc2_2, DeadTwo_Blanc3};
+
+	std::string patterns_noir_LiveTwo[] = {LiveTwo_Noir, LiveTwo_Noir2, LiveTwo_Noir2_2, LiveTwo_Noir3, LiveTwo_Noir4};
+	std::string patterns_noir_DeadFour[] = {DeadFour_Noir, DeadFour_Noir1_1, DeadFour_Noir2, DeadFour_Noir2_2, DeadFour_Noir3};
+	std::string patterns_noir_DeadThree[] = {DeadThree_Noir, DeadThree_Noir1_1, DeadThree_Noir2, DeadThree_Noir2_2, DeadThree_Noir3, DeadThree_Noir3_2, DeadThree_Noir4};
+	std::string patterns_noir_DeadTwo[] = {DeadTwo_Noir, DeadTwo_Noir1_1, DeadTwo_Noir2, DeadTwo_Noir2_2, DeadTwo_Noir3};
+
 
 
     if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
@@ -29,25 +37,96 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
     if (nb_pion_blanc >= 4 && line.find(LiveFour_Blanc) != -1) {
 		nb_pion_blanc -= 4;
+        scores.first += 25000;
+    }
+
+	if (nb_pion_blanc >= 4) {
+		for (const auto& pattern : patterns_blanc_DeadFour) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_blanc -= 4;
+				scores.first += 15000;
+			}
+			if (nb_pion_blanc < 4)
+				break;
+		}
+	}
+	if (nb_pion_blanc >= 4 && (line.find(Edge_Four_Blanc) == 0)
+	|| nb_pion_blanc >= 4 && (line.find(Edge_Four_Blanc2) == line.size() - 5)) {
+		dprintf(1, "Edge_Four_Blanc\n");
+		nb_pion_blanc -= 4;
         scores.first += 15000;
     }
+
     if (nb_pion_noir >= 4 && line.find(LiveFour_Noir) != -1) {
 		nb_pion_noir -= 4;
-        scores.second += 15000;
+        scores.second += 25000;
     }
+	if (nb_pion_noir >= 4) {
+		for (const auto& pattern : patterns_noir_DeadFour) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_noir -= 4;
+				scores.second += 15000;
+			}
+			if (nb_pion_noir < 4)
+				break;
+		}
+	}
+	if (nb_pion_noir >= 4 && (line.find(Edge_Four_Noir) == 0) ||
+		nb_pion_noir >= 4 && (line.find(Edge_Four_Noir2) == line.size() - 5)) {
+		dprintf(1, "Edge_Four_Noir\n");
+		dprintf(1, "line: %s\n", line.c_str());
+		dprintf(1, "ine.find(Edge_Four_Noir) = %d\n", line.find(Edge_Four_Noir));
+		nb_pion_noir -= 4;
+		scores.second += 15000;
+	}
+	
 
     if (nb_pion_blanc >= 3 && line.find(LiveThree_Blanc) != -1) {
 		nb_pion_blanc -= 3;
         scores.first += 3000;
     }
+	if (nb_pion_blanc >= 3) {
+		for (const auto& pattern : patterns_blanc_DeadThree) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_blanc -= 3;
+				scores.first +=1500;
+			}
+			if (nb_pion_blanc < 3)
+				break;
+		}
+	}
+	if (nb_pion_blanc >= 3 && (line.find(Edge_Three_Blanc) == 0) ||
+		nb_pion_blanc >= 3 && (line.find(Edge_Three_Blanc2) == line.size() - 4)) {
+		dprintf(1, "Edge_Three_Blanc\n");
+		nb_pion_blanc -= 3;
+		scores.first += 1500;
+	}
+
     if (nb_pion_noir >= 3 && line.find(LiveThree_Noir) != -1) {
 		nb_pion_noir -= 3;
         scores.second += 3000;
     }
 
+	if (nb_pion_noir >= 3) {
+		for (const auto& pattern : patterns_noir_DeadThree) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_noir -= 3;
+				scores.second += 1500;
+			}
+			if (nb_pion_noir < 3)
+				break;
+		}
+	}
+	if (nb_pion_noir >= 3 && (line.find(Edge_Three_Noir) == 0) ||
+		nb_pion_noir >= 3 && (line.find(Edge_Three_Noir2) == line.size() - 4)) {
+		dprintf(1, "Edge_Three_Noir\n");
+		nb_pion_noir -= 3;
+		scores.second += 1500;
+	}
+
    
 	if (nb_pion_blanc >= 2) {
-		for (const auto& pattern : patterns_blanc) {
+		for (const auto& pattern : patterns_blanc_LiveTwo) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 2;
 				scores.first += 1000;
@@ -57,8 +136,25 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		}
 	}
 
-	if (nb_pion_blanc >= 2) {
-		for (const auto& pattern : patterns_noir) {
+	if (nb_pion_blanc >= 2){
+				for (const auto& pattern : patterns_blanc_DeadTwo) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_blanc -= 2;
+				scores.first += 500;
+			}
+			if (nb_pion_blanc < 2)
+				break;
+		}
+	}
+	if (nb_pion_blanc >= 2 && (line.find(Edge_Two_Blanc) == 0) ||
+	nb_pion_blanc >= 2 && (line.find(Edge_Two_Blanc2) == line.size() - 3)) {
+		dprintf(1, "Edge_Two_Blanc\n");
+		nb_pion_blanc -= 2;
+		scores.first += 500;
+	}
+
+	if (nb_pion_noir >= 2) {
+		for (const auto& pattern : patterns_noir_LiveTwo) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 2;
 				scores.second += 1000;
@@ -67,6 +163,25 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 				break;
 		}
 	}
+
+	if (nb_pion_noir >= 2) {
+		for (const auto& pattern : patterns_noir_DeadTwo) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_noir -= 2;
+				scores.second += 500;
+			}
+			if (nb_pion_noir < 2)
+				break;
+		}
+	}
+	if (nb_pion_noir >= 2 && (line.find(Edge_Two_Noir) == 0) ||
+		nb_pion_noir >= 2 && (line.find(Edge_Two_Noir2) == line.size() - 3)) {
+		dprintf(1, "Edge_Two_Noir\n");
+		nb_pion_noir -= 2;
+		scores.second += 500;
+	}
+
+
 
 	transpositionTable_Line[line] = scores;
     return scores;
@@ -190,9 +305,42 @@ int Algo::ask(AlgoData data) {
     size = data.size;
 	player_dark = data.turn ? true : false;
 
-	int result = 0;
+	int maxDepth = DEPTH;
+    int result = 0;
+	int best_result = 0;
+	int best_move = 0;
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    result = minMax(data.map, INT_MIN, INT_MAX, DEPTH, data.turn);
+
+    for (int currentDepth = 1; currentDepth <= maxDepth; currentDepth++) {
+		iterativeDepth = currentDepth;
+        result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin);
+		if (data.turn == true ){
+			best_result = result;
+			best_move = optimalMove;
+
+			printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
+			dprintf(1, "best_result: %d\n", best_result);
+			dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+			dprintf(1, "optimalBeta: %d\n", optimalBeta);
+		}
+		else if (data.turn == false ){
+			best_result = result;
+			best_move = optimalMove;
+			printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
+			dprintf(1, "best_result: %d\n", best_result);
+			dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+			dprintf(1, "optimalBeta: %d\n", optimalBeta);
+		}
+		
+
+		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+		dprintf(1, "time elapsed: %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count());
+        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
+        if (elapsed_ms > 1000) {
+            break;
+        }
+    }
+
 	printf("turn: %d\n", data.turn);
 	printf("player: %d\n", player_dark);
 
@@ -209,9 +357,16 @@ int Algo::ask(AlgoData data) {
 	return optimalMove;
 }
 
-int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn) {
+int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin) {
 	static int i = 0;
 	int prise;
+
+	// Vérifier le temps écoulé
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - *begin).count();
+    if (elapsed_ms > 1000) {
+        return heuristique(position, turn); // Retourne une valeur élevée ou faible en fonction du tour pour arrêter la récursion
+    }
 
 	if (fiveInRow(position, turn, '2')) {
 		return 10000000 * depth;
@@ -246,12 +401,14 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 			updatedMap[move] = '2';
 
 			// Passez updatedMap directement à minMax
-			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn);
+			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin);
 
 			if (eval> maxEval){
 				maxEval = eval;
-				if (depth == DEPTH){
+				if (depth == iterativeDepth){
 					optimalMove = move;
+					optimalAlpha = alpha;
+					optimalBeta = beta;
 				}
 			}
 			alpha = std::max(alpha, maxEval);
@@ -274,12 +431,14 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 			updatedMap[move] = '1';
 
 			// Passez updatedMap directement à minMax
-			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn);
+			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin);
 
 			if (eval < minEval){
 				minEval = eval;
-				if (depth == DEPTH){
+				if (depth == iterativeDepth){
 					optimalMove = move;
+					optimalAlpha = alpha;
+					optimalBeta = beta;
 				}
 			}
 			beta = std::min(beta, minEval);
