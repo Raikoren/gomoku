@@ -94,7 +94,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_blanc_DeadFour) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 4;
-				scores.first += 15000;
+				scores.first += 10000;
 			}
 			if (nb_pion_blanc < 4)
 				break;
@@ -102,9 +102,8 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	}
 	if (nb_pion_blanc >= 4 && (line.find(Edge_Four_Blanc) == 0)
 	|| nb_pion_blanc >= 4 && (line.find(Edge_Four_Blanc2) == line.size() - 5)) {
-		// dprintf(1, "Edge_Four_Blanc\n");
 		nb_pion_blanc -= 4;
-        scores.first += 15000;
+        scores.first += 10000;
     }
 
 	if (nb_pion_noir >= 4) {
@@ -121,7 +120,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_noir_DeadFour) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 4;
-				scores.second += 15000;
+				scores.second += 10000;
 			}
 			if (nb_pion_noir < 4)
 				break;
@@ -130,28 +129,14 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	if (nb_pion_noir >= 4 && (line.find(Edge_Four_Noir) == 0) ||
 		nb_pion_noir >= 4 && (line.find(Edge_Four_Noir2) == line.size() - 5)) {
 		nb_pion_noir -= 4;
-		scores.second += 15000;
+		scores.second += 10000;
 	}
-
-	if (nb_pion_blanc >= 2 && nb_pion_noir >= 2){
-		if (line.find(Eat_Blanc) != -1 || line.find(Eat_Blanc_1) != -1){
-			nb_pion_blanc -= 2;
-			nb_pion_noir -= 2;
-			scores.second += 10000 * (bScore + 1);
-		}
-		if (line.find(Eat_Noir) != -1 || line.find(Eat_Noir_1) != -1){
-			nb_pion_blanc -= 2;
-			nb_pion_noir -= 2;
-			scores.first += 10000 * (wScore + 1);
-		}
-	}
-	
 
 	if (nb_pion_blanc >= 3) {
 		for (const auto& pattern : patterns_blanc_LiveThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 3;
-				scores.first += 5000;
+				scores.first += 15000;
 			}
 			if (nb_pion_blanc < 3)
 				break;
@@ -161,7 +146,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_blanc_DeadThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 3;
-				scores.first +=1500;
+				scores.first +=500;
 			}
 			if (nb_pion_blanc < 3)
 				break;
@@ -169,16 +154,15 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	}
 	if (nb_pion_blanc >= 3 && (line.find(Edge_Three_Blanc) == 0) ||
 		nb_pion_blanc >= 3 && (line.find(Edge_Three_Blanc2) == line.size() - 4)) {
-		// dprintf(1, "Edge_Three_Blanc\n");
 		nb_pion_blanc -= 3;
-		scores.first += 1500;
+		scores.first += 500;
 	}
 
 	if (nb_pion_noir >= 3) {
 		for (const auto& pattern : patterns_noir_LiveThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 3;
-				scores.second += 5000;
+				scores.second += 15000;
 			}
 			if (nb_pion_noir < 3)
 				break;
@@ -188,7 +172,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_noir_DeadThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 3;
-				scores.second += 1500;
+				scores.second += 500;
 			}
 			if (nb_pion_noir < 3)
 				break;
@@ -197,7 +181,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	if (nb_pion_noir >= 3 && (line.find(Edge_Three_Noir) == 0) ||
 		nb_pion_noir >= 3 && (line.find(Edge_Three_Noir2) == line.size() - 4)) {
 		nb_pion_noir -= 3;
-		scores.second += 1500;
+		scores.second += 500;
 	}
 
    
@@ -224,7 +208,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	}
 	if (nb_pion_blanc >= 2 && (line.find(Edge_Two_Blanc) == 0) ||
 	nb_pion_blanc >= 2 && (line.find(Edge_Two_Blanc2) == line.size() - 3)) {
-		// dprintf(1, "Edge_Two_Blanc\n");
 		nb_pion_blanc -= 2;
 		scores.first += 500;
 	}
@@ -252,7 +235,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	}
 	if (nb_pion_noir >= 2 && (line.find(Edge_Two_Noir) == 0) ||
 		nb_pion_noir >= 2 && (line.find(Edge_Two_Noir2) == line.size() - 3)) {
-		// dprintf(1, "Edge_Two_Noir\n");
 		nb_pion_noir -= 2;
 		scores.second += 500;
 	}
@@ -306,7 +288,7 @@ bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
     return false;
 }
 
-int Algo::heuristique(const std::string& map, bool turn) {
+int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore) {
     int score = 0;
     char player = turn ? '2': '1';
     char opponent = turn ? '1': '2';
@@ -352,6 +334,14 @@ int Algo::heuristique(const std::string& map, bool turn) {
 		auto scores = FindPatternBothPlayers(diagonal);
 		score += scores.second - scores.first;
 	}
+
+	// dprintf(1, "bscore: %d\n", bscore);
+	// dprintf(1, "wscore: %d\n", wscore);
+	// if (bscore >= 0 || wscore >= 0)
+	// 	dprintf(1, "avent score: %d\n", score);
+	score += (bscore - wscore) * 25000;
+	// if (bscore >= 0 || wscore >= 0)
+	// 	dprintf(1, "apres score: %d\n", score);
 
 
     return score;
@@ -406,33 +396,35 @@ std::string Algo::getDiagonalSecondaryFromCol(const std::string& map, int col) {
 
 
 int Algo::ask(AlgoData data) {
-    wScore = data.wScore;
-    bScore = data.bScore;
+    Map_wScore = data.wScore;
+    Map_bScore = data.bScore;
     size = data.size;
 	player_dark = data.turn ? true : false;
 
-	int maxDepth = 2;
+	int maxDepth = 10;
     int result = 0;
 	int best_result = 0;
 	int best_move = 0;
-	int best_alpha = 0;
-	int best_beta = 0;
+	int best_alpha = INT_MIN;
+	int best_beta = INT_MAX;
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-    for (int currentDepth = 1; currentDepth <= maxDepth; currentDepth++) {
+    for (int currentDepth = 2; currentDepth <= maxDepth; currentDepth++) {
 		iterativeDepth = currentDepth;
-        result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin);
+        result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin, Map_bScore, Map_wScore);
 		if (result == -1){
 			result = best_result;
 			optimalMove = best_move;
 		}
 
 		dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+		dprintf(1, "bestalpha: %d\n", best_alpha);
 		dprintf(1, "optimalBeta: %d\n", optimalBeta);
+		dprintf(1, "bestbeta: %d\n", best_beta);
 		printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
 
 		if (data.turn == true ){
-			if (best_alpha > optimalAlpha && optimalAlpha != INT_MIN) {
+			if (best_alpha < optimalAlpha && optimalAlpha != INT_MIN) {
 				best_result = result;
 				best_move = optimalMove;
 				best_alpha = optimalAlpha;
@@ -443,14 +435,9 @@ int Algo::ask(AlgoData data) {
 				dprintf(1, "optimalBeta: %d\n", optimalBeta);
 				dprintf(1, "\n\n");
 			}
-
-			// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-			// dprintf(1, "best_result: %d\n", best_result);
-			// dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
-			// dprintf(1, "optimalBeta: %d\n", optimalBeta);
 		}
 		else if (data.turn == false ){
-			if (best_beta < optimalBeta && optimalBeta != INT_MAX) {
+			if (best_beta > optimalBeta && optimalBeta != INT_MAX) {
 				best_beta = optimalBeta;
 				best_result = result;
 				best_move = optimalMove;
@@ -483,14 +470,6 @@ int Algo::ask(AlgoData data) {
 	//
 
 	dprintf(1, "\n\nTOUR =========================\n");
-	//dprintf map 
-	for (int i = 0; i < size; i++){
-		for (int j = 0; j < size; j++){
-			dprintf(1, "%c", data.map[i * size + j]);
-		}
-		dprintf(1, "\n");
-	}
-	dprintf(1, "\n");
 
 	printf("turn: %d\n", data.turn);
 	printf("player: %d\n", player_dark);
@@ -509,90 +488,108 @@ int Algo::ask(AlgoData data) {
 	return optimalMove;
 }
 
-int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin) {
-	static int i = 0;
-	int prise;
+int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin, int bScore, int wScore) {
+    static int i = 0;
 
-	// Vérifier le temps écoulé
+    // Vérifier le temps écoulé
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - *begin).count();
     if (elapsed_ms > 1000) {
         // return -1;
-		return heuristique(position, turn);
+		if (fiveInRow(position, turn, '2')) {
+			return 10000000 * depth;
+		}
+		else if (fiveInRow(position, turn, '1')) {
+			return -10000000 * depth;
+		}
+        return heuristique(position, turn, bScore, wScore);
     }
 
-	if (fiveInRow(position, turn, '2')) {
-		return 10000000 * depth;
-	}
-	else if (fiveInRow(position, turn, '1')) {
-		return -10000000 * depth;
-	}
+    if (fiveInRow(position, turn, '2')) {
+        return 10000000 * depth;
+    }
+    else if (fiveInRow(position, turn, '1')) {
+        return -10000000 * depth;
+    }
 
     if (depth == 0 || bScore == 5 || wScore == 5){
-        return heuristique(position, turn); // return current score
-	}
+        return heuristique(position, turn, bScore, wScore); // return current score
+    }
 
     std::vector<int> moves = setMovesOrder(position, turn);
 
     if (turn) {
-       int maxEval = INT_MIN;
-       for (int move : moves) {
-			i ++;
-			std::string updatedMap = position;
+        int maxEval = INT_MIN;
+        for (int move : moves) {
+            i ++;
+            std::string updatedMap = position;
 
-			// Modifiez updatedMap pour inclure le mouvement en cours
-			updatedMap[move] = '2';
-			//  je veux regarder autour du dernier coup joué pour voir si je peux prendre un pion
+            // Modifiez updatedMap pour inclure le mouvement en cours
+            updatedMap[move] = '2';
 
-			std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+            std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+            if (!captured.empty()) {
+                updatedMap[captured[0]] = '0';
+                updatedMap[captured[1]] = '0';
+                bScore++;
+            }
+
+            // Passez updatedMap directement à minMax
+            int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin, bScore, wScore);
+
 			if (!captured.empty()) {
-				updatedMap[captured[0]] = '0';
-				updatedMap[captured[1]] = '0';
-			}
-
-			// Passez updatedMap directement à minMax
-			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin);
-
-			if (eval> maxEval){
-				maxEval = eval;
-				if (depth == iterativeDepth){
-					optimalMove = move;
-					optimalAlpha = alpha;
-					optimalBeta = beta;
-				}
+				bScore--;
 			}
 			alpha = std::max(alpha, maxEval);
-			if (beta <= alpha){
-				break;
-			}
-       }
-       return maxEval;
+            if (eval > maxEval){
+                maxEval = eval;
+                if (depth == iterativeDepth){
+					dprintf(1, "eval: %d\n", eval);
+					alpha = std::max(alpha, maxEval);
+
+                    optimalMove = move;
+                    optimalAlpha = alpha;
+                    optimalBeta = beta;
+                }
+            }
+            if (beta <= alpha){
+                break;
+            }
+        }
+        return maxEval;
     }
     else {
-       int minEval = INT_MAX;
-       for (int move : moves) {
-			std::string updatedMap = position;
+        int minEval = INT_MAX;
+        for (int move : moves) {
+            std::string updatedMap = position;
 
-			// Modifiez updatedMap pour inclure le mouvement en cours
-			updatedMap[move] = '1';
-			std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+            // Modifiez updatedMap pour inclure le mouvement en cours
+            updatedMap[move] = '1';
+
+            std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+            if (!captured.empty()) {
+                updatedMap[captured[0]] = '0';
+                updatedMap[captured[1]] = '0';
+                wScore++;
+            }
+
+            // Passez updatedMap directement à minMax
+            int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin, bScore, wScore);
+
 			if (!captured.empty()) {
-				updatedMap[captured[0]] = '0';
-				updatedMap[captured[1]] = '0';
-			}
-
-			// Passez updatedMap directement à minMax
-			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin);
-
-			if (eval < minEval){
-				minEval = eval;
-				if (depth == iterativeDepth){
-					optimalMove = move;
-					optimalAlpha = alpha;
-					optimalBeta = beta;
-				}
+				wScore--;
 			}
 			beta = std::min(beta, minEval);
+            if (eval < minEval){
+                minEval = eval;
+                if (depth == iterativeDepth){
+					beta = std::min(beta, minEval);
+
+                    optimalMove = move;
+                    optimalAlpha = alpha;
+                    optimalBeta = beta;
+                }
+            }
 			if (beta <= alpha){
 				break;
 			}

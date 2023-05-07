@@ -140,7 +140,7 @@ class Algo {
 	public:
 		Algo() { }
         int     ask(AlgoData data); // fonction d'appel
-        int     minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin);
+		int minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin, int bScore, int wScore);
         // position = position dans l'historique (0 <-> DEPTH)
         // alpha = meilleur score actuel pour les blancs
         // beta = meilleur score actuel pour les noirs
@@ -148,7 +148,7 @@ class Algo {
         std::vector<int> setMovesOrder(const std::string& i, bool turn); // retourne un vecteur contenent dans l'ordre les coups � tester 
 		std::vector<std::pair<int, int>> getWindowBounds(const std::string& map);
         bool    checkPos(int x, int y, std::string map, bool firstRound, bool turn); // check valibilit� d'un coup et si firstRound == true, si le coup cr�� une ligne ou une prise
-		int		heuristique(const std::string& map, bool turn);
+		int		heuristique(const std::string& map, bool turn, int bscore, int wscore);
         // threeLine() detecte si le placement genere une ligne de trois
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
         // antiline() detecte si le coup contre une ligne de trois déjà presente (take advantage est la meme fonction je pense faut quej e vois)
@@ -189,8 +189,8 @@ class Algo {
 		int							optimalMove;
 		int							optimalAlpha;
 		int							optimalBeta;
-        int                         bScore;
-        int                         wScore;
+        int                         Map_bScore;
+        int                         Map_wScore;
         int                         size;
 		bool						player_dark;
         std::vector<std::string>    historique; //historique de longueur DEPTH
