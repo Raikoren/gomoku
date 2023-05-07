@@ -1,5 +1,43 @@
 #include "algo.hpp"
 
+bool Algo::isValidCoordinate(int x, int y) {
+    return x >= 0 && x < size && y >= 0 && y < size;
+}
+
+
+std::vector<int> Algo::getCaptureIndices(const std::string& map, int move, bool turn) {
+    int dx[] = {-1, 1, 0, 0, -1, 1, -1, 1};
+    int dy[] = {0, 0, -1, 1, -1, 1, 1, -1};
+    char player = turn ? '2' : '1';
+    char opponent = turn ? '1' : '2';
+    int x = move % size;
+    int y = move / size;
+
+    std::vector<int> captureIndices;
+
+    for (int i = 0; i < 8; i++) {
+        int x1 = x + dx[i];
+        int y1 = y + dy[i];
+        int x2 = x1 + dx[i];
+        int y2 = y1 + dy[i];
+        int x3 = x2 + dx[i];
+        int y3 = y2 + dy[i];
+
+        if (isValidCoordinate(x1, y1) && isValidCoordinate(x2, y2) && isValidCoordinate(x3, y3)) {
+            if (map[y1 * size + x1] == opponent && map[y2 * size + x2] == opponent && map[y3 * size + x3] == player) {
+                captureIndices.push_back(y1 * size + x1);
+                captureIndices.push_back(y2 * size + x2);
+                return captureIndices;
+            }
+        }
+    }
+
+    return captureIndices;
+}
+
+
+
+
 std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     std::pair<int, int> scores = std::make_pair(0, 0);
 
@@ -94,13 +132,26 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		nb_pion_noir -= 4;
 		scores.second += 15000;
 	}
+
+	if (nb_pion_blanc >= 2 && nb_pion_noir >= 2){
+		if (line.find(Eat_Blanc) != -1 || line.find(Eat_Blanc_1) != -1){
+			nb_pion_blanc -= 2;
+			nb_pion_noir -= 2;
+			scores.second += 10000 * (bScore + 1);
+		}
+		if (line.find(Eat_Noir) != -1 || line.find(Eat_Noir_1) != -1){
+			nb_pion_blanc -= 2;
+			nb_pion_noir -= 2;
+			scores.first += 10000 * (wScore + 1);
+		}
+	}
 	
 
 	if (nb_pion_blanc >= 3) {
 		for (const auto& pattern : patterns_blanc_LiveThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 3;
-				scores.first += 10000;
+				scores.first += 5000;
 			}
 			if (nb_pion_blanc < 3)
 				break;
@@ -127,7 +178,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_noir_LiveThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 3;
-				scores.second += 10000;
+				scores.second += 5000;
 			}
 			if (nb_pion_noir < 3)
 				break;
@@ -360,7 +411,7 @@ int Algo::ask(AlgoData data) {
     size = data.size;
 	player_dark = data.turn ? true : false;
 
-	int maxDepth = 10;
+	int maxDepth = 2;
     int result = 0;
 	int best_result = 0;
 	int best_move = 0;
@@ -420,9 +471,15 @@ int Algo::ask(AlgoData data) {
         }
     }
 
-	// TEST A ENLEVER 
-	result = best_result;
-	optimalMove = best_move;
+	// TEST A ENLEVER
+	if (best_result == 0){
+		best_result = result;
+		best_move = optimalMove;
+	}
+	else {
+		result = best_result;
+		optimalMove = best_move;
+	}
 	//
 
 	dprintf(1, "\n\nTOUR =========================\n");
@@ -477,16 +534,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
     std::vector<int> moves = setMovesOrder(position, turn);
 
-	// Prendre les 50% premiers mouvements
-	// if (moves.size() > 50){
-	// 	int movesToTake = std::ceil(moves.size() * 0.5);
-	// 	moves.resize(movesToTake);
-	// }
-
-
-    // for (int move : moves)
-    //     std::cout << move << std::endl;
-	// dprintf(1, "nb moves: %d\n", moves.size());
     if (turn) {
        int maxEval = INT_MIN;
        for (int move : moves) {
@@ -495,6 +542,13 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
 			// Modifiez updatedMap pour inclure le mouvement en cours
 			updatedMap[move] = '2';
+			//  je veux regarder autour du dernier coup joué pour voir si je peux prendre un pion
+
+			std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+			if (!captured.empty()) {
+				updatedMap[captured[0]] = '0';
+				updatedMap[captured[1]] = '0';
+			}
 
 			// Passez updatedMap directement à minMax
 			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin);
@@ -509,10 +563,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 			}
 			alpha = std::max(alpha, maxEval);
 			if (beta <= alpha){
-				// dprintf(1, "beta <= alpha\n");
-				// dprintf(1, "i = %d\n", i);
-				// dprintf(1, "beta: %d\n", beta);
-				// dprintf(1, "alpha: %d\n", alpha);
 				break;
 			}
        }
@@ -525,6 +575,11 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
 			// Modifiez updatedMap pour inclure le mouvement en cours
 			updatedMap[move] = '1';
+			std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+			if (!captured.empty()) {
+				updatedMap[captured[0]] = '0';
+				updatedMap[captured[1]] = '0';
+			}
 
 			// Passez updatedMap directement à minMax
 			int eval = minMax(updatedMap, alpha, beta, depth - 1, !turn, begin);

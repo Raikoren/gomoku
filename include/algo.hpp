@@ -11,6 +11,12 @@
 #include <unordered_map>
 #include "env.hpp"
 
+# define Eat_Blanc			"2112"
+# define Eat_Blanc_1		"2112"
+
+# define Eat_Noir			"1221"
+# define Eat_Noir_1			"1221"
+
 # define FiveInRow_Blanc	"11111"
 
 
@@ -155,6 +161,9 @@ class Algo {
 		bool	fiveInRow(const std::string& map, bool turn, char player);
 
 		int		FindPattern(const std::string line, char player);
+		std::vector<int> getCaptureIndices(const std::string& map, int move, bool turn);
+		bool isValidCoordinate(int x, int y);
+
 		std::pair<int, int> FindPatternBothPlayers(const std::string &line);
 
 		std::string	getRow(const std::string& map, int row);

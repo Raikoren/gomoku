@@ -126,7 +126,9 @@ void Game::gaming(sf::Event ev) {
             algoData.bScore = visualData.bScore;
             memcpy(algoData.map, visualData.map, 361);
             algoData.turn = turn;
-            visualData.map[algo.ask(algoData)] = '1';
+			int minMaxRes = algo.ask(algoData);
+            !doubleThreeDetector(minMaxRes, visualData.map, '1');
+            mokuVictory(minMaxRes % size, minMaxRes / size);
             turn = !turn;
             visualData.totalTurn++;
             _visual_.getGameState()->setString("C'est le tour des NOIRS ^^");
