@@ -19,6 +19,7 @@
 
 # define FiveInRow_Blanc	"11111"
 
+// four
 
 # define LiveFour_Blanc		"011110"
 # define LiveFour_Blanc_1  "0101110"
@@ -32,6 +33,19 @@
 # define DeadFour_Blanc2_2	"10111"
 # define DeadFour_Blanc3	"11011"
 
+# define LiveFour_Noir		"022220"
+# define LiveFour_Noir_1   "0202220"
+# define LiveFour_Noir_2   "0222020"
+
+# define DeadFour_Noir		"122220"
+# define DeadFour_Noir_1   "1202220"
+# define DeadFour_Noir_2   "0222201"
+# define DeadFour_Noir1_1	"022221"
+# define DeadFour_Noir2		"22202"
+# define DeadFour_Noir2_2	"20222"
+# define DeadFour_Noir3		"22022"
+
+// three
 
 # define LiveThree_Blanc	"01110"
 # define LiveThree_Blanc_1 "010110"
@@ -40,26 +54,56 @@
 # define DeadThree_Blanc	"21110"
 # define DeadThree_Blanc_1 "210110"
 # define DeadThree_Blanc_2 "011012"
-# define DeadThree_Blanc1_1	"01112"
+# define DeadThree_Blanc1_1	"001112"
 # define DeadThree_Blanc2	"1101"
 # define DeadThree_Blanc2_2	"1011"
 # define DeadThree_Blanc3	"011001"
 # define DeadThree_Blanc3_2	"100110"
 # define DeadThree_Blanc4	"10101"
 
+# define LiveThree_Noir		"02220"
+# define LiveThree_Noir_1  "020220"
+# define LiveThree_Noir_2  "022020"
+
+# define DeadThree_Noir		"12220"
+# define DeadThree_Noir_1   "120220"
+# define DeadThree_Noir_2   "022021"
+# define DeadThree_Noir1_1	"002221"
+# define DeadThree_Noir2	"2202"
+# define DeadThree_Noir2_2	"2022"
+# define DeadThree_Noir3	"022002"
+# define DeadThree_Noir3_2	"200220"
+# define DeadThree_Noir4	"20202"
+
+// two
+
 
 # define LiveTwo_Blanc		"10001"
 # define LiveTwo_Blanc2		"10010"
 # define LiveTwo_Blanc2_2	"01001"
 # define LiveTwo_Blanc3		"01010"
-# define LiveTwo_Blanc4		"0110"
+# define LiveTwo_Blanc4		"001100"
 
-# define DeadTwo_Blanc		"2110"
-# define DeadTwo_Blanc1_1	"0112"
-# define DeadTwo_Blanc2		"2101"
-# define DeadTwo_Blanc2_2	"1012"
-# define DeadTwo_Blanc3		"21001"
+# define DeadTwo_Blanc		"211000"
+# define DeadTwo_Blanc1_1	"000112"
+# define DeadTwo_Blanc2		"210100"
+# define DeadTwo_Blanc2_2	"001012"
+# define DeadTwo_Blanc3		"210010"
 
+# define LiveTwo_Noir		"20002"
+# define LiveTwo_Noir2		"20020"
+# define LiveTwo_Noir2_2	"02002"
+# define LiveTwo_Noir3		"02020"
+# define LiveTwo_Noir4		"002200"
+
+# define DeadTwo_Noir		"122000"
+# define DeadTwo_Noir1_1	"000221"
+# define DeadTwo_Noir2		"120200"
+# define DeadTwo_Noir2_2	"002021"
+# define DeadTwo_Noir3		"120020"
+
+
+// edge	
 
 # define Edge_Four_Blanc	"11110"
 # define Edge_Three_Blanc	"1110"
@@ -73,46 +117,6 @@
 
 # define FiveInRow_Noir		"22222"
 
-
-# define LiveFour_Noir		"022220"
-# define LiveFour_Noir_1   "0202220"
-# define LiveFour_Noir_2   "0222020"
-
-# define DeadFour_Noir		"122220"
-# define DeadFour_Noir_1   "1202220"
-# define DeadFour_Noir_2   "0222201"
-# define DeadFour_Noir1_1	"022221"
-# define DeadFour_Noir2		"22202"
-# define DeadFour_Noir2_2	"20222"
-# define DeadFour_Noir3		"22022"
-
-
-# define LiveThree_Noir		"02220"
-# define LiveThree_Noir_1  "020220"
-# define LiveThree_Noir_2  "022020"
-
-# define DeadThree_Noir		"12220"
-# define DeadThree_Noir_1   "022021"
-# define DeadThree_Noir_2   "22012"
-# define DeadThree_Noir1_1	"02221"
-# define DeadThree_Noir2	"2202"
-# define DeadThree_Noir2_2	"2022"
-# define DeadThree_Noir3	"022002"
-# define DeadThree_Noir3_2	"200220"
-# define DeadThree_Noir4	"20202"
-
-
-# define LiveTwo_Noir		"20002"
-# define LiveTwo_Noir2		"20020"
-# define LiveTwo_Noir2_2	"02002"
-# define LiveTwo_Noir3		"02020"
-# define LiveTwo_Noir4		"0220"
-
-# define DeadTwo_Noir		"1220"
-# define DeadTwo_Noir1_1	"0221"
-# define DeadTwo_Noir2		"1202"
-# define DeadTwo_Noir2_2	"2021"
-# define DeadTwo_Noir3		"12002"
 
 # define Edge_Four_Noir		"22220"
 # define Edge_Three_Noir	"2220"

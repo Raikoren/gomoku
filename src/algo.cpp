@@ -83,7 +83,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_blanc_LiveFour) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 4;
-				scores.first += 50000;
+				scores.first += 15000;
 			}
 			if (nb_pion_blanc < 4)
 				break;
@@ -110,7 +110,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_noir_LiveFour) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 4;
-				scores.second += 50000;
+				scores.second += 15000;
 			}
 			if (nb_pion_noir < 4)
 				break;
@@ -136,7 +136,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_blanc_LiveThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 3;
-				scores.first += 15000;
+				scores.first += 10000;
 			}
 			if (nb_pion_blanc < 3)
 				break;
@@ -146,7 +146,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_blanc_DeadThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 3;
-				scores.first +=500;
+				scores.first +=1000;
 			}
 			if (nb_pion_blanc < 3)
 				break;
@@ -155,14 +155,14 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	if (nb_pion_blanc >= 3 && (line.find(Edge_Three_Blanc) == 0) ||
 		nb_pion_blanc >= 3 && (line.find(Edge_Three_Blanc2) == line.size() - 4)) {
 		nb_pion_blanc -= 3;
-		scores.first += 500;
+		scores.first += 1000;
 	}
 
 	if (nb_pion_noir >= 3) {
 		for (const auto& pattern : patterns_noir_LiveThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 3;
-				scores.second += 15000;
+				scores.second += 10000;
 			}
 			if (nb_pion_noir < 3)
 				break;
@@ -172,7 +172,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_noir_DeadThree) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 3;
-				scores.second += 500;
+				scores.second += 1000;
 			}
 			if (nb_pion_noir < 3)
 				break;
@@ -181,7 +181,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	if (nb_pion_noir >= 3 && (line.find(Edge_Three_Noir) == 0) ||
 		nb_pion_noir >= 3 && (line.find(Edge_Three_Noir2) == line.size() - 4)) {
 		nb_pion_noir -= 3;
-		scores.second += 500;
+		scores.second += 1000;
 	}
 
    
@@ -189,7 +189,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_blanc_LiveTwo) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 2;
-				scores.first += 1000;
+				scores.first += 5000;
 			}
 			if (nb_pion_blanc < 2)
 				break;
@@ -216,7 +216,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		for (const auto& pattern : patterns_noir_LiveTwo) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 2;
-				scores.second += 1000;
+				scores.second += 5000;
 			}
 			if (nb_pion_noir < 2)
 				break;
@@ -298,6 +298,10 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
 		return 1000000;
 	if (fiveInRow(map, turn, '1'))
 		return -1000000;
+	if (bscore == 5)
+		return 1000000;
+	if (wscore == 5)
+		return -1000000;
 
     for (int i = 0; i < size; i++) {
         std::string row = getRow(map, i);
@@ -339,7 +343,22 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
 	// dprintf(1, "wscore: %d\n", wscore);
 	// if (bscore >= 0 || wscore >= 0)
 	// 	dprintf(1, "avent score: %d\n", score);
-	score += (bscore - wscore) * 25000;
+	if (bscore == 4)
+		score += 12000;
+	if (wscore == 4)
+		score -= 12000;
+	if (bscore == 3)
+		score += 10000;
+	if (wscore == 3)
+		score -= 10000;
+	if (bscore == 2)
+		score += 8000;
+	if (wscore == 2)
+		score -= 8000;
+	if (bscore == 1)
+		score += 5000;
+	if (wscore == 1)
+		score -= 5000;
 	// if (bscore >= 0 || wscore >= 0)
 	// 	dprintf(1, "apres score: %d\n", score);
 
@@ -411,29 +430,30 @@ int Algo::ask(AlgoData data) {
 
     for (int currentDepth = 2; currentDepth <= maxDepth; currentDepth++) {
 		iterativeDepth = currentDepth;
+		dprintf(1, "currentDepth: %d\n", currentDepth);
         result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin, Map_bScore, Map_wScore);
 		if (result == -1){
 			result = best_result;
 			optimalMove = best_move;
 		}
 
-		dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
-		dprintf(1, "bestalpha: %d\n", best_alpha);
-		dprintf(1, "optimalBeta: %d\n", optimalBeta);
-		dprintf(1, "bestbeta: %d\n", best_beta);
-		printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
+		// dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+		// dprintf(1, "bestalpha: %d\n", best_alpha);
+		// dprintf(1, "optimalBeta: %d\n", optimalBeta);
+		// dprintf(1, "bestbeta: %d\n", best_beta);
+		// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
 
 		if (data.turn == true ){
 			if (best_alpha < optimalAlpha && optimalAlpha != INT_MIN) {
 				best_result = result;
 				best_move = optimalMove;
 				best_alpha = optimalAlpha;
-				dprintf(1, "\n\n");
-				printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-				dprintf(1, "best_result: %d\n", best_result);
-				dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
-				dprintf(1, "optimalBeta: %d\n", optimalBeta);
-				dprintf(1, "\n\n");
+				// dprintf(1, "\n\n");
+				// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
+				// dprintf(1, "best_result: %d\n", best_result);
+				// dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+				// dprintf(1, "optimalBeta: %d\n", optimalBeta);
+				// dprintf(1, "\n\n");
 			}
 		}
 		else if (data.turn == false ){
@@ -441,12 +461,12 @@ int Algo::ask(AlgoData data) {
 				best_beta = optimalBeta;
 				best_result = result;
 				best_move = optimalMove;
-				dprintf(1, "\n\n");
-				printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-				dprintf(1, "best_result: %d\n", best_result);
-				dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
-				dprintf(1, "optimalBeta: %d\n", optimalBeta);
-				dprintf(1, "\n\n");
+				// dprintf(1, "\n\n");
+				// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
+				// dprintf(1, "best_result: %d\n", best_result);
+				// dprintf(1, "optimalAlpha: %d\n", optimalAlpha);
+				// dprintf(1, "optimalBeta: %d\n", optimalBeta);
+				// dprintf(1, "\n\n");
 			}
 		}
 		
