@@ -125,12 +125,7 @@
 # define Edge_Three_Noir2	"0222"
 # define Edge_Two_Noir2		"022"
 
-
-struct TranspositionTableEntry {
-    std::string map;
-    int score;
-};
-
+using namespace std;
 
 struct AlgoData {
     int     wScore;// une fois a 5 l'algo ne doit pas aller plus loin
@@ -152,7 +147,9 @@ class Algo {
         std::vector<int> setMovesOrder(const std::string& i, bool turn); // retourne un vecteur contenent dans l'ordre les coups � tester 
 		std::vector<std::pair<int, int>> getWindowBounds(const std::string& map);
         bool    checkPos(int x, int y, std::string map, bool firstRound, bool turn); // check valibilit� d'un coup et si firstRound == true, si le coup cr�� une ligne ou une prise
-		int		heuristique(const std::string& map, bool turn, int bscore, int wscore);
+		std::vector<int> setMovesOrderLineScore(const std::string& i, bool turn); // retourne un vecteur contenent dans l'ordre les coups à tester
+        int     checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool turn);
+        int		heuristique(const std::string& map, bool turn, int bscore, int wscore);
         // threeLine() detecte si le placement genere une ligne de trois
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
         // antiline() detecte si le coup contre une ligne de trois déjà presente (take advantage est la meme fonction je pense faut quej e vois)
@@ -177,7 +174,6 @@ class Algo {
 		std::string getDiagonalSecondaryFromRow(const std::string& map, int row);
 		std::string getDiagonalSecondaryFromCol(const std::string& map, int col);
 
-
 	private:
 
 		struct pair_hash {
@@ -197,10 +193,16 @@ class Algo {
         int                         Map_wScore;
         int                         size;
 		bool						player_dark;
+        int                         countCheckedLine;
+        int                         nbOfPruning;
+        long                        timespentInSetMovesOrder;
+        long                        timespentInHeuristic;
+        long                        timespentToSearchInTranspoTable;
+        std::vector<pair<int, int>> orderedMoves;  // <score/position>
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH
-		std::unordered_map<std::string, TranspositionTableEntry> transpositionTable;
-		std::unordered_map<std::string, std::__1::pair<int, int>> transpositionTable_Line;
+		std::unordered_map<std::string, int> transpositionTableBoard; // map/score
+		std::unordered_map<std::string, pair<int, int>> transpositionTable_Line;
 
 		// std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
 

@@ -9,8 +9,6 @@
 class Game
 {
 private:
-    sf::Sound   click;
-    sf::Music   music;
     Visual      _visual_;
     int         size = 9;
     bool        gomokuOn = false;
