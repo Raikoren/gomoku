@@ -538,10 +538,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     //     return heuristique(position, turn, bScore, wScore);
     // }
 
-    if (fiveInRow(position, turn, '2')) {
+    if (fiveInRow(position, turn, '2') || bScore == 5) {
         return 10000000;
     }
-    else if (fiveInRow(position, turn, '1')) {
+    else if (fiveInRow(position, turn, '1') || wScore == 5) {
         return -10000000;
     }
 
@@ -727,30 +727,23 @@ int Algo::checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool 
 std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     std::string pos = i;
     std::vector<int> res;
-    bool firstCheck = true;
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
             if (pos[y * size + x] != '0') {
-                for (int dy = -1; dy <= 1; ++dy) {
-                    for (int dx = -1; dx <= 1; ++dx) {
+                for (int dy = -2; dy <= 2; ++dy) {
+                    for (int dx = -2; dx <= 2; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
                         if (newX < 0 || newX >= size || newY < 0 || newY >= size || pos[newY * size + newX] != '0') {
                             continue;
                         }
-                        if (std::find(res.begin(), res.end(), newY * size + newX) == res.end() && checkPos(newX, newY, pos, firstCheck, turn)) {
+                        if (std::find(res.begin(), res.end(), newY * size + newX) == res.end() && checkPos(newX, newY, pos, turn)) {
                             res.push_back(newY * size + newX);
                         }
                     }
                 }
             }
-        }
-		if (y == size - 1 && firstCheck == false)
-			break;
-        if (y == size - 1) {
-            firstCheck = false;
-            y = 0;
         }
     }
     if (res.empty())
@@ -761,13 +754,13 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
 }
 
 
-bool Algo::checkPos(int x, int y, std::string map, bool firstRound, bool turn) {
+bool Algo::checkPos(int x, int y, std::string map, bool turn) {
     bool first = false;
     bool important = false;
     if (map[y * size + x] != '0')
         return false;
     if (canTake(x, y, map, turn)) {
-        return (firstRound);
+        return (true);
     }
     for (int dy = -1; dy <= 1; dy++) {
         for (int dx = -1; dx <= 1; dx++) {
@@ -780,14 +773,9 @@ bool Algo::checkPos(int x, int y, std::string map, bool firstRound, bool turn) {
                 else
                     return false;
             }
-            if (takeAdvantage(dx, dy, x, y, map, turn) || threeLine(dx, dy, x + dx, y + dy, map, !turn)) {
-                important = true;
-            }
         }
     }
-    if (important && firstRound)
-        return true;
-    return firstRound == first ? true : false;
+    return true;
 }
 
 bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool turn) {
