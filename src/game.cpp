@@ -250,8 +250,6 @@ void Game::resetGame() {
 // fonction qui v�rifie si la game de gomoku est finie ou si le prochain coup empeche une victoire
 void Game::mokuVictory(int x, int y) {
     char p = visualData.map[y * size + x];
-    int dx = -1;
-    int dy = -1;
     double pad = (BOARD - (MIN_MARGIN * 2)) / (size - 1);
     double margin = (BOARD - (pad * (size - 1))) / 2;
 
@@ -261,7 +259,7 @@ void Game::mokuVictory(int x, int y) {
     }
     if (lastTurn) { // il y a une ligne de 5 mais le coup actuel a pu la briser
         for (int i = 0; i <= 4; i++) { // V�rifie l'int�grit� de la ligne
-            if (visualData.map[wLine[i + 5] * size + wLine[i]] == '0') {
+            if (visualData.map[wLine[0] + (-wLine[1] + (-wLine[2] * size) * i)] == '0') {
                 lastTurn = false;
                 break; // pour setup l'ecran de fin � la fin de la fonction
             }
@@ -270,34 +268,21 @@ void Game::mokuVictory(int x, int y) {
             visualData.endGame = true;
             visualData.wScore = (turn) ? 999 : 0;
             visualData.bScore = (turn) ? 0 : 999;
+            return;
         }
     }
-    if (fivePound(-1, -1, x, y, p))
-        moku[2] = 1;
-    else if (fivePound(0, -1, x, y, p)) {
-        moku[2] = 2;
-        dx = 0;
-    }
-    else if (fivePound(1, -1, x, y, p)) {
-        moku[2] = 3;
-        dx = 1;
-    }
-    else if (fivePound(-1, 0, x, y, p)) {
-        moku[2] = 4;
-        dy = 0;
-    }
+    if (fivePound(x, y, p))
+        lastTurn = false;
     else
         return;
     visualData.endGame = true;
-    visualData.line[0] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * moku[0], (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1]),
+    visualData.line[0] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * (wLine[0] % size), (WIN_Y / 2 - BOARD / 2) + margin + pad * (wLine[0] / size)),
         sf::Color::Green);
-    visualData.line[1] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * moku[0] + ((pad * 4) * (dx * -1)), (WIN_Y / 2 - BOARD / 2) + margin + pad * moku[1] + ((pad * 4) * (dy * -1))),
+    visualData.line[1] = sf::Vertex(sf::Vector2f((WIN_X / 2 - BOARD / 2) + margin + pad * (wLine[0] % size) + ((pad * 4) * -wLine[1]), (WIN_Y / 2 - BOARD / 2) + margin + pad * (wLine[0] / size) + ((pad * 4) * -wLine[2])),
         sf::Color::Green);
     if ((turn && visualData.bScore < 4) || (!turn && visualData.wScore < 4)) {
         for (int i = 0; i <= 4; i++) {
-            wLine[i] = moku[0] - (dx * i);
-            wLine[i + 5] = moku[1] - (dy * i);
-            if (vulnerable(moku[0] - (dx * i), moku[1] - (dy * i), p)) {
+            if (vulnerable((wLine[0] % size) + (-wLine[1] * i), (wLine[0] / size) + (-wLine[2] * i), p)) {
                 lastTurn = true;
                 visualData.endGame = false;
             }
@@ -343,33 +328,35 @@ bool Game::vulnerable(int x, int y, char p) {
 }
 
 // ca check et stock une ligne de 5 en cas de contestation
-bool Game::fivePound(int dx, int dy, int x, int y, char p) {
-    int nx = x;
-    int ny = y;
-    int i = 0;
-    int j = 1;
-    int hl[2];
-    while (nx >= 0 && nx < size && ny >= 0 && ny < size && visualData.map[ny * size + nx] == p && i < 5) {
-        hl[0] = nx;
-        hl[1] = ny;
-        nx += dx;
-        ny += dy;
-        i++;
+bool Game::fivePound(int x, int y, char p) {
+    int first = (y) * size + (x);
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            int ally = 0;
+            if (dy == 0 && dx == 0)
+                return false;
+            for (int i = 1;
+                !(x + dx * i < 0 || x + dx * i >= size || y + dy * i < 0 || y + dy * i >= size)
+                && visualData.map[(y + dy * i) * size + (x + dx * i)] == p && ally < 4;
+                i++) {
+                ally++;
+                first = (y + dy * i) * size + (x + dx * i);
+            }
+            for (int i = 1;
+                !(x + -dx * i < 0 || x + -dx * i >= size || y + -dy * i < 0 || y + -dy * i >= size)
+                && visualData.map[(y + -dy * i) * size + (x + -dx * i)] == p && ally < 4;
+                i++) {
+                ally++;
+            }
+            if (ally >= 4) {
+                wLine[0] = first;
+                wLine[1] = dx;
+                wLine[2] = dy;
+                return true;
+            }
+        }
     }
-    nx = x - dx;
-    ny = y - dy;
-    while (nx >= 0 && nx < size && ny >= 0 && ny < size && visualData.map[ny * size + nx] == p && i < 5) {
-        nx -= dx;
-        ny -= dy;
-        i++;
-        j++;
-    }
-    if (i == 5) {
-        moku[0] = hl[0];
-        moku[1] = hl[1];
-        return(true);
-    }
-    return(false);
+    return false;
 }
 
 //Fonction de prise pour le jeu du Go

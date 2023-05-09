@@ -21,8 +21,7 @@ private:
     bool        hint = false;
     bool        lastTurn = false;
     bool        previewToggle = true;
-    int         moku[3];
-    int         wLine[10];
+    int         wLine[5];
     bool        vsAi = false;
 
 	Algo 	  algo;
@@ -44,7 +43,7 @@ public:
     void mokuVictory(int x, int y);
     bool mokuTake(int dx, int dy, int x, int y, char* m);
     bool threeLineDetector(int dx, int dy, int x, int y, char* map);
-    bool fivePound(int dx, int dy, int x, int y, char p);
+    bool fivePound(int x, int y, char p);
     bool vulnerable(int x, int y, char p);
     void resetGame();
 
