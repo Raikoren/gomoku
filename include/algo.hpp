@@ -10,6 +10,7 @@
 #include <tgmath.h>
 #include <unordered_map>
 #include "env.hpp"
+#include <functional>
 
 # define Eat_Blanc			"2112"
 # define Eat_Blanc_1		"2112"
@@ -198,10 +199,13 @@ class Algo {
         long                        timespentInSetMovesOrder;
         long                        timespentInHeuristic;
         long                        timespentToSearchInTranspoTable;
+        long                        timespentInSomeFunctions;
+		std::hash<std::string> 		hasher;
         std::vector<pair<int, int>> orderedMoves;  // <score/position>
         std::vector<std::string>    historique; //historique de longueur DEPTH
         std::vector<std::string>    movesOrder; //historique de longueur DEPTH
 		std::unordered_map<std::string, int> transpositionTableBoard; // map/score
+		std::unordered_map<int, int> hashedTranspositionTableBoard; // map/score
 		std::unordered_map<std::string, pair<int, int>> transpositionTable_Line;
 
 		// std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;

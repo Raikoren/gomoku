@@ -46,7 +46,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     std::chrono::steady_clock::time_point endFind = std::chrono::steady_clock::now();
     timespentToSearchInTranspoTable += std::chrono::duration_cast<std::chrono::milliseconds>(endFind.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(begin1.time_since_epoch()).count();
     if (it != transpositionTable_Line.end()) {
-        std::chrono::steady_clock::time_point end1 = std::chrono::steady_clock::now();
         // printf("already found %s in table, returning score\n",line);
         // printf("time to find in transposition table%lld\n",end1-begin1);
         return it->second;
@@ -310,8 +309,11 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
 		return 1000000;
 	if (wscore == 5)
 		return -1000000;
-    auto it = transpositionTableBoard.find(map);
-    if (it != transpositionTableBoard.end()) {
+    std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
+    auto it = hashedTranspositionTableBoard.find(hasher(map));
+    std::chrono::steady_clock::time_point endFind = std::chrono::steady_clock::now();
+    timespentToSearchInTranspoTable += std::chrono::duration_cast<std::chrono::milliseconds>(endFind.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(begin2.time_since_epoch()).count();
+    if (it != hashedTranspositionTableBoard.end()) {
         return it->second;
     }
     for (int i = 0; i < size; i++) {
@@ -339,7 +341,8 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
 		tmpScores = FindPatternBothPlayers(diagonal);
 		score += tmpScores.second - tmpScores.first;
     }
-    transpositionTableBoard[map] = score;
+    // transpositionTableBoard[map] = score;
+    hashedTranspositionTableBoard[hasher(map)] = score;
 	// printf("bscore: %d\n", bscore);
 	// printf("wscore: %d\n", wscore);
 	// if (bscore >= 0 || wscore >= 0)
@@ -426,6 +429,7 @@ int Algo::ask(AlgoData data) {
     timespentInSetMovesOrder = 0;
     timespentInHeuristic = 0 ;
     timespentToSearchInTranspoTable = 0;
+    timespentInSomeFunctions = 0;
 
 	int maxDepth = 3;
     int result = 0;
@@ -479,7 +483,8 @@ int Algo::ask(AlgoData data) {
 		}
 		
         printf("size of transposition table line %lld\n",transpositionTable_Line.size());
-        printf("size of transposition table board%lld\n",transpositionTableBoard.size());
+        // printf("size of transposition table board%lld\n",transpositionTableBoard.size());
+        printf("size of transposition table board%lld\n",hashedTranspositionTableBoard.size());
 		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
     }
@@ -512,6 +517,7 @@ int Algo::ask(AlgoData data) {
     printf("timespentInMovesOrder: %lld\n",timespentInSetMovesOrder);
     printf("timespentInHeuristic: %lld\n",timespentInHeuristic);
     printf("timespentInSearchTableLine: %lld\n",timespentToSearchInTranspoTable);
+    printf("timespentInSearchTableLine: %lld\n",timespentInSomeFunctions);
 	
     // historique.clear();
 	// historique.resize(0);
@@ -560,7 +566,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
             // Modifiez updatedMap pour inclure le mouvement en cours
             updatedMap[move] = '2';
 
+
+
             std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
+
             if (!captured.empty()) {
                 updatedMap[captured[0]] = '0';
                 updatedMap[captured[1]] = '0';
@@ -664,24 +673,26 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
             if (map[y * size + x] != '0') {
-                for (int dy = -1; dy <= 1; ++dy) {
-                    for (int dx = -1; dx <= 1; ++dx) {
+                for (int dy = -2; dy <= 2; ++dy) {
+                    for (int dx = -2; dx <= 2; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
                         if (newX < 0 || newX >= size || newY < 0 || newY >= size || map[newY * size + newX] != '0') {
                             continue;
                         }
                         // unorderedMoves.push_back(pair<int,int>(10,newY * size + newX));
-                        orderedMoves.push_back(pair<int,int>(checkScorePos(map,newY,newX,turn),newY * size + newX));
+                        // orderedMoves.push_back(pair<int,int>(checkScorePos(map,newY,newX,turn),newY * size + newX));
+                        result.push_back(newY * size + newX);
                     }
                 }
             }
         }
     }
-    sort(orderedMoves.begin(), orderedMoves.end(),greater<pair<int, int> >());
-    for(auto& pair : orderedMoves){
-        result.push_back(pair.second);
-    }
+    //to add to order vector
+    // sort(orderedMoves.begin(), orderedMoves.end(),greater<pair<int, int> >());
+    // for(auto& pair : orderedMoves){
+    //     result.push_back(pair.second);
+    // }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     timespentInSetMovesOrder += std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
     return result;
