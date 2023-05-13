@@ -41,13 +41,8 @@ std::vector<int> Algo::getCaptureIndices(const std::string& map, int move, bool 
 std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     std::pair<int, int> scores = std::make_pair(0, 0);
 
-    std::chrono::steady_clock::time_point begin1 = std::chrono::steady_clock::now();
 	auto it = transpositionTable_Line.find(line);
-    std::chrono::steady_clock::time_point endFind = std::chrono::steady_clock::now();
-    timespentToSearchInTranspoTable += std::chrono::duration_cast<std::chrono::milliseconds>(endFind.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(begin1.time_since_epoch()).count();
     if (it != transpositionTable_Line.end()) {
-        // printf("already found %s in table, returning score\n",line);
-        // printf("time to find in transposition table%lld\n",end1-begin1);
         return it->second;
     }
     // cout << line << " is a new line" << endl;
@@ -58,10 +53,59 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-	if (nb_pion_blanc <= 2 && nb_pion_noir <= 2) {
+	//test
+	if (line.find("1111") != -1 || line.find("111") != -1 || line.find("11") != -1) {
+		return scores;
+	}
+	else if (line.find("2222") != -1 || line.find("222") != -1 || line.find("22") != -1) {
+		return scores;
+	}
+	// else
+	// 	return scores;
+	//
+
+	if (nb_pion_blanc <= 1 && nb_pion_noir <= 1) {
 		transpositionTable_Line[line] = scores;
 		return scores;
 	}
+
+
+	//test d'opti
+	if (nb_pion_blanc >= 4 && nb_pion_noir >= 2 && line.find(DeadDeadFour_Blanc) != -1){
+		nb_pion_blanc -= 4;
+		nb_pion_noir -= 2;
+	}
+	if (nb_pion_noir >= 4 && nb_pion_blanc >= 2 && line.find(DeadDeadFour_Noir) != -1) {
+		nb_pion_noir -= 4;
+		nb_pion_blanc -= 2;
+	}
+	if (nb_pion_blanc >= 3 && nb_pion_noir >= 2 && line.find(DeadDeadThree_Blanc) != -1) {
+		nb_pion_blanc -= 3;
+		nb_pion_noir -= 2;
+	}
+	if (nb_pion_noir >= 3 && nb_pion_blanc >= 2 && line.find(DeadDeadThree_Noir) != -1) {
+		nb_pion_noir -= 3;
+		nb_pion_blanc -= 2;
+	}
+	//
+
+
+
+
+	if (nb_pion_blanc >= 2 && (line.find(Eat_Blanc) != -1 || line.find(Eat_Blanc_1) != -1)) {
+		nb_pion_blanc -= 2;
+		nb_pion_noir -= 1;
+		scores.second += 10000;
+	}
+	if (nb_pion_noir >= 2 && (line.find(Eat_Noir) != -1 || line.find(Eat_Noir_1) != -1)) {
+		nb_pion_noir -= 2;
+		nb_pion_blanc -= 1;
+		scores.first += 10000;
+	}
+	if (nb_pion_blanc <= 2 && nb_pion_noir <= 2) {
+		return scores;
+	}
+
 
     if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
 		nb_pion_blanc -= 5;
@@ -76,6 +120,16 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		return scores;
     }
 
+	//test opti
+	if (nb_pion_blanc >= 3 && line.find("011") == -1){
+		return scores;
+	}
+	if (nb_pion_noir >= 3 && line.find("022") == -1){
+		return scores;
+	}
+
+	//
+
 	if (nb_pion_blanc >= 4) {
 		for (const auto& pattern : patterns_blanc_LiveFour) {
 			if (line.find(pattern) != std::string::npos) {
@@ -87,7 +141,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		}
 	}
 
-	if (nb_pion_blanc >= 4) {
+	if (nb_pion_blanc >= 4 && nb_pion_noir >= 1) {
 		for (const auto& pattern : patterns_blanc_DeadFour) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_blanc -= 4;
@@ -113,7 +167,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 				break;
 		}
 	}
-	if (nb_pion_noir >= 4) {
+	if (nb_pion_noir >= 4 && nb_pion_blanc >= 1) {
 		for (const auto& pattern : patterns_noir_DeadFour) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 4;
@@ -152,8 +206,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
 
 
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    // printf("time for ONE score%lld\n",end-begin);
 	transpositionTable_Line[line] = scores;
     return scores;
 }
@@ -206,7 +258,6 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
     char player = turn ? '2': '1';
     char opponent = turn ? '1': '2';
 
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	if (fiveInRow(map, turn, '2'))
 		return 1000000;
 	if (fiveInRow(map, turn, '1'))
@@ -215,66 +266,60 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
 		return 1000000;
 	if (wscore == 5)
 		return -1000000;
-    std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
+
     auto it = hashedTranspositionTableBoard.find(hasher(map));
-    std::chrono::steady_clock::time_point endFind = std::chrono::steady_clock::now();
-    timespentToSearchInTranspoTable += std::chrono::duration_cast<std::chrono::milliseconds>(endFind.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(begin2.time_since_epoch()).count();
     if (it != hashedTranspositionTableBoard.end()) {
         return it->second;
     }
-	
+    std::vector<std::string> lines;
+
+	// timmer start
+
     for (int i = 0; i < size; i++) {
-        std::string row = getRow(map, i);
-        auto tmpScores = FindPatternBothPlayers(row);
-        score += tmpScores.second - tmpScores.first;
-
-        std::string col = getCol(map, i);
-        tmpScores = FindPatternBothPlayers(col);
-        score += tmpScores.second - tmpScores.first;
-
-        std::string diagonal = getDiagonalFromRow(map, i);
-        tmpScores = FindPatternBothPlayers(diagonal);
-        score += tmpScores.second - tmpScores.first;
-
-        diagonal = getDiagonalFromCol(map, i);
-        tmpScores = FindPatternBothPlayers(diagonal);
-        score += tmpScores.second - tmpScores.first;
-
-    	diagonal = getDiagonalSecondaryFromRow(map, i);
-		tmpScores = FindPatternBothPlayers(diagonal);
-		score += tmpScores.second - tmpScores.first;
-
-		diagonal = getDiagonalSecondaryFromCol(map, i);
-		tmpScores = FindPatternBothPlayers(diagonal);
-		score += tmpScores.second - tmpScores.first;
+        lines.push_back(getRow(map, i));
+        lines.push_back(getCol(map, i));
+        lines.push_back(getDiagonalFromRow(map, i));
+        lines.push_back(getDiagonalFromCol(map, i));
+        lines.push_back(getDiagonalSecondaryFromRow(map, i));
+        lines.push_back(getDiagonalSecondaryFromCol(map, i));
     }
+
+
+
+    for (const auto& line : lines) {
+        auto tmpScores = FindPatternBothPlayers(line);
+        score += tmpScores.second - tmpScores.first;
+    }
+
     // transpositionTableBoard[map] = score;
     hashedTranspositionTableBoard[hasher(map)] = score;
 	// printf("bscore: %d\n", bscore);
 	// printf("wscore: %d\n", wscore);
 	// if (bscore >= 0 || wscore >= 0)
 	// 	printf("avent score: %d\n", score);
+	if (bscore >= 5)
+		score += 1000000;
+	if (wscore >= 5)
+		score -= 1000000;
 	if (bscore >= 4)
-		score += 12000;
+		score += 50000;
 	if (wscore >= 4)
-		score -= 12000;
+		score -= 50000;
 	if (bscore >= 3)
-		score += 10000;
+		score += 45000;
 	if (wscore >= 3)
-		score -= 10000;
+		score -= 45000;
 	if (bscore >= 2)
-		score += 8000;
+		score += 30000;
 	if (wscore >= 2)
-		score -= 8000;
+		score -= 30000;
 	if (bscore >= 1)
-		score += 8000;
+		score += 30000;
 	if (wscore >= 1)
-		score -= 8000;
+		score -= 30000;
 	// if (bscore >= 0 || wscore >= 0)
 	// 	printf("apres score: %d\n", score);
 
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    timespentInHeuristic += std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
     return score;
 }
 
@@ -418,13 +463,9 @@ int Algo::ask(AlgoData data) {
 	// printf("optimalMove: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	printf("Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
-	printf("     =========================\n\n");
+	// printf("     =========================\n\n");
     printf("Lines checked: %d\n",countCheckedLine);
     printf("Prunes done: %d\n",nbOfPruning);
-    printf("timespentInMovesOrder: %lld\n",timespentInSetMovesOrder);
-    printf("timespentInHeuristic: %lld\n",timespentInHeuristic);
-    printf("timespentInSearchTableLine: %lld\n",timespentToSearchInTranspoTable);
-    printf("timespentInSearchTableLine: %lld\n",timespentInSomeFunctions);
 	
     // historique.clear();
 	// historique.resize(0);
@@ -449,6 +490,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
     // std::vector<int> moves = setMovesOrder(position, turn);
     std::vector<int> moves = setMovesOrderLineScore(position, turn);
+
 
     if (turn) {
         int maxEval = INT_MIN;
@@ -561,7 +603,6 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
     char player = turn ? '2': '1';
     char opponent = turn ? '1': '2';
     orderedMoves.clear();
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
             if (map[y * size + x] != '0') {
@@ -585,8 +626,7 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
     // for(auto& pair : orderedMoves){
     //     result.push_back(pair.second);
     // }
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    timespentInSetMovesOrder += std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
+
     return result;
 }
 
@@ -630,7 +670,6 @@ int Algo::checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool 
 std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     std::string pos = i;
     std::vector<int> res;
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
             if (pos[y * size + x] != '0') {
@@ -651,8 +690,6 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     }
     if (res.empty())
         res.push_back(size * size / 2);
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    timespentInSetMovesOrder += std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
     return res;
 }
 

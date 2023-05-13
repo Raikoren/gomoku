@@ -15,8 +15,19 @@
 
 
 
-# define Eat_Noir			"1221"
-# define Eat_Noir_1			"1221"
+# define Eat_Noir			"1220"
+# define Eat_Noir_1			"0221"
+
+# define Eat_Blanc			"2110"
+# define Eat_Blanc_1		"0112"
+
+# define DeadDeadFour_Blanc		"211112"
+# define DeadDeadThree_Blanc	"21112"
+# define DeadDeadTwo_Blanc		"2112"
+
+# define DeadDeadFour_Noir		"122221"
+# define DeadDeadThree_Noir		"12221"
+# define DeadDeadTwo_Noir		"1221"
 
 # define FiveInRow_Blanc	"11111"
 
@@ -241,7 +252,7 @@ class Algo {
 		std::vector<std::string> patterns_noir_LiveThree;
 		std::vector<std::string> patterns_noir_LiveTwo;
 		std::vector<std::string> patterns_noir_DeadTwo;
-		
+
 
 		// std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
 
