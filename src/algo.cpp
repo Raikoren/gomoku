@@ -54,17 +54,17 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 	//test
-	if (line.find("1111") != -1 || line.find("111") != -1 || line.find("11") != -1) {
-		return scores;
-	}
-	else if (line.find("2222") != -1 || line.find("222") != -1 || line.find("22") != -1) {
-		return scores;
-	}
+	// if (line.find("1111") != -1 || line.find("111") != -1 || line.find("11") != -1) {
+	// 	return scores;
+	// }
+	// else if (line.find("2222") != -1 || line.find("222") != -1 || line.find("22") != -1) {
+	// 	return scores;
+	// }
 	// else
 	// 	return scores;
 	//
 
-	if (nb_pion_blanc <= 1 && nb_pion_noir <= 1) {
+	if (nb_pion_blanc <= 2 && nb_pion_noir <= 2) {
 		transpositionTable_Line[line] = scores;
 		return scores;
 	}
@@ -92,19 +92,19 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
 
 
-	if (nb_pion_blanc >= 2 && (line.find(Eat_Blanc) != -1 || line.find(Eat_Blanc_1) != -1)) {
-		nb_pion_blanc -= 2;
-		nb_pion_noir -= 1;
-		scores.second += 10000;
-	}
-	if (nb_pion_noir >= 2 && (line.find(Eat_Noir) != -1 || line.find(Eat_Noir_1) != -1)) {
-		nb_pion_noir -= 2;
-		nb_pion_blanc -= 1;
-		scores.first += 10000;
-	}
-	if (nb_pion_blanc <= 2 && nb_pion_noir <= 2) {
-		return scores;
-	}
+	// if (nb_pion_blanc >= 2 && (line.find(Eat_Blanc) != -1 || line.find(Eat_Blanc_1) != -1)) {
+	// 	nb_pion_blanc -= 2;
+	// 	nb_pion_noir -= 1;
+	// 	scores.second += 10000;
+	// }
+	// if (nb_pion_noir >= 2 && (line.find(Eat_Noir) != -1 || line.find(Eat_Noir_1) != -1)) {
+	// 	nb_pion_noir -= 2;
+	// 	nb_pion_blanc -= 1;
+	// 	scores.first += 10000;
+	// }
+	// if (nb_pion_blanc <= 2 && nb_pion_noir <= 2) {
+	// 	return scores;
+	// }
 
 
     if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
