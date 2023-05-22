@@ -20,6 +20,7 @@ private:
     int         pass = 0;
     bool        hint = false;
     bool        lastTurn = false;
+    int         savingMove;
     bool        previewToggle = true;
     int         wLine[5];
     bool        vsAi = false;

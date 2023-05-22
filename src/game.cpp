@@ -127,6 +127,8 @@ void Game::gaming(sf::Event ev) {
             memcpy(algoData.map, visualData.map, 361);
             algoData.turn = turn;
 			int minMaxRes = algo.ask(algoData);
+            if (lastTurn)
+                minMaxRes = savingMove;
             !doubleThreeDetector(minMaxRes, visualData.map, '1');
             mokuVictory(minMaxRes % size, minMaxRes / size);
             turn = !turn;
@@ -259,7 +261,7 @@ void Game::mokuVictory(int x, int y) {
     }
     if (lastTurn) { // il y a une ligne de 5 mais le coup actuel a pu la briser
         for (int i = 0; i <= 4; i++) { // V�rifie l'int�grit� de la ligne
-            if (visualData.map[wLine[0] + (-wLine[1] + (-wLine[2] * size) * i)] == '0') {
+            if (visualData.map[wLine[0] + ((-wLine[1] * i) + ((-wLine[2] * i) * size))] == '0') {
                 lastTurn = false;
                 break; // pour setup l'ecran de fin � la fin de la fonction
             }
@@ -285,6 +287,7 @@ void Game::mokuVictory(int x, int y) {
             if (vulnerable((wLine[0] % size) + (-wLine[1] * i), (wLine[0] / size) + (-wLine[2] * i), p)) {
                 lastTurn = true;
                 visualData.endGame = false;
+                break;
             }
         }
     }
@@ -293,6 +296,7 @@ void Game::mokuVictory(int x, int y) {
             if (visualData.map[i] == p && vulnerable(i % size, i / size, p)) {
                 lastTurn = true;
                 visualData.endGame = false;
+                break;
             }
         }
     if (visualData.endGame) {
@@ -301,30 +305,27 @@ void Game::mokuVictory(int x, int y) {
     }
 }
 
-// Il est tres tard donc pas de jugement svp
-// TODO: rendre ca clean parce que ca fait 1h que je passe et repasse sur cette merde et j'ai honte de zinzin
-// Fonction de la honte qui v�rifie si le pion d'�quipe p en position x,y est vuln�rable 
 bool Game::vulnerable(int x, int y, char p) {
     char e = (p == '1') ? '2' : '1';
-    if ((x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == e && visualData.map[(y + 1) * size + x + 1] == '0')
-        || (x - 2 >= 0 && y - 2 >= 0 && x + 1 < size && y + 1 < size && visualData.map[(y - 1) * size + x - 1] == p && visualData.map[(y - 2) * size + x - 2] == '0' && visualData.map[(y + 1) * size + x + 1] == e)
-        || (x - 1 >= 0 && y - 1 >= 0 && x + 2 < size && y + 2 < size && visualData.map[(y + 1) * size + x + 1] == p && visualData.map[(y + 2) * size + x + 2] == e && visualData.map[(y - 1) * size + x - 1] == '0') 
-        || (x - 1 >= 0 && y - 1 >= 0 && x + 2 < size && y + 2 < size && visualData.map[(y + 1) * size + x + 1] == p && visualData.map[(y + 2) * size + x + 2] == '0' && visualData.map[(y - 1) * size + x - 1] == e)
-        || (x - 1 >= 0 && y - 2 >= 0 && x + 2 < size && y + 1 < size && visualData.map[(y - 1) * size + x + 1] == p && visualData.map[(y - 2) * size + x + 2] == e && visualData.map[(y + 1) * size + x - 1] == '0')
-        || (x - 1 >= 0 && y - 2 >= 0 && x + 2 < size && y + 1 < size && visualData.map[(y - 1) * size + x + 1] == p && visualData.map[(y - 2) * size + x + 2] == '0' && visualData.map[(y + 1) * size + x - 1] == e)
-        || (x - 2 >= 0 && y - 1 >= 0 && x + 1 < size && y + 2 < size && visualData.map[(y + 1) * size + x - 1] == p && visualData.map[(y + 2) * size + x - 2] == e && visualData.map[(y + 1) * size + x + 1] == '0')
-        || (x - 2 >= 0 && y - 1 >= 0 && x + 1 < size && y + 2 < size && visualData.map[(y + 1) * size + x - 1] == p && visualData.map[(y + 2) * size + x - 2] == '0' && visualData.map[(y + 1) * size + x + 1] == e)
-        || (y + 2 < size && y - 1 >= 0 && visualData.map[(y + 1) * size + x] == p && visualData.map[(y + 2) * size + x] == '0' && visualData.map[(y - 1) * size + x] == e)
-        || (y + 2 < size && y - 1 >= 0 && visualData.map[(y + 1) * size + x] == p && visualData.map[(y + 2) * size + x] == e && visualData.map[(y - 1) * size + x] == '0')
-        || (y + 1 < size && y - 2 >= 0 && visualData.map[(y - 1) * size + x] == p && visualData.map[(y - 2) * size + x] == '0' && visualData.map[(y + 1) * size + x] == e)
-        || (y + 1 < size && y - 2 >= 0 && visualData.map[(y - 1) * size + x] == p && visualData.map[(y - 2) * size + x] == e && visualData.map[(y + 1) * size + x] == '0')
-        || (x + 2 < size && x - 1 >= 0 && visualData.map[y * size + x + 1] == p && visualData.map[y * size + x + 2] == '0' && visualData.map[y * size + x - 1] == e)
-        || (x + 2 < size && x - 1 >= 0 && visualData.map[y * size + x + 1] == p && visualData.map[y * size + x + 2] == e && visualData.map[y * size + x - 1] == '0')
-        || (x + 1 < size && x - 2 >= 0 && visualData.map[y * size + x - 1] == p && visualData.map[y * size + x - 2] == '0' && visualData.map[y * size + x + 1] == e)
-        || (x + 1 < size && x - 2 >= 0 && visualData.map[y * size + x - 1] == p && visualData.map[y * size + x - 2] == e && visualData.map[y * size + x + 1] == '0')
-        )
-        return true;
-    return(false);
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            if (dx == 0 && dy == 0)
+                continue;
+            if (x + dx >= 0 && x + dx < size && y + dy >= 0 && y + dy < size && visualData.map[(y + dy) * size + x + dx] == p) {
+                if (x + (dx * 2) >= 0 && x + (dx * 2) < size && y + (dy * 2) >= 0 && y + (dy * 2) < size && visualData.map[(y + (dy * 2)) * size + x + (dx * 2)] == e &&
+                    x + (dx * -1) >= 0 && x + (dx * -1) < size && y + (dy * -1) >= 0 && y + (dy * -1) < size && visualData.map[(y + (dy * -1)) * size + x + (dx * -1)] == '0') {
+                    savingMove = (y + (dy * -1)) * size + x + (dx * -1);
+                    return true;
+                }
+                else if (x + (dx * 2) >= 0 && x + (dx * 2) < size && y + (dy * 2) >= 0 && y + (dy * 2) < size && visualData.map[(y + (dy * 2)) * size + x + (dx * 2)] == '0' &&
+                    x + (dx * -1) >= 0 && x + (dx * -1) < size && y + (dy * -1) >= 0 && y + (dy * -1) < size && visualData.map[(y + (dy * -1)) * size + x + (dx * -1)] == e) {
+                    savingMove = (y + (dy * 2)) * size + x + (dx * 2);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 // ca check et stock une ligne de 5 en cas de contestation
