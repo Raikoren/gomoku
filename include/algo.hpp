@@ -175,6 +175,9 @@ class Algo {
 		std::string getDiagonalSecondaryFromRow(const std::string& map, int row);
 		std::string getDiagonalSecondaryFromCol(const std::string& map, int col);
 
+		bool checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int newX, bool turn);
+
+
 	private:
 
 		struct pair_hash {
