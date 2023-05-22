@@ -167,10 +167,8 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
         }
     }
 
-    // Stockez le score dans la table de transposition avant de l'ajuster en fonction de bscore et wscore.
     hashedTranspositionTableBoard[hasher(map)] = score;
 
-    // Vous pouvez simplifier le code ici en utilisant un tableau ou une autre structure de données pour stocker les valeurs de score pour chaque bscore/wscore possible.
     int score_adjustments[] = {5000, 8000, 10000, 13000};
     if (bscore > 0 && bscore <= 4) {
         score += score_adjustments[bscore - 1];
@@ -307,7 +305,7 @@ int Algo::ask(AlgoData data) {
 		auto elapsed_ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 		printf("Time difference (milliseconds) = %lld\n", elapsed_ms2);
 
-		if (elapsed_ms2 > 1000){
+		if (elapsed_ms2 > 500){
 			// printf("time out\n");
 			break;
 		}
@@ -490,45 +488,38 @@ std::vector<std::pair<int, int>> Algo::getWindowBounds(const std::string& map) {
 }
 
 std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn){
-    vector<int> result;
-	vector<int> temp_result;
+    std::set<int> result_set;
+    std::set<int> temp_result_set;
     char player = turn ? '2': '1';
     char opponent = turn ? '1': '2';
-    orderedMoves.clear();
-    // std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    for (int y = 0; y < size; ++y) {
-        for (int x = 0; x < size; ++x) {
+
+    for (int y = 1; y < size - 1; ++y) {
+        for (int x = 1; x < size - 1; ++x) {
             if (map[y * size + x] != '0') {
-                for (int dy = -1; dy <= 1; ++dy) {
-                    for (int dx = -1; dx <= 1; ++dx) {
+                for (int dy = -2; dy <= 2; ++dy) {
+                    for (int dx = -2; dx <= 2; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
-                        if (newX < 0 || newX >= size || newY < 0 || newY >= size || map[newY * size + newX] != '0') {
+                        if (map[newY * size + newX] != '0' || newX < 0 || newX >= size || newY < 0 || newY >= size) {
                             continue;
                         }
-                        // unorderedMoves.push_back(pair<int,int>(10,newY * size + newX));
-                        // orderedMoves.push_back(pair<int,int>(checkScorePos(map,newY,newX,turn),newY * size + newX));
-						if (checkGoodPos(map, newY, newX, turn))
-							result.push_back(newY * size + newX);
-                        temp_result.push_back(newY * size + newX);
-                        // result.push_back(newY * size + newX);
+                        if (checkGoodPos(map, newY, newX, turn)) {
+                            result_set.insert(newY * size + newX);
+                        }
+                        temp_result_set.insert(newY * size + newX);
                     }
                 }
             }
         }
     }
 
-	if (result.empty())
-		result = temp_result;
-    //to add to order vector
-    // sort(orderedMoves.begin(), orderedMoves.end(),greater<pair<int, int> >());
-    // for(auto& pair : orderedMoves){
-    //     result.push_back(pair.second);
-    // }
-    // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    // timespentInSetMovesOrder += std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
-    return result;
+    if (result_set.empty()) {
+        result_set = std::move(temp_result_set);
+    }
+
+    return std::vector<int>(result_set.begin(), result_set.end());
 }
+
 
 
 bool Algo::checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int newX, bool turn){

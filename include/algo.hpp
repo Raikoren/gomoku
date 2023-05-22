@@ -11,6 +11,9 @@
 #include <unordered_map>
 #include "env.hpp"
 #include <functional>
+#include <regex>
+#include <set>
+
 
 # define Eat_Blanc			"2112"
 # define Eat_Blanc_1		"2112"
