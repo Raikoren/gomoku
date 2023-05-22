@@ -15,11 +15,11 @@
 #include <set>
 
 
-# define Eat_Blanc			"2112"
-# define Eat_Blanc_1		"2112"
+# define Eat_Blanc			"2110"
+# define Eat_Blanc_1		"0112"
 
-# define Eat_Noir			"1221"
-# define Eat_Noir_1			"1221"
+# define Eat_Noir			"1220"
+# define Eat_Noir_1			"0221"
 
 # define FiveInRow_Blanc	"11111"
 
@@ -159,6 +159,9 @@ class Algo {
 
 			patterns_noir_LiveTwo = {LiveTwo_Noir, LiveTwo_Noir2, LiveTwo_Noir2_2, LiveTwo_Noir3, LiveTwo_Noir4};
 			patterns_noir_DeadTwo = {DeadTwo_Noir, DeadTwo_Noir1_1, DeadTwo_Noir2, DeadTwo_Noir2_2, DeadTwo_Noir3};
+
+			patterns_eatnoir = {Eat_Noir, Eat_Noir_1};
+			patterns_eatblanc = {Eat_Blanc, Eat_Blanc_1};
 		}
         int     ask(AlgoData data); // fonction d'appel
 		int minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin, int bScore, int wScore);
@@ -246,6 +249,9 @@ class Algo {
 		std::vector<std::string> patterns_noir_LiveThree;
 		std::vector<std::string> patterns_noir_LiveTwo;
 		std::vector<std::string> patterns_noir_DeadTwo;
+
+		std::vector<std::string> patterns_eatnoir;
+		std::vector<std::string> patterns_eatblanc;
 
 		// std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
 

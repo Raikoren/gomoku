@@ -62,7 +62,8 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
         {patterns_noir_LiveThree, 15000, 3, false}, {patterns_blanc_LiveThree, 15000, 3, true},
         {patterns_noir_DeadThree, 1000, 3, false}, {patterns_blanc_DeadThree, 1000, 3, true},
         {patterns_noir_LiveTwo, 5000, 2, false}, {patterns_blanc_LiveTwo, 5000, 2, true},
-        {patterns_noir_DeadTwo, 500, 2, false}, {patterns_blanc_DeadTwo, 500, 2, true}
+        {patterns_noir_DeadTwo, 500, 2, false}, {patterns_blanc_DeadTwo, 500, 2, true},
+		{patterns_eatnoir, -1000, false}, {patterns_eatblanc, -1000, true} // test
     };
 
 	if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
@@ -409,7 +410,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
             if (eval > maxEval){
                 maxEval = eval;
                 if (depth == iterativeDepth){
-					printf("eval: %d\n", eval);
+					// printf("eval: %d\n", eval);
 					alpha = std::max(alpha, maxEval);
 
                     optimalMove = move;
@@ -423,7 +424,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
                 break;
             }
         }
-        if(depth == iterativeDepth) printf("minMax Ended\n");
+        // if(depth == iterativeDepth) printf("minMax Ended\n");
         return maxEval;
     }
     else {
@@ -496,8 +497,8 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
     for (int y = 1; y < size - 1; ++y) {
         for (int x = 1; x < size - 1; ++x) {
             if (map[y * size + x] != '0') {
-                for (int dy = -2; dy <= 2; ++dy) {
-                    for (int dx = -2; dx <= 2; ++dx) {
+                for (int dy = -1; dy <= 1; ++dy) {
+                    for (int dx = -1; dx <= 1; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
                         if (map[newY * size + newX] != '0' || newX < 0 || newX >= size || newY < 0 || newY >= size) {
