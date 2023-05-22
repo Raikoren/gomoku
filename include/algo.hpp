@@ -138,7 +138,25 @@ struct AlgoData {
 
 class Algo {
 	public:
-		Algo() { }
+		Algo() {
+			patterns_blanc_DeadFour = {DeadFour_Blanc, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Blanc1_1, DeadFour_Blanc2, DeadFour_Blanc2_2, DeadFour_Blanc3};
+			patterns_blanc_LiveFour = {LiveFour_Blanc, LiveFour_Blanc_1, LiveFour_Blanc_2};
+
+			patterns_blanc_DeadThree = {DeadThree_Blanc, DeadThree_Blanc_1, DeadThree_Blanc_2 ,DeadThree_Blanc1_1, DeadThree_Blanc2, DeadThree_Blanc2_2, DeadThree_Blanc3, DeadThree_Blanc3_2, DeadThree_Blanc4};
+			patterns_blanc_LiveThree = {LiveThree_Blanc, LiveThree_Blanc_1, LiveThree_Blanc_2};
+
+			patterns_blanc_LiveTwo = {LiveTwo_Blanc, LiveTwo_Blanc2, LiveTwo_Blanc2_2, LiveTwo_Blanc3, LiveTwo_Blanc4};
+			patterns_blanc_DeadTwo = {DeadTwo_Blanc, DeadTwo_Blanc1_1, DeadTwo_Blanc2, DeadTwo_Blanc2_2, DeadTwo_Blanc3};
+
+			patterns_noir_DeadFour = {DeadFour_Noir, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Noir1_1, DeadFour_Noir2, DeadFour_Noir2_2, DeadFour_Noir3};
+			patterns_noir_LiveFour = {LiveFour_Noir, LiveFour_Noir_1, LiveFour_Noir_2};
+
+			patterns_noir_DeadThree = {DeadThree_Noir, DeadThree_Noir_1, DeadThree_Noir_2,DeadThree_Noir1_1, DeadThree_Noir2, DeadThree_Noir2_2, DeadThree_Noir3, DeadThree_Noir3_2, DeadThree_Noir4};
+			patterns_noir_LiveThree = {LiveThree_Noir, LiveThree_Noir_1, LiveThree_Noir_2};
+
+			patterns_noir_LiveTwo = {LiveTwo_Noir, LiveTwo_Noir2, LiveTwo_Noir2_2, LiveTwo_Noir3, LiveTwo_Noir4};
+			patterns_noir_DeadTwo = {DeadTwo_Noir, DeadTwo_Noir1_1, DeadTwo_Noir2, DeadTwo_Noir2_2, DeadTwo_Noir3};
+		}
         int     ask(AlgoData data); // fonction d'appel
 		int minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin, int bScore, int wScore);
         // position = position dans l'historique (0 <-> DEPTH)
@@ -210,6 +228,21 @@ class Algo {
 		std::unordered_map<std::string, int> transpositionTableBoard; // map/score
 		std::unordered_map<int, int> hashedTranspositionTableBoard; // map/score
 		std::unordered_map<std::string, pair<int, int>> transpositionTable_Line;
+
+
+		std::vector<std::string> patterns_blanc_DeadFour;
+		std::vector<std::string> patterns_blanc_LiveFour;
+		std::vector<std::string> patterns_blanc_DeadThree;
+		std::vector<std::string> patterns_blanc_LiveThree;
+		std::vector<std::string> patterns_blanc_LiveTwo;
+		std::vector<std::string> patterns_blanc_DeadTwo;
+
+		std::vector<std::string> patterns_noir_DeadFour;
+		std::vector<std::string> patterns_noir_LiveFour;
+		std::vector<std::string> patterns_noir_DeadThree;
+		std::vector<std::string> patterns_noir_LiveThree;
+		std::vector<std::string> patterns_noir_LiveTwo;
+		std::vector<std::string> patterns_noir_DeadTwo;
 
 		// std::unordered_map<std::pair<std::string, char>, int, pair_hash> transpositionTable_Line;
 
