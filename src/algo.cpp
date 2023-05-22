@@ -63,7 +63,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
         {patterns_noir_DeadThree, 1000, 3, false}, {patterns_blanc_DeadThree, 1000, 3, true},
         {patterns_noir_LiveTwo, 5000, 2, false}, {patterns_blanc_LiveTwo, 5000, 2, true},
         {patterns_noir_DeadTwo, 500, 2, false}, {patterns_blanc_DeadTwo, 500, 2, true},
-		{patterns_eatnoir, -1000, false}, {patterns_eatblanc, -1000, true} // test
+		// {patterns_eatnoir, -1000, false}, {patterns_eatblanc, -1000, true} // test
     };
 
 	if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
@@ -272,12 +272,16 @@ int Algo::ask(AlgoData data) {
 		// 		best_result = result;
 		// 		best_move = optimalMove;
 		// 		best_alpha = optimalAlpha;
-		// 		// printf("\n\n");
-		// 		// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-		// 		// printf("best_result: %d\n", best_result);
+		if (result > best_result){ // TEST EN GARDANT LE MOVE AVEC LE PLUS DE SCORE
+				best_result = result;
+				best_move = optimalMove;
+		}
+				// printf("\n\n");
+				// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
+				// printf("best_result: %d\n", result);
 		// 		// printf("optimalAlpha: %d\n", optimalAlpha);
 		// 		// printf("optimalBeta: %d\n", optimalBeta);
-		// 		// printf("\n\n");
+				// printf("\n\n");
 		// 	}
 		// }
 		// else if (data.turn == false ){
