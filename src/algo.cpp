@@ -51,7 +51,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     int nb_pion_noir = std::count(line.begin(), line.end(), '2');
 
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 	//test
 	// if (line.find("1111") != -1 || line.find("111") != -1 || line.find("11") != -1) {
@@ -127,7 +126,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 	if (nb_pion_noir >= 3 && line.find("022") == -1){
 		return scores;
 	}
-
 	//
 
 	if (nb_pion_blanc >= 4) {
@@ -198,6 +196,26 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 			if (line.find(pattern) != std::string::npos) {
 				nb_pion_noir -= 3;
 				scores.second += 12000;
+			}
+			if (nb_pion_noir < 3)
+				break;
+		}
+	}
+		if (nb_pion_blanc >= 3) {
+		for (const auto& pattern : patterns_blanc_DeadThree) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_blanc -= 3;
+				scores.first += 1000;
+			}
+			if (nb_pion_blanc < 3)
+				break;
+		}
+	}
+	if (nb_pion_noir >= 3) {
+		for (const auto& pattern : patterns_noir_DeadThree) {
+			if (line.find(pattern) != std::string::npos) {
+				nb_pion_noir -= 3;
+				scores.second += 1000;
 			}
 			if (nb_pion_noir < 3)
 				break;
@@ -299,26 +317,28 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
 	// 	printf("avent score: %d\n", score);
 	if (bscore >= 5)
 		score += 1000000;
-	if (wscore >= 5)
+	else if (wscore >= 5)
 		score -= 1000000;
-	if (bscore >= 4)
+	else if (bscore >= 4)
 		score += 50000;
-	if (wscore >= 4)
+	else if (wscore >= 4)
 		score -= 50000;
-	if (bscore >= 3)
+	else if (bscore >= 3)
 		score += 45000;
-	if (wscore >= 3)
+	else if (wscore >= 3)
 		score -= 45000;
-	if (bscore >= 2)
+	else if (bscore >= 2)
 		score += 30000;
-	if (wscore >= 2)
+	else if (wscore >= 2)
 		score -= 30000;
-	if (bscore >= 1)
+	else if (bscore >= 1)
 		score += 30000;
-	if (wscore >= 1)
+	else if (wscore >= 1)
 		score -= 30000;
 	// if (bscore >= 0 || wscore >= 0)
 	// 	printf("apres score: %d\n", score);
+
+	// timmer end
 
     return score;
 }
@@ -383,7 +403,7 @@ int Algo::ask(AlgoData data) {
     timespentToSearchInTranspoTable = 0;
     timespentInSomeFunctions = 0;
 
-	int maxDepth = 5;
+	int maxDepth = 6;
     int result = 0;
 	int best_result = 0;
 	int best_move = 0;
@@ -466,6 +486,8 @@ int Algo::ask(AlgoData data) {
 	// printf("     =========================\n\n");
     printf("Lines checked: %d\n",countCheckedLine);
     printf("Prunes done: %d\n",nbOfPruning);
+
+	printf("time spent in setMovesOrder: %lld\n",timespentInSetMovesOrder);
 	
     // historique.clear();
 	// historique.resize(0);
@@ -478,10 +500,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     countCheckedLine++;
 
     if (fiveInRow(position, turn, '2') || bScore == 5) {
-        return 10000000;
+        return 10000000 *depth;
     }
     else if (fiveInRow(position, turn, '1') || wScore == 5) {
-        return -10000000;
+        return -10000000 *depth;
     }
 
     if (depth == 0 || bScore == 5 || wScore == 5){
@@ -489,7 +511,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     }
 
     // std::vector<int> moves = setMovesOrder(position, turn);
+
+	// time spent in setMovesOrder
     std::vector<int> moves = setMovesOrderLineScore(position, turn);
+
 
 
     if (turn) {
@@ -520,7 +545,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
             if (eval > maxEval){
                 maxEval = eval;
                 if (depth == iterativeDepth){
-					printf("eval: %d\n", eval);
 					alpha = std::max(alpha, maxEval);
 
                     optimalMove = move;
@@ -600,6 +624,7 @@ std::vector<std::pair<int, int>> Algo::getWindowBounds(const std::string& map) {
 
 std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn){
     vector<int> result;
+	vector<int> temp_result;
     char player = turn ? '2': '1';
     char opponent = turn ? '1': '2';
     orderedMoves.clear();
@@ -615,12 +640,17 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
                         }
                         // unorderedMoves.push_back(pair<int,int>(10,newY * size + newX));
                         // orderedMoves.push_back(pair<int,int>(checkScorePos(map,newY,newX,turn),newY * size + newX));
-                        result.push_back(newY * size + newX);
+						if (checkGoodPos(map, newY, newX, turn))
+							result.push_back(newY * size + newX);
+                        temp_result.push_back(newY * size + newX);
                     }
                 }
             }
         }
     }
+
+	if (result.empty())
+		result = temp_result;
     //to add to order vector
     // sort(orderedMoves.begin(), orderedMoves.end(),greater<pair<int, int> >());
     // for(auto& pair : orderedMoves){
@@ -629,6 +659,43 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
 
     return result;
 }
+
+bool Algo::checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int newX, bool turn){
+    char player = turn ? '2' : '1';
+    char opponent = turn ? '1' : '2';
+    
+    std::string map = mapWithIncomingNewMove;
+	map[newY * size + newX] = player;
+
+    int dx[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    int dy[] = {-1, -1, 0, 1, 1, 1, 0, -1};
+    
+    for (int dir = 0; dir < 8; dir++) {
+        int count_p = 0;
+		int count_o = 0;
+        for (int dist = 1; dist <= 2; dist++) {
+            int x = newX + dx[dir] * dist;
+            int y = newY + dy[dir] * dist;
+            if (x < 0 || x >= size || y < 0 || y >= size) {
+                break;
+            }
+            if (count_o == 0 && mapWithIncomingNewMove[y * size + x] == player) {
+                count_p++;
+            }
+			if (count_p == 0 && mapWithIncomingNewMove[y * size + x] == opponent) {
+				count_o++;
+			}
+			else {
+                break;
+            }
+        }
+        if (count_p == 2 || count_o == 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 int Algo::checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool turn){
     int score = 0;
