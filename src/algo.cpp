@@ -231,6 +231,9 @@ std::string Algo::getDiagonalSecondaryFromCol(const std::string& map, int col) {
 
 
 int Algo::ask(AlgoData data) {
+	eat_pion_blanc = false;
+	eat_pion_noir = false;
+
     Map_wScore = data.wScore;
     Map_bScore = data.bScore;
     size = data.size;
@@ -389,6 +392,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     if (turn) {
         int maxEval = INT_MIN;
         for (int move : moves) {
+			eat_pion_blanc = false;
             std::string updatedMap = position;
 
             // Modifiez updatedMap pour inclure le mouvement en cours
@@ -399,6 +403,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
             std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
 
             if (!captured.empty()) {
+				eat_pion_blanc = true;
                 updatedMap[captured[0]] = '0';
                 updatedMap[captured[1]] = '0';
                 bScore++;
@@ -434,6 +439,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     else {
         int minEval = INT_MAX;
         for (int move : moves) {
+			eat_pion_noir = false;
             std::string updatedMap = position;
 
             // Modifiez updatedMap pour inclure le mouvement en cours
@@ -441,6 +447,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 
             std::vector<int> captured = getCaptureIndices(updatedMap, move, turn);
             if (!captured.empty()) {
+				eat_pion_noir = true;
                 updatedMap[captured[0]] = '0';
                 updatedMap[captured[1]] = '0';
                 wScore++;
@@ -530,6 +537,7 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
 bool Algo::checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int newX, bool turn){
     char player = turn ? '2' : '1';
     char opponent = turn ? '1' : '2';
+	int empty = 0;
     
     std::string map = mapWithIncomingNewMove;
 	map[newY * size + newX] = player;
@@ -549,11 +557,14 @@ bool Algo::checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int
             if (count_o == 0 && mapWithIncomingNewMove[y * size + x] == player) {
                 count_p++;
             }
-			if (count_p == 0 && mapWithIncomingNewMove[y * size + x] == opponent) {
+			else if (count_p == 0 && mapWithIncomingNewMove[y * size + x] == opponent) {
 				count_o++;
 			}
+			else if (empty == 0){
+				empty++;
+			}
 			else {
-                break;
+				break;
             }
         }
         if (count_p == 2 || count_o == 2) {

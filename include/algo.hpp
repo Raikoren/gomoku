@@ -13,6 +13,7 @@
 #include <functional>
 #include <regex>
 #include <set>
+#include <map>
 
 
 # define Eat_Blanc			"2110"
@@ -212,6 +213,9 @@ class Algo {
 				return h1 ^ h2;
 			}
 		};
+
+		bool						eat_pion_blanc; //test
+		bool						eat_pion_noir; //test
 
 		int							iterativeDepth;
 		int							optimalMove;
