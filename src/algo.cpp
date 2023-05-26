@@ -376,8 +376,6 @@ int Algo::ask(AlgoData data) {
     // printf("timespentInSearchTableLine: %lld\n",timespentToSearchInTranspoTable);
     // printf("timespentInSearchTableLine: %lld\n",timespentInSomeFunctions);
 	
-    // historique.clear();
-	// historique.resize(0);
 	movesOrder.clear();
 
 	return optimalMove;
