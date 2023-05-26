@@ -14,6 +14,8 @@
 #include <regex>
 #include <set>
 #include <map>
+#include <random>
+
 
 
 # define Eat_Blanc			"2110"
@@ -148,7 +150,8 @@ struct AlgoData {
 
 class Algo {
 	public:
-		Algo() {
+		Algo() : hashedTranspositionTableBoard_test(0x1000000, 0), hashedTranspositionTableLine_test(0x1000000, {0, 0}) {
+
 			patterns_blanc_DeadFour = {DeadFour_Blanc, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Blanc1_1, DeadFour_Blanc2, DeadFour_Blanc2_2, DeadFour_Blanc3};
 			patterns_blanc_LiveFour = {LiveFour_Blanc, LiveFour_Blanc_1, LiveFour_Blanc_2};
 
@@ -208,6 +211,9 @@ class Algo {
 
 		bool checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int newX, bool turn);
 
+		std::int64_t hasher_fc(const std::string& map);
+		void initZobrist();
+
 
 	private:
 
@@ -219,6 +225,12 @@ class Algo {
 				return h1 ^ h2;
 			}
 		};
+
+		std::vector<int> hashedTranspositionTableBoard_test; // initialisation avec une valeur par défaut
+		std::vector<std::pair<int, int>> hashedTranspositionTableLine_test; // initialisation avec une valeur par défaut
+		std::vector<std::vector<std::int64_t>> zobristTable;
+
+		std::int64_t hash = 0;
 
 		bool						out_time;
 
