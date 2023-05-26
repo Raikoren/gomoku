@@ -14,8 +14,6 @@
 #include <regex>
 #include <set>
 #include <map>
-#include <random>
-
 
 
 # define Eat_Blanc			"2110"
@@ -57,6 +55,7 @@
 # define LiveThree_Blanc	"01110"
 # define LiveThree_Blanc_1 "010110"
 # define LiveThree_Blanc_2 "011010"
+# define LiveFour_Blanc_3 "1010101" //
 
 
 # define DeadThree_Blanc	"211100"
@@ -74,6 +73,7 @@
 # define LiveThree_Noir		"02220"
 # define LiveThree_Noir_1  "020220"
 # define LiveThree_Noir_2  "022020"
+# define LiveFour_Noir_3  "2020202" //
 
 # define DeadThree_Noir		"122200"
 # define DeadThree_Noir_1   "120220"
@@ -119,11 +119,11 @@
 // edge	
 
 # define Edge_Four_Blanc	"11110"
-# define Edge_Three_Blanc	"1110"
-# define Edge_Two_Blanc		"110"
+# define Edge_Three_Blanc	"11100"
+# define Edge_Two_Blanc		"11000"
 # define Edge_Four_Blanc2	"01111"
-# define Edge_Three_Blanc2	"0111"
-# define Edge_Two_Blanc2	"011"
+# define Edge_Three_Blanc2	"00111"
+# define Edge_Two_Blanc2	"00011"
 
 
 
@@ -132,11 +132,11 @@
 
 
 # define Edge_Four_Noir		"22220"
-# define Edge_Three_Noir	"2220"
-# define Edge_Two_Noir		"220"
+# define Edge_Three_Noir	"22200"
+# define Edge_Two_Noir		"22000"
 # define Edge_Four_Noir2	"02222"
-# define Edge_Three_Noir2	"0222"
-# define Edge_Two_Noir2		"022"
+# define Edge_Three_Noir2	"00222"
+# define Edge_Two_Noir2		"00022"
 
 using namespace std;
 
@@ -150,10 +150,9 @@ struct AlgoData {
 
 class Algo {
 	public:
-		Algo() : hashedTranspositionTableBoard_test(0x1000000, 0), hashedTranspositionTableLine_test(0x1000000, {0, 0}) {
-
+		Algo() {
 			patterns_blanc_DeadFour = {DeadFour_Blanc, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Blanc1_1, DeadFour_Blanc2, DeadFour_Blanc2_2, DeadFour_Blanc3};
-			patterns_blanc_LiveFour = {LiveFour_Blanc, LiveFour_Blanc_1, LiveFour_Blanc_2};
+			patterns_blanc_LiveFour = {LiveFour_Blanc, LiveFour_Blanc_1, LiveFour_Blanc_2, LiveFour_Blanc_3};
 
 			patterns_blanc_DeadThree = {DeadThree_Blanc, DeadThree_Blanc_1, DeadThree_Blanc_2 ,DeadThree_Blanc1_1, DeadThree_Blanc2, DeadThree_Blanc2_2, DeadThree_Blanc3, DeadThree_Blanc3_2, DeadThree_Blanc4, DeadThree_Blanc2_3, DeadThree_Blanc2_1};
 			patterns_blanc_LiveThree = {LiveThree_Blanc, LiveThree_Blanc_1, LiveThree_Blanc_2};
@@ -162,7 +161,7 @@ class Algo {
 			patterns_blanc_DeadTwo = {DeadTwo_Blanc, DeadTwo_Blanc1_1, DeadTwo_Blanc2, DeadTwo_Blanc2_2, DeadTwo_Blanc3};
 
 			patterns_noir_DeadFour = {DeadFour_Noir, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Noir1_1, DeadFour_Noir2, DeadFour_Noir2_2, DeadFour_Noir3};
-			patterns_noir_LiveFour = {LiveFour_Noir, LiveFour_Noir_1, LiveFour_Noir_2};
+			patterns_noir_LiveFour = {LiveFour_Noir, LiveFour_Noir_1, LiveFour_Noir_2, LiveFour_Noir_3};
 
 			patterns_noir_DeadThree = {DeadThree_Noir, DeadThree_Noir_1, DeadThree_Noir_2,DeadThree_Noir1_1, DeadThree_Noir2, DeadThree_Noir2_2, DeadThree_Noir3, DeadThree_Noir3_2, DeadThree_Noir4, DeadThree_Noir2_3, DeadThree_Noir2_1};
 			patterns_noir_LiveThree = {LiveThree_Noir, LiveThree_Noir_1, LiveThree_Noir_2};
@@ -211,9 +210,6 @@ class Algo {
 
 		bool checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int newX, bool turn);
 
-		std::int64_t hasher_fc(const std::string& map);
-		void initZobrist();
-
 
 	private:
 
@@ -225,12 +221,6 @@ class Algo {
 				return h1 ^ h2;
 			}
 		};
-
-		std::vector<int> hashedTranspositionTableBoard_test; // initialisation avec une valeur par défaut
-		std::vector<std::pair<int, int>> hashedTranspositionTableLine_test; // initialisation avec une valeur par défaut
-		std::vector<std::vector<std::int64_t>> zobristTable;
-
-		std::int64_t hash = 0;
 
 		bool						out_time;
 
