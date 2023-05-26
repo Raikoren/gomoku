@@ -288,6 +288,11 @@ int Algo::ask(AlgoData data) {
 	int best_move = 0;
 	int best_alpha = INT_MIN;
 	int best_beta = INT_MAX;
+
+
+	// test count depth 10 dans une partie
+	static int depth_10 = 0;
+
 	hashedTranspositionTableBoard.clear();
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
@@ -295,9 +300,13 @@ int Algo::ask(AlgoData data) {
 		iterativeDepth = currentDepth;
 		out_time = false;
 		printf("currentDepth: %d\n", currentDepth);
+		if (currentDepth == 10){
+			depth_10++;
+			printf("depth 10 nb: %d\n", depth_10);
+		}
         result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin, Map_bScore, Map_wScore);
 		if (out_time == true){
-            printf("minMax failed\n");
+            // printf("minMax failed\n");
 			result = best_result;
 			optimalMove = best_move;
 		}
@@ -337,13 +346,13 @@ int Algo::ask(AlgoData data) {
 		
         printf("size of transposition table line %lld\n",transpositionTable_Line.size());
         printf("size of transposition table board%lld\n",hashedTranspositionTableBoard.size());
-		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
+		// std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        // auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
 		
 		//test time
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		auto elapsed_ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-		printf("Time difference (milliseconds) = %lld\n", elapsed_ms2);
+		// printf("Time difference (milliseconds) = %lld\n", elapsed_ms2);
 
 		if (elapsed_ms2 > 500){
 			// printf("time out\n");
@@ -365,11 +374,11 @@ int Algo::ask(AlgoData data) {
 	// printf("result: %d\n", result);
 	// printf("optimalMove: %d\n", optimalMove);
 	// printf("optimalMove: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	printf("Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
-	printf("     =========================\n\n");
-    printf("Lines checked: %d\n",countCheckedLine);
-    printf("Prunes done: %d\n",nbOfPruning);
+	// std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	// printf("Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+	// printf("     =========================\n\n");
+    // printf("Lines checked: %d\n",countCheckedLine);
+    // printf("Prunes done: %d\n",nbOfPruning);
 
     // printf("timespentInMovesOrder: %lld\n",timespentInSetMovesOrder);
     // printf("timespentInHeuristic: %lld\n",timespentInHeuristic);
@@ -501,7 +510,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
 				break;
 			}
        }
-        if(depth == iterativeDepth) printf("minMax Ended\n");
         return minEval;
     }
     return 0;
@@ -585,7 +593,7 @@ bool Algo::checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int
 			else if (count_p == 0 && mapWithIncomingNewMove[y * size + x] == opponent) {
 				count_o++;
 			}
-			else if (empty == 0){
+			else if (empty <= 1){
 				empty++;
 			}
 			else {
