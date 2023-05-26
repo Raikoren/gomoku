@@ -44,6 +44,14 @@ struct PatternScore {
     bool isBlanc;
 };
 
+struct EdgePatternScore {
+    std::vector<std::string> patterns;
+    int score;
+    int pions;
+    bool isBlanc;
+    int patternSize;
+};
+
 std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     std::pair<int, int> scores = std::make_pair(0, 0);
 
@@ -66,6 +74,15 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 		// {patterns_eatnoir, -1000, false}, {patterns_eatblanc, -1000, true} // test
     };
 
+	std::vector<EdgePatternScore> edgePatternScores = {
+        {{Edge_Four_Blanc, Edge_Four_Blanc2}, 10000, 4, true, 5},
+        {{Edge_Four_Noir, Edge_Four_Noir2}, 10000, 4, false, 5},
+        {{Edge_Three_Blanc, Edge_Three_Blanc2}, 1000, 3, true, 4},
+        {{Edge_Three_Noir, Edge_Three_Noir2}, 1000, 3, false, 4},
+        {{Edge_Two_Blanc, Edge_Two_Blanc2}, 500, 2, true, 3},
+        {{Edge_Two_Noir, Edge_Two_Noir2}, 500, 2, false, 3}
+    };
+
 	if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
 		nb_pion_blanc -= 5;
         scores.first += 1000000;
@@ -76,6 +93,24 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
         scores.second += 1000000;
 		return scores;
     }
+
+    // Traitement pour chaque modèle de bord.
+    for (auto &eps : edgePatternScores) {
+        int &nb_pion = eps.isBlanc ? nb_pion_blanc : nb_pion_noir;
+        int &score = eps.isBlanc ? scores.first : scores.second;
+
+        if (nb_pion >= eps.pions) {
+            for (const auto& pattern : eps.patterns) {
+                if (line.find(pattern) == 0 || line.find(pattern) == line.size() - eps.patternSize) {
+                    nb_pion -= eps.pions;
+                    score += eps.score;
+                }
+                if (nb_pion < eps.pions)
+                    break;
+            }
+        }
+    }
+
 
     // Traitement pour chaque type de motif.
     for (auto &ps : patternScores) {
@@ -248,17 +283,20 @@ int Algo::ask(AlgoData data) {
 	int maxDepth = 10;
     int result = 0;
 	int best_result = 0;
+	int best_result_blanc = INT_MAX;
+	int best_result_noir = INT_MIN;
 	int best_move = 0;
 	int best_alpha = INT_MIN;
 	int best_beta = INT_MAX;
 	hashedTranspositionTableBoard.clear();
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-    for (int currentDepth = 3; currentDepth <= maxDepth; currentDepth++) {
+    for (int currentDepth = 4; currentDepth <= maxDepth; currentDepth++) {
 		iterativeDepth = currentDepth;
+		out_time = false;
 		printf("currentDepth: %d\n", currentDepth);
         result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin, Map_bScore, Map_wScore);
-		if (result == -1){
+		if (out_time == true){
             printf("minMax failed\n");
 			result = best_result;
 			optimalMove = best_move;
@@ -275,41 +313,35 @@ int Algo::ask(AlgoData data) {
 		// 		best_result = result;
 		// 		best_move = optimalMove;
 		// 		best_alpha = optimalAlpha;
-		if (result > best_result){ // TEST EN GARDANT LE MOVE AVEC LE PLUS DE SCORE
+
+		if (data.turn == false && result < best_result_blanc){ // TEST EN GARDANT LE MOVE AVEC LE PLUS DE SCORE
+				// printf("result_blanc: %d\n", best_result_blanc);
+				// printf("best_result: %d\n", best_result);
+				best_result_blanc = result;
 				best_result = result;
 				best_move = optimalMove;
 		}
-				// printf("\n\n");
-				// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
-				// printf("best_result: %d\n", result);
-		// 		// printf("optimalAlpha: %d\n", optimalAlpha);
-		// 		// printf("optimalBeta: %d\n", optimalBeta);
-				// printf("\n\n");
-		// 	}
-		// }
-		// else if (data.turn == false ){
-		// 	if (best_beta > optimalBeta && optimalBeta != INT_MAX) {
-		// 		best_beta = optimalBeta;
-		// 		best_result = result;
-		// 		best_move = optimalMove;
-		// 		// printf("\n\n");
-		// 		// printf("best_move: %c, %d\n", best_move % size + 'A', size - (best_move / size));
-		// 		// printf("best_result: %d\n", best_result);
-		// 		// printf("optimalAlpha: %d\n", optimalAlpha);
-		// 		// printf("optimalBeta: %d\n", optimalBeta);
-		// 		// printf("\n\n");
-		// 	}
-		// }
+		else if (data.turn == true && result > best_result_noir){
+				// printf("result_noir: %d\n", best_result_noir);
+				// printf("best_result: %d\n", best_result);
+				best_result_noir = result;
+				best_result = result;
+				best_move = optimalMove;
+		}
+		// printf("\n\n");
+		// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
+		// printf("best_result: %d\n", result);
+		// printf("\n\n");
+
+
 		
         printf("size of transposition table line %lld\n",transpositionTable_Line.size());
-        // printf("size of transposition table board%lld\n",transpositionTableBoard.size());
         printf("size of transposition table board%lld\n",hashedTranspositionTableBoard.size());
 		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
 		
 		//test time
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		//je veux une variable = a std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
 		auto elapsed_ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 		printf("Time difference (milliseconds) = %lld\n", elapsed_ms2);
 
@@ -319,7 +351,6 @@ int Algo::ask(AlgoData data) {
 		}
     }
 
-	// TEST A ENLEVER
 	if (best_result == 0){
 		best_result = result;
 		best_move = optimalMove;
@@ -328,12 +359,7 @@ int Algo::ask(AlgoData data) {
 		result = best_result;
 		optimalMove = best_move;
 	}
-	//
 
-	// printf("\n\nTOUR =========================\n");
-
-	// printf("turn: %d\n", data.turn);
-	// printf("player: %d\n", player_dark);
 
 
 	// printf("result: %d\n", result);
@@ -361,11 +387,12 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     countCheckedLine++;
     // if(depth>3)printf("startedAlgoAtDepth: %d\n",depth);
     // Vérifier le temps écoulé
-    // std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-    // auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - *begin).count();
-    // if (elapsed_ms > 100000) {
-    //     printf("toomuch time, aborted on depth%d\n",depth);
-    //     // return -1;
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - *begin).count();
+    if (elapsed_ms > 500) {
+		out_time = true;
+        return -1;
+	}
 	// 	if (fiveInRow(position, turn, '2')) {
 	// 		return 10000000;
 	// 	}

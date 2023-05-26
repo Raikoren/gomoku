@@ -56,12 +56,15 @@
 # define LiveThree_Blanc_1 "010110"
 # define LiveThree_Blanc_2 "011010"
 
-# define DeadThree_Blanc	"21110"
+
+# define DeadThree_Blanc	"211100"
 # define DeadThree_Blanc_1 "210110"
 # define DeadThree_Blanc_2 "011012"
 # define DeadThree_Blanc1_1	"001112"
-# define DeadThree_Blanc2	"1101"
-# define DeadThree_Blanc2_2	"1011"
+# define DeadThree_Blanc2	"01101"
+# define DeadThree_Blanc2_1	"11010"
+# define DeadThree_Blanc2_2	"01011"
+# define DeadThree_Blanc2_3	"10110"
 # define DeadThree_Blanc3	"011001"
 # define DeadThree_Blanc3_2	"100110"
 # define DeadThree_Blanc4	"10101"
@@ -70,12 +73,15 @@
 # define LiveThree_Noir_1  "020220"
 # define LiveThree_Noir_2  "022020"
 
-# define DeadThree_Noir		"12220"
+# define DeadThree_Noir		"122200"
 # define DeadThree_Noir_1   "120220"
 # define DeadThree_Noir_2   "022021"
 # define DeadThree_Noir1_1	"002221"
-# define DeadThree_Noir2	"2202"
-# define DeadThree_Noir2_2	"2022"
+
+# define DeadThree_Noir2	"02202"
+# define DeadThree_Noir2_1	"22020"
+# define DeadThree_Noir2_2	"02022"
+# define DeadThree_Noir2_3	"20220"
 # define DeadThree_Noir3	"022002"
 # define DeadThree_Noir3_2	"200220"
 # define DeadThree_Noir4	"20202"
@@ -146,7 +152,7 @@ class Algo {
 			patterns_blanc_DeadFour = {DeadFour_Blanc, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Blanc1_1, DeadFour_Blanc2, DeadFour_Blanc2_2, DeadFour_Blanc3};
 			patterns_blanc_LiveFour = {LiveFour_Blanc, LiveFour_Blanc_1, LiveFour_Blanc_2};
 
-			patterns_blanc_DeadThree = {DeadThree_Blanc, DeadThree_Blanc_1, DeadThree_Blanc_2 ,DeadThree_Blanc1_1, DeadThree_Blanc2, DeadThree_Blanc2_2, DeadThree_Blanc3, DeadThree_Blanc3_2, DeadThree_Blanc4};
+			patterns_blanc_DeadThree = {DeadThree_Blanc, DeadThree_Blanc_1, DeadThree_Blanc_2 ,DeadThree_Blanc1_1, DeadThree_Blanc2, DeadThree_Blanc2_2, DeadThree_Blanc3, DeadThree_Blanc3_2, DeadThree_Blanc4, DeadThree_Blanc2_3, DeadThree_Blanc2_1};
 			patterns_blanc_LiveThree = {LiveThree_Blanc, LiveThree_Blanc_1, LiveThree_Blanc_2};
 
 			patterns_blanc_LiveTwo = {LiveTwo_Blanc, LiveTwo_Blanc2, LiveTwo_Blanc2_2, LiveTwo_Blanc3, LiveTwo_Blanc4};
@@ -155,7 +161,7 @@ class Algo {
 			patterns_noir_DeadFour = {DeadFour_Noir, DeadFour_Blanc_1, DeadFour_Blanc_2,DeadFour_Noir1_1, DeadFour_Noir2, DeadFour_Noir2_2, DeadFour_Noir3};
 			patterns_noir_LiveFour = {LiveFour_Noir, LiveFour_Noir_1, LiveFour_Noir_2};
 
-			patterns_noir_DeadThree = {DeadThree_Noir, DeadThree_Noir_1, DeadThree_Noir_2,DeadThree_Noir1_1, DeadThree_Noir2, DeadThree_Noir2_2, DeadThree_Noir3, DeadThree_Noir3_2, DeadThree_Noir4};
+			patterns_noir_DeadThree = {DeadThree_Noir, DeadThree_Noir_1, DeadThree_Noir_2,DeadThree_Noir1_1, DeadThree_Noir2, DeadThree_Noir2_2, DeadThree_Noir3, DeadThree_Noir3_2, DeadThree_Noir4, DeadThree_Noir2_3, DeadThree_Noir2_1};
 			patterns_noir_LiveThree = {LiveThree_Noir, LiveThree_Noir_1, LiveThree_Noir_2};
 
 			patterns_noir_LiveTwo = {LiveTwo_Noir, LiveTwo_Noir2, LiveTwo_Noir2_2, LiveTwo_Noir3, LiveTwo_Noir4};
@@ -213,6 +219,8 @@ class Algo {
 				return h1 ^ h2;
 			}
 		};
+
+		bool						out_time;
 
 		bool						eat_pion_blanc; //test
 		bool						eat_pion_noir; //test
