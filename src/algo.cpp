@@ -69,7 +69,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     // Initialiser les motifs et les scores correspondants pour chaque type de motif.
     std::vector<PatternScore> patternScores = {
         {patterns_noir_LiveFour, 150000, 4, false}, {patterns_blanc_LiveFour, 150000, 4, true},
-        {patterns_noir_DeadFour, 10000, 4, false}, {patterns_blanc_DeadFour, 10000, 4, true},
+        {patterns_noir_DeadFour, 30000, 4, false}, {patterns_blanc_DeadFour, 30000, 4, true},
         {patterns_noir_LiveThree, 15000, 3, false}, {patterns_blanc_LiveThree, 15000, 3, true},
         {patterns_noir_DeadThree, 6000, 3, false}, {patterns_blanc_DeadThree, 6000, 3, true},
         {patterns_noir_LiveTwo, 5000, 2, false}, {patterns_blanc_LiveTwo, 5000, 2, true},
@@ -78,8 +78,8 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     };
 
 	std::vector<EdgePatternScore> edgePatternScores = {
-        {{Edge_Four_Blanc, Edge_Four_Blanc2}, 10000, 4, true, 5},
-        {{Edge_Four_Noir, Edge_Four_Noir2}, 10000, 4, false, 5},
+        {{Edge_Four_Blanc, Edge_Four_Blanc2}, 30000, 4, true, 5},
+        {{Edge_Four_Noir, Edge_Four_Noir2}, 30000, 4, false, 5},
         {{Edge_Three_Blanc, Edge_Three_Blanc2}, 6000, 3, true, 4},
         {{Edge_Three_Noir, Edge_Three_Noir2}, 6000, 3, false, 4},
         {{Edge_Two_Blanc, Edge_Two_Blanc2}, 500, 2, true, 3},
@@ -104,7 +104,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
         if (nb_pion >= eps.pions) {
             for (const auto& pattern : eps.patterns) {
-                if (line.find(pattern) == 0 || line.find(pattern) == line.size() - eps.patternSize) {
+                if ((pattern[0] != '0' && line.find(pattern) == 0) || (pattern[0] == '0' &&  line.find(pattern) == line.size() - eps.patternSize)) {
                     nb_pion -= eps.pions;
                     score += eps.score;
                 }
@@ -113,6 +113,8 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
             }
         }
     }
+	// printf("edge line = %s\n", line.c_str());
+	// printf("edge scores = %d %d\n", scores.first, scores.second);
 
 
     // Traitement pour chaque type de motif.
@@ -131,6 +133,8 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
             }
         }
     }
+	// printf("line = %s\n", line.c_str());
+	// printf("scores = %d %d\n", scores.first, scores.second);
 
     transpositionTable_Line[line] = scores;
     return scores;
@@ -343,12 +347,11 @@ int Algo::ask(AlgoData data) {
 		// printf("\n\n");
 		// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
 		// printf("best_result: %d\n", result);
+        // printf("size of transposition table line %lld\n",transpositionTable_Line.size());
+        // printf("size of transposition table board%lld\n",hashedTranspositionTableBoard.size());
 		// printf("\n\n");
 
 
-		
-        printf("size of transposition table line %lld\n",transpositionTable_Line.size());
-        printf("size of transposition table board%lld\n",hashedTranspositionTableBoard.size());
 		// std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         // auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
 		
@@ -566,10 +569,6 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
         result_set = std::move(temp_result_set);
     }
 
-	// for (auto i : result_set) {
-	// 	printf("optimalMove: %c, %d\n", i % size + 'A', size - (i / size));
-	// }
-
     return std::vector<int>(result_set.begin(), result_set.end());
 }
 
@@ -608,7 +607,7 @@ bool Algo::checkGoodPos(const std::string& mapWithIncomingNewMove, int newY, int
 				break;
             }
         }
-        if (count_p == 2 || count_o == 2) {
+        if (count_p >= 2 || count_o >= 2) {
             return true;
         }
     }
