@@ -360,7 +360,7 @@ int Algo::ask(AlgoData data) {
 		auto elapsed_ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 		// printf("Time difference (milliseconds) = %lld\n", elapsed_ms2);
 
-		if (elapsed_ms2 > 500){
+		if (elapsed_ms2 > 1000){
 			// printf("time out\n");
 			break;
 		}
@@ -403,7 +403,7 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
     // Vérifier le temps écoulé
 	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
 	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - *begin).count();
-	if (elapsed_ms > 500) {
+	if (elapsed_ms > 1000) {
 		out_time = true;
 		return -1;
 	}
@@ -552,13 +552,15 @@ std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn)
                     for (int dx = -1; dx <= 1; ++dx) {
                         int newX = x + dx;
                         int newY = y + dy;
-                        if (map[newY * size + newX] != '0' || newX < 0 || newX >= size || newY < 0 || newY >= size) {
+                        if (newX < 0 || newX >= size || newY < 0 || newY >= size || map[newY * size + newX] != '0') {
                             continue;
                         }
-                        if (checkGoodPos(map, newY, newX, turn)) {
-                            result_set.insert(newY * size + newX);
+                        if (checkPos(newX, newY, map, turn)) {
+                            if (checkGoodPos(map, newY, newX, turn)) {
+                                result_set.insert(newY * size + newX);
+                            }
+                            temp_result_set.insert(newY * size + newX);
                         }
-                        temp_result_set.insert(newY * size + newX);
                     }
                 }
             }

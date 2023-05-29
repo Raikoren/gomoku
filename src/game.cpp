@@ -129,6 +129,7 @@ void Game::gaming(sf::Event ev) {
 			int minMaxRes = algo.ask(algoData);
             if (lastTurn)
                 minMaxRes = savingMove;
+            printf("jouage x: %d y: %d", minMaxRes % size + 1, minMaxRes / size + 1);
             !doubleThreeDetector(minMaxRes, visualData.map, '1');
             mokuVictory(minMaxRes % size, minMaxRes / size);
             turn = !turn;
