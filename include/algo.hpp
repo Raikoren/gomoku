@@ -183,7 +183,7 @@ class Algo {
         bool    checkPos(int x, int y, std::string map, bool turn); // check valibilit� d'un coup et si firstRound == true, si le coup cr�� une ligne ou une prise
 		std::vector<int> setMovesOrderLineScore(const std::string& i, bool turn); // retourne un vecteur contenent dans l'ordre les coups à tester
         int     checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool turn);
-        int		heuristique(const std::string& map, bool turn, int bscore, int wscore);
+        int		heuristique(const std::string& map, int bscore, int wscore);
         // threeLine() detecte si le placement genere une ligne de trois
         bool    threeLine(int dx, int dy, int x, int y, const std::string map, bool turn);
         // antiline() detecte si le coup contre une ligne de trois déjà presente (take advantage est la meme fonction je pense faut quej e vois)
@@ -193,7 +193,7 @@ class Algo {
 		bool	fourLine(int dx, int dy, int x, int y, const std::string map, bool turn);
 		int		calculateScoreRow(const std::string& map, char player);
         bool    canTake(int x, int y, std::string map, bool turn);
-		bool	fiveInRow(const std::string& map, bool turn, char player);
+		bool	fiveInRow(const std::string& map, char player);
 
 		int		FindPattern(const std::string line, char player);
 		std::vector<int> getCaptureIndices(const std::string& map, int move, bool turn);

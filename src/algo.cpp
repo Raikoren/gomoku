@@ -66,7 +66,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
     int nb_pion_blanc = std::count(line.begin(), line.end(), '1');
     int nb_pion_noir = std::count(line.begin(), line.end(), '2');
 
-    // Initialiser les motifs et les scores correspondants pour chaque type de motif.
     std::vector<PatternScore> patternScores = {
         {patterns_noir_LiveFour, 150000, 4, false}, {patterns_blanc_LiveFour, 150000, 4, true},
         {patterns_noir_DeadFour, 30000, 4, false}, {patterns_blanc_DeadFour, 30000, 4, true},
@@ -74,7 +73,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
         {patterns_noir_DeadThree, 6000, 3, false}, {patterns_blanc_DeadThree, 6000, 3, true},
         {patterns_noir_LiveTwo, 5000, 2, false}, {patterns_blanc_LiveTwo, 5000, 2, true},
         {patterns_noir_DeadTwo, 500, 2, false}, {patterns_blanc_DeadTwo, 500, 2, true},
-		{patterns_eatnoir, -1000, false}, {patterns_eatblanc, -1000, true} // test
+		{patterns_eatnoir, -1000, 1,false}, {patterns_eatblanc, -1000, 1,true}
     };
 
 	std::vector<EdgePatternScore> edgePatternScores = {
@@ -86,18 +85,17 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
         {{Edge_Two_Noir, Edge_Two_Noir2}, 500, 2, false, 3}
     };
 
-	if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != -1) {
+	if (nb_pion_blanc >= 5 && line.find(FiveInRow_Blanc) != (unsigned int)1) {
 		nb_pion_blanc -= 5;
         scores.first += 1000000;
 		return scores;
     }
-    if (nb_pion_noir >= 5 && line.find(FiveInRow_Noir) != -1) {
+    if (nb_pion_noir >= 5 && line.find(FiveInRow_Noir) != (unsigned int)-1) {
 		nb_pion_noir -= 5;
         scores.second += 1000000;
 		return scores;
     }
 
-    // Traitement pour chaque modèle de bord.
     for (auto &eps : edgePatternScores) {
         int &nb_pion = eps.isBlanc ? nb_pion_blanc : nb_pion_noir;
         int &score = eps.isBlanc ? scores.first : scores.second;
@@ -113,11 +111,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
             }
         }
     }
-	// printf("edge line = %s\n", line.c_str());
-	// printf("edge scores = %d %d\n", scores.first, scores.second);
 
-
-    // Traitement pour chaque type de motif.
     for (auto &ps : patternScores) {
         int &nb_pion = ps.isBlanc ? nb_pion_blanc : nb_pion_noir;
         int &score = ps.isBlanc ? scores.first : scores.second;
@@ -133,8 +127,6 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
             }
         }
     }
-	// printf("line = %s\n", line.c_str());
-	// printf("scores = %d %d\n", scores.first, scores.second);
 
     transpositionTable_Line[line] = scores;
     return scores;
@@ -144,7 +136,7 @@ std::pair<int, int> Algo::FindPatternBothPlayers(const std::string &line) {
 
 
 
-bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
+bool Algo::fiveInRow(const std::string& map, char player) {
     const int directions[4][2] = {
         {0, 1},    // vertical
         {1, 0},    // horizontal
@@ -155,7 +147,7 @@ bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
             if (map[y * size + x] == player) {
-                for (int i = 0; i < 4; ++i) { // parcours des 4 directions
+                for (int i = 0; i < 4; ++i) { 
                     int dx = directions[i][0];
                     int dy = directions[i][1];
 
@@ -183,7 +175,7 @@ bool Algo::fiveInRow(const std::string& map, bool turn, char player) {
 }
 
 
-int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore) {
+int Algo::heuristique(const std::string& map, int bscore, int wscore) {
     int score = 0;
 
     // Si nous avons déjà calculé le score pour cette carte, retournez-le immédiatement.
@@ -193,8 +185,8 @@ int Algo::heuristique(const std::string& map, bool turn, int bscore, int wscore)
     }
 
     // Évitez de calculer ceci si c'est possible.
-    if (bscore == 5 || wscore == 5 || fiveInRow(map, turn, '2') || fiveInRow(map, turn, '1')) {
-        score = (bscore == 5 || fiveInRow(map, turn, '2')) ? 1000000 : -1000000;
+    if (bscore == 5 || wscore == 5 || fiveInRow(map, '2') || fiveInRow(map, '1')) {
+        score = (bscore == 5 || fiveInRow(map, '2')) ? 1000000 : -1000000;
         hashedTranspositionTableBoard[hasher(map)] = score;
         return score;
     }
@@ -293,78 +285,41 @@ int Algo::ask(AlgoData data) {
 	int best_result_blanc = INT_MAX;
 	int best_result_noir = INT_MIN;
 	int best_move = 0;
-	int best_alpha = INT_MIN;
-	int best_beta = INT_MAX;
 
-
-	// test count depth 10 dans une partie
-	static int depth_10 = 0;
 
 	hashedTranspositionTableBoard.clear();
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-    for (int currentDepth = 4; currentDepth <= maxDepth; currentDepth++) {
+	int currentDepth = 3;
+    while (++currentDepth <= maxDepth) {
 		iterativeDepth = currentDepth;
 		out_time = false;
-		printf("currentDepth: %d\n", currentDepth);
-		if (currentDepth == 10){
-			depth_10++;
-			printf("depth 10 nb: %d\n", depth_10);
-		}
         result = minMax(data.map, INT_MIN, INT_MAX, currentDepth, data.turn, &begin, Map_bScore, Map_wScore);
 		if (out_time == true){
-            // printf("minMax failed\n");
 			result = best_result;
 			optimalMove = best_move;
 		}
 
-		// printf("optimalAlpha: %d\n", optimalAlpha);
-		// printf("bestalpha: %d\n", best_alpha);
-		// printf("optimalBeta: %d\n", optimalBeta);
-		// printf("bestbeta: %d\n", best_beta);
-		// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
-
-		// if (data.turn == true ){
-		// 	if (best_alpha < optimalAlpha && optimalAlpha != INT_MIN) {
-		// 		best_result = result;
-		// 		best_move = optimalMove;
-		// 		best_alpha = optimalAlpha;
-
-		if (data.turn == false && result < best_result_blanc){ // TEST EN GARDANT LE MOVE AVEC LE PLUS DE SCORE
-				// printf("result_blanc: %d\n", best_result_blanc);
-				// printf("best_result: %d\n", best_result);
+		if (data.turn == false && result < best_result_blanc){ 
 				best_result_blanc = result;
 				best_result = result;
 				best_move = optimalMove;
 		}
 		else if (data.turn == true && result > best_result_noir){
-				// printf("result_noir: %d\n", best_result_noir);
-				// printf("best_result: %d\n", best_result);
 				best_result_noir = result;
 				best_result = result;
 				best_move = optimalMove;
 		}
-		// printf("\n\n");
-		// printf("best_move: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
-		// printf("best_result: %d\n", result);
-        // printf("size of transposition table line %lld\n",transpositionTable_Line.size());
-        // printf("size of transposition table board%lld\n",hashedTranspositionTableBoard.size());
-		// printf("\n\n");
 
-
-		// std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-        // auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - begin).count();
-		
-		//test time
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		auto elapsed_ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-		// printf("Time difference (milliseconds) = %lld\n", elapsed_ms2);
 
-		if (elapsed_ms2 > 1000){
-			// printf("time out\n");
+		if (elapsed_ms2 > 499){
 			break;
 		}
     }
+
+	std::cout << "currentDepth: " << currentDepth << std::endl;
 
 	if (best_result == 0){
 		best_result = result;
@@ -375,22 +330,8 @@ int Algo::ask(AlgoData data) {
 		optimalMove = best_move;
 	}
 
-
-
-	// printf("result: %d\n", result);
-	// printf("optimalMove: %d\n", optimalMove);
-	// printf("optimalMove: %c, %d\n", optimalMove % size + 'A', size - (optimalMove / size));
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	printf("Time difference (milliseconds) = %lld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
-	printf("count checked line: %d\n", countCheckedLine);
-	// printf("     =========================\n\n");
-    // printf("Lines checked: %d\n",countCheckedLine);
-    // printf("Prunes done: %d\n",nbOfPruning);
-
-    // printf("timespentInMovesOrder: %lld\n",timespentInSetMovesOrder);
-    // printf("timespentInHeuristic: %lld\n",timespentInHeuristic);
-    // printf("timespentInSearchTableLine: %lld\n",timespentToSearchInTranspoTable);
-    // printf("timespentInSearchTableLine: %lld\n",timespentInSomeFunctions);
+	std::cout << "Time difference (milliseconds) = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
 	
 	movesOrder.clear();
 
@@ -399,35 +340,25 @@ int Algo::ask(AlgoData data) {
 
 int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bool turn, std::chrono::steady_clock::time_point* begin, int bScore, int wScore) {
     countCheckedLine++;
-    // if(depth>3)printf("startedAlgoAtDepth: %d\n",depth);
     // Vérifier le temps écoulé
 	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
 	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - *begin).count();
-	if (elapsed_ms > 1000) {
+	if (elapsed_ms > 499) {
 		out_time = true;
 		return -1;
 	}
-	// 	if (fiveInRow(position, turn, '2')) {
-	// 		return 10000000;
-	// 	}
-	// 	else if (fiveInRow(position, turn, '1')) {
-	// 		return -10000000;
-	// 	}
-    //     return heuristique(position, turn, bScore, wScore);
-    // }
 
-    if (fiveInRow(position, turn, '2') || bScore == 5) {
+    if (fiveInRow(position, '2') || bScore == 5) {
         return 10000000 * depth;
     }
-    else if (fiveInRow(position, turn, '1') || wScore == 5) {
+    else if (fiveInRow(position, '1') || wScore == 5) {
         return -10000000 * depth;
     }
 
     if (depth == 0){
-        return heuristique(position, turn, bScore, wScore); // return current score
+        return heuristique(position, bScore, wScore); // return current score
     }
 
-    // std::vector<int> moves = setMovesOrder(position, turn);
     std::vector<int> moves = setMovesOrderLineScore(position, turn);
 
     if (turn) {
@@ -460,7 +391,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
             if (eval > maxEval){
                 maxEval = eval;
                 if (depth == iterativeDepth){
-					// printf("eval: %d\n", eval);
 					alpha = std::max(alpha, maxEval);
 
                     optimalMove = move;
@@ -469,12 +399,10 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
                 }
             }
             if (beta <= alpha){
-                // if(depth>3)printf("prune done at depth%d\n",depth);
                 nbOfPruning++;
                 break;
             }
         }
-        // if(depth == iterativeDepth) printf("minMax Ended\n");
         return maxEval;
     }
     else {
@@ -512,7 +440,6 @@ int Algo::minMax(const std::string& position, int alpha, int beta, int depth, bo
                 }
             }
 			if (beta <= alpha){
-                // if(depth>3)printf("prune done at depth%d\n",depth);
                 nbOfPruning++;
 				break;
 			}
@@ -542,8 +469,6 @@ std::vector<std::pair<int, int>> Algo::getWindowBounds(const std::string& map) {
 std::vector<int> Algo::setMovesOrderLineScore(const std::string& map, bool turn){
     std::set<int> result_set;
     std::set<int> temp_result_set;
-    char player = turn ? '2': '1';
-    char opponent = turn ? '1': '2';
 
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
@@ -618,12 +543,6 @@ int Algo::checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool 
     int score = 0;
     mapWithIncomingNewMove[newY * size + newX] = turn ? '2': '1';
 
-    // auto it = transpositionTableBoard.find(mapWithIncomingNewMove);
-    // if (it != transpositionTableBoard.end()) {
-    //     // printf("already found %s in table, returning score\n",line);
-    //     // printf("time to find in transposition table%lld\n",end1-begin1);
-    //     return it->second;
-    // }
     std::string row = getRow(mapWithIncomingNewMove, newY);
     auto tmpScores = FindPatternBothPlayers(row);
     score += tmpScores.second - tmpScores.first;
@@ -654,7 +573,6 @@ int Algo::checkScorePos(string mapWithIncomingNewMove, int newY, int newX, bool 
 std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     std::string pos = i;
     std::vector<int> res;
-    // std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
             if (pos[y * size + x] != '0') {
@@ -675,15 +593,12 @@ std::vector<int> Algo::setMovesOrder(const std::string& i, bool turn) {
     }
     if (res.empty())
         res.push_back(size * size / 2);
-    // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    // timespentInSetMovesOrder += std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() - std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
     return res;
 }
 
 
 bool Algo::checkPos(int x, int y, std::string map, bool turn) {
     bool first = false;
-    bool important = false;
     if (map[y * size + x] != '0')
         return false;
     if (canTake(x, y, map, turn)) {
@@ -712,7 +627,6 @@ bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool t
     int     ally = 0;
     bool    safeBreak = false;
     bool    lastHitEmpty = false;
-    int     ennemy;
 
     if (x < 0 || y < 0 || x >= size || y >= size) {
         return false;
@@ -722,7 +636,6 @@ bool Algo::threeLine(int dx, int dy, int x, int y, const std::string map, bool t
         if (map[((dy * i + y) * size) + x + (dx * i)] == e) {
             if (map[((dy * (i - 1) + y) * size) + x + (dx * (i - 1))] == p)
                 return false;
-            ennemy = i - 1;
             safeBreak = true;
             break;
         }

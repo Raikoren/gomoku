@@ -129,8 +129,7 @@ void Game::gaming(sf::Event ev) {
 			int minMaxRes = algo.ask(algoData);
             if (lastTurn)
                 minMaxRes = savingMove;
-            printf("jouage x: %d y: %d", minMaxRes % size + 1, minMaxRes / size + 1);
-            !doubleThreeDetector(minMaxRes, visualData.map, '1');
+            doubleThreeDetector(minMaxRes, visualData.map, '1');
             mokuVictory(minMaxRes % size, minMaxRes / size);
             turn = !turn;
             visualData.totalTurn++;
@@ -479,14 +478,12 @@ bool Game::threeLineDetector(int dx, int dy, int x, int y, char* map) {
     int     ally = 0;
     bool    safeBreak = false;
     bool    lastHitEmpty = false;
-    int     ennemy;
 
     for (int i = 1; i < 5 && !(x + dx * i < 0 || x + dx * i >= size || y + dy * i < 0 || y + dy * i >= size); i++) {
         lastHitEmpty = false;
         if (map[(y * size + ((dy * size) * i)) + x + (dx * i)] == e) {
             if (map[(y * size + ((dy * size) * (i - 1))) + x + (dx * (i - 1))] == p)
                 return false;
-            ennemy = i - 1;
             safeBreak = true;
             break;
         }
